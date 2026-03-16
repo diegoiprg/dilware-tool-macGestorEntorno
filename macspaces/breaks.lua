@@ -12,7 +12,6 @@ local utils = require("macspaces.utils")
 local state = {
     enabled    = cfg.breaks.enabled,
     timer      = nil,
-    on_update  = nil,
 }
 
 -- Mensajes de descanso rotativos

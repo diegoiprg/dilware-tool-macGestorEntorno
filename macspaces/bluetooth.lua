@@ -82,9 +82,9 @@ end
 
 local function battery_icon(pct)
     if not pct then return "○" end
-    if pct >= 80 then return "🔋" end
-    if pct >= 20 then return "🔋" end
-    return "🪫"
+    if pct >= 80 then return "🔋" end  -- carga alta
+    if pct >= 20 then return "🪫" end  -- carga media/baja
+    return "⚠️"                        -- crítico (< 20%)
 end
 
 local function battery_label(device)

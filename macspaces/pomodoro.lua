@@ -31,7 +31,7 @@ end
 
 local function notify_phase(phase)
     local messages = {
-        work        = "¡A trabajar! " .. cfg.pomodoro.work_minutes .. " min de concentración.",
+        work        = "A trabajar — " .. cfg.pomodoro.work_minutes .. " min de concentración.",
         short_break = "Pausa corta — " .. cfg.pomodoro.short_break .. " min. Estírate.",
         long_break  = "Pausa larga — " .. cfg.pomodoro.long_break .. " min. Descansa bien.",
     }

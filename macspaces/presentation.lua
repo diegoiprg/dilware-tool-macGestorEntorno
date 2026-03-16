@@ -145,14 +145,17 @@ function M.build_submenu(on_update)
 
     table.insert(items, { title = "-" })
 
-    -- Indicadores de estado (legibles, no disabled)
-    local dnd_label  = (pcfg.enable_dnd   ~= false) and "✓  No Molestar"        or "✗  No Molestar"
-    local dock_label = (pcfg.hide_dock    ~= false) and "✓  Ocultar Dock"       or "✗  Ocultar Dock"
-    local desk_label = (pcfg.hide_desktop ~= false) and "✓  Limpiar escritorio" or "✗  Limpiar escritorio"
-
-    table.insert(items, { title = dnd_label,  fn = function() end })
-    table.insert(items, { title = dock_label, fn = function() end })
-    table.insert(items, { title = desk_label, fn = function() end })
+    -- Cuando está activo: muestra lo que está aplicado en este momento
+    -- Cuando está inactivo: muestra lo que se aplicará al activar
+    if state.active then
+        if pcfg.enable_dnd   ~= false then table.insert(items, { title = "✓  No Molestar activo",        fn = function() end }) end
+        if pcfg.hide_dock    ~= false then table.insert(items, { title = "✓  Dock oculto",               fn = function() end }) end
+        if pcfg.hide_desktop ~= false then table.insert(items, { title = "✓  Escritorio limpio",         fn = function() end }) end
+    else
+        if pcfg.enable_dnd   ~= false then table.insert(items, { title = "○  No Molestar al activar",    fn = function() end }) end
+        if pcfg.hide_dock    ~= false then table.insert(items, { title = "○  Ocultar Dock al activar",   fn = function() end }) end
+        if pcfg.hide_desktop ~= false then table.insert(items, { title = "○  Limpiar escritorio al activar", fn = function() end }) end
+    end
 
     return items
 end

@@ -2,6 +2,21 @@
 
 Registro de cambios del proyecto `dilware-tool-macSpaces`.
 
+## [2.2.3] - 2026-03-16
+
+### Corregido
+- `network.lua` y `vpn.lua`: botón "Actualizar" llamaba `on_update` dos veces — eliminada llamada redundante tras `M.refresh(on_update)`
+- `bluetooth.lua`: `battery_icon()` tenía rama muerta para < 20% — ahora devuelve ⚠️ para crítico, 🪫 para medio/bajo, 🔋 para alto
+- `breaks.lua`: eliminado campo `state.on_update` que se asignaba pero nunca se usaba (código muerto)
+- `clipboard.lua`: reemplazado polling `hs.timer.doEvery(1, ...)` por `hs.pasteboard.watcher` nativo (event-driven, sin CPU innecesaria)
+- `presentation.lua`: indicadores del submenú ahora muestran estado real (activo/inactivo) en lugar de solo la configuración estática
+- `menu.lua`: ítem "Lanzador" ya no aparece si `cfg.launcher.apps` está vacío (evita ruido para usuarios que no lo configuraron)
+- `menu.lua`: "Ver registro" ahora abre el log con Console.app en lugar de la app por defecto del sistema
+- `pomodoro.lua`: eliminado `¡` en mensaje de notificación de inicio de ciclo (inconsistente con el resto del proyecto)
+
+### Cambiado
+- Versión bumpeada a v2.2.3
+
 ## [2.2.2] - 2026-03-16
 
 ### Corregido

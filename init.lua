@@ -3,7 +3,7 @@
 -- https://github.com/diegoiprg/dilware-tool-macSpaces
 
 -- ─────────────────────────────────────────────
--- Punto de entrada de macSpaces v2.2.2
+-- Punto de entrada de macSpaces v2.2.3
 -- Carga módulos y arranca el sistema.
 -- ─────────────────────────────────────────────
 

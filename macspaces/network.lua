@@ -100,6 +100,7 @@ end
 -- ─────────────────────────────────────────────
 
 -- Refresca información local y remota
+-- on_done se llama una sola vez: cuando fetch_remote_info termina (o inmediatamente si usa caché)
 function M.refresh(on_done)
     cache.local_info = get_local_info()
     fetch_remote_info(on_done)
@@ -175,8 +176,8 @@ function M.build_submenu(on_update)
         fn    = function()
             cache.remote_info = nil
             cache.local_info  = nil
+            -- on_update se pasa como callback de M.refresh; no llamar dos veces
             M.refresh(on_update)
-            if on_update then on_update() end
         end,
     })
 

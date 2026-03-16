@@ -11,9 +11,8 @@ local utils = require("macspaces.utils")
 -- ─────────────────────────────────────────────
 -- Estado interno
 -- ─────────────────────────────────────────────
-local history     = {}
-local watcher     = nil
-local last_change = hs.pasteboard.changeCount()
+local history = {}
+local watcher = nil
 
 -- ─────────────────────────────────────────────
 -- Helpers
@@ -69,15 +68,12 @@ end
 -- ─────────────────────────────────────────────
 
 function M.start(on_change)
-    watcher = hs.timer.doEvery(1, function()
-        local count = hs.pasteboard.changeCount()
-        if count ~= last_change then
-            last_change = count
-            capture_entry()
-            -- on_change es opcional; ya no se usa para reconstruir el menú
-            if on_change then on_change() end
-        end
+    -- hs.pasteboard.watcher es event-driven: solo dispara cuando cambia el portapapeles
+    watcher = hs.pasteboard.watcher.new(function()
+        capture_entry()
+        if on_change then on_change() end
     end)
+    watcher:start()
     utils.log("[INFO] Clipboard watcher iniciado")
 end
 

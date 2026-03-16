@@ -171,8 +171,8 @@ function M.build_submenu(on_update)
         title = "Actualizar",
         fn    = function()
             cache.data = nil
+            -- on_update se pasa como callback de M.refresh; no llamar dos veces
             M.refresh(on_update)
-            if on_update then on_update() end
         end,
     })
 

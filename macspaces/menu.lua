@@ -117,10 +117,15 @@ local function build_items()
         title = "Portapapeles",
         menu  = clipboard.build_submenu(refresh),
     })
-    table.insert(items, {
-        title = "Lanzador",
-        menu  = launcher.build_submenu(),
-    })
+
+    -- Lanzador: solo mostrar si hay apps configuradas
+    local launcher_apps = (cfg.launcher and cfg.launcher.apps) or {}
+    if #launcher_apps > 0 then
+        table.insert(items, {
+            title = "Lanzador",
+            menu  = launcher.build_submenu(),
+        })
+    end
 
     local pom_title = pomodoro.is_active()
         and ("Pomodoro  " .. (pomodoro.time_label() or ""))
@@ -156,7 +161,7 @@ local function build_items()
         title = "Ver registro",
         fn    = function()
             local log_path = os.getenv("HOME") .. "/.hammerspoon/debug.log"
-            hs.execute("open " .. log_path)
+            hs.execute("open -a Console " .. log_path)
         end,
     })
     table.insert(items, {
