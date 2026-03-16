@@ -2,6 +2,16 @@
 
 Registro de cambios del proyecto `dilware-tool-macSpaces`.
 
+## [2.1.4] - 2026-03-16
+
+### Corregido
+- `bluetooth.lua`: dispositivos Logitech (y otros terceros) ya aparecen en el menú — se amplió la consulta `ioreg` para incluir `BatteryLevel` y `DeviceAddress`; antes solo se buscaba `BatteryPercent`, clave que Logitech no expone en macOS
+- `bluetooth.lua`: deduplicación mejorada para priorizar la entrada con batería cuando un dispositivo aparece en múltiples consultas
+- `bluetooth.lua`: `device_icon` reconoce ahora MX Master, MX Anywhere, Lift, Keys y variantes de auriculares (buds)
+
+### Cambiado
+- Versión bumpeada a v2.1.4
+
 ## [2.1.3] - 2026-03-16
 
 ### Corregido
