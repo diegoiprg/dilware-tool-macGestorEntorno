@@ -1,6 +1,7 @@
 -- macspaces/clipboard.lua
 -- Historial del portapapeles: almacena hasta N entradas recientes.
 -- Al seleccionar una entrada, la restaura al portapapeles para pegado manual.
+-- La búsqueda usa hs.chooser con filtrado nativo por texto.
 
 local M = {}
 
@@ -10,8 +11,8 @@ local utils = require("macspaces.utils")
 -- ─────────────────────────────────────────────
 -- Estado interno
 -- ─────────────────────────────────────────────
-local history    = {}   -- tabla de entradas { type, content, label, timestamp }
-local watcher    = nil
+local history     = {}
+local watcher     = nil
 local last_change = hs.pasteboard.changeCount()
 
 -- ─────────────────────────────────────────────
@@ -21,9 +22,7 @@ local last_change = hs.pasteboard.changeCount()
 local function truncate(str, max)
     if not str then return "" end
     str = str:gsub("[\n\r\t]", " "):gsub("%s+", " ")
-    if #str > max then
-        return str:sub(1, max) .. "…"
-    end
+    if #str > max then return str:sub(1, max) .. "…" end
     return str
 end
 
@@ -33,29 +32,22 @@ local function capture_entry()
 
     local entry = { timestamp = os.time() }
 
-    -- Texto
     local text = hs.pasteboard.getContents()
     if text and text ~= "" then
         entry.type    = "text"
         entry.content = text
         entry.label   = truncate(text, 60)
-
-    -- Imagen
     elseif hs.pasteboard.readImage() then
         local img = hs.pasteboard.readImage()
         entry.type    = "image"
         entry.content = img
         entry.label   = "[Imagen]"
-
-    -- Archivo(s)
     elseif hs.pasteboard.readURL() then
         local url = hs.pasteboard.readURL()
         entry.type    = "url"
         entry.content = url
         entry.label   = truncate(url, 60)
-
     else
-        -- Tipo no soportado para preview
         entry.type    = "other"
         entry.content = nil
         entry.label   = "[Contenido no previsualizable]"
@@ -66,11 +58,8 @@ local function capture_entry()
 
     table.insert(history, 1, entry)
 
-    -- Limitar al máximo configurado
     local max = cfg.clipboard and cfg.clipboard.max_entries or 20
-    while #history > max do
-        table.remove(history)
-    end
+    while #history > max do table.remove(history) end
 
     utils.log("[INFO] Clipboard: entrada capturada (" .. entry.type .. ")")
 end
@@ -118,12 +107,41 @@ function M.restore(index)
     utils.log("[OK] Clipboard: entrada " .. index .. " restaurada")
 end
 
+-- Abre el chooser con todas las entradas; el usuario filtra escribiendo
+function M.open_chooser()
+    if #history == 0 then
+        utils.notify("macSpaces", "El historial del portapapeles está vacío")
+        return
+    end
+
+    local icon_map = { text = "📝", image = "🖼️", url = "🔗", other = "📋" }
+
+    local choices = {}
+    for i, entry in ipairs(history) do
+        table.insert(choices, {
+            text    = (icon_map[entry.type] or "📋") .. "  " .. entry.label,
+            subText = os.date("%H:%M", entry.timestamp) .. "  ·  " .. (entry.type or ""),
+            _index  = i,
+        })
+    end
+
+    local chooser = hs.chooser.new(function(choice)
+        if not choice then return end
+        M.restore(choice._index)
+        utils.notify("macSpaces", "Portapapeles restaurado")
+    end)
+
+    chooser:choices(choices)
+    chooser:placeholderText("Buscar en historial…")
+    chooser:searchSubText(true)   -- filtra también por subText (hora y tipo)
+    chooser:show()
+end
+
 -- Construye el submenú del portapapeles
 function M.build_submenu(on_update)
     local items = {}
     local max   = cfg.clipboard and cfg.clipboard.max_entries or 20
 
-    -- Encabezado con contador
     table.insert(items, {
         title = string.format("Historial  %d/%d", #history, max),
         fn    = function() end,
@@ -135,60 +153,18 @@ function M.build_submenu(on_update)
         return items
     end
 
-    -- Búsqueda: abre un diálogo de texto y filtra el historial
+    -- Búsqueda via chooser nativo
     table.insert(items, {
         title = "🔍  Buscar…",
-        fn    = function()
-            local ok, query = hs.dialog.textPrompt("Buscar en portapapeles", "Escribe para filtrar:", "", "Buscar", "Cancelar")
-            if not ok or query == "" then return end
-
-            local q = query:lower()
-            local results = {}
-            for _, entry in ipairs(history) do
-                if entry.label:lower():find(q, 1, true) then
-                    table.insert(results, entry)
-                end
-            end
-
-            if #results == 0 then
-                hs.dialog.blockAlert("Sin resultados", "No se encontraron entradas para: " .. query, "OK")
-            else
-                -- Mostrar resultados en un chooser (selector visual)
-                local choices = {}
-                for i, entry in ipairs(results) do
-                    local icon_map = { text = "📝", image = "🖼️", url = "🔗", other = "📋" }
-                    table.insert(choices, {
-                        text    = (icon_map[entry.type] or "📋") .. "  " .. entry.label,
-                        subText = os.date("%H:%M", entry.timestamp) .. "  ·  " .. (entry.type or ""),
-                        _entry  = entry,
-                        _index  = i,
-                    })
-                end
-
-                local chooser = hs.chooser.new(function(choice)
-                    if not choice then return end
-                    -- Encontrar índice real en history
-                    for idx, e in ipairs(history) do
-                        if e == choice._entry then
-                            M.restore(idx)
-                            utils.notify("macSpaces", "Portapapeles restaurado")
-                            break
-                        end
-                    end
-                end)
-                chooser:choices(choices)
-                chooser:placeholderText("Resultados para: " .. query)
-                chooser:show()
-            end
-        end,
+        fn    = function() M.open_chooser() end,
     })
-
     table.insert(items, { title = "-" })
 
     -- Entradas del historial
+    local icon_map = { text = "📝", image = "🖼️", url = "🔗", other = "📋" }
     for i, entry in ipairs(history) do
         local time_label = os.date("%H:%M", entry.timestamp)
-        local icon = ({ text = "📝", image = "🖼", url = "🔗", other = "📋" })[entry.type] or "📋"
+        local icon = icon_map[entry.type] or "📋"
 
         table.insert(items, {
             title = string.format("%s  %s  [%s]", icon, entry.label, time_label),

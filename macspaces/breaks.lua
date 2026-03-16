@@ -109,7 +109,6 @@ function M.build_submenu(on_update)
 
     -- Opciones de intervalo
     table.insert(items, { title = "-" })
-    table.insert(items, { title = "Intervalo:", fn = function() end })
 
     for _, mins in ipairs({ 30, 45, 50, 60, 90 }) do
         local current = (cfg.breaks.interval_minutes == mins)

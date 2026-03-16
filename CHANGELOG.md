@@ -2,6 +2,25 @@
 
 Registro de cambios del proyecto `dilware-tool-macSpaces`.
 
+## [2.2.0] - 2026-03-16
+
+### Mejorado (UX/UI)
+- `menu.lua`: reorganización completa del menú en grupos semánticos con separadores — Perfiles / Entorno / Dispositivos / Red / Productividad / Historial / Sistema
+- `menu.lua`: "Cerrar" perfil renombrado a "Desactivar" (verbo más preciso según HIG de Apple)
+- `menu.lua`: Pomodoro muestra el tiempo restante en el título del ítem padre cuando está activo (`Pomodoro  🍅 23:41`) en lugar de un ítem suelto en el menú principal
+- `menu.lua`: Red muestra IP local e ícono de tipo de conexión inline en el título (`Red  📶  192.168.1.5`)
+- `menu.lua`: Bluetooth muestra conteo de dispositivos conectados inline (`Bluetooth  (3)`)
+- `menu.lua`: Descanso activo muestra indicador ◉ en el título cuando está activo
+- `menu.lua`: Modo presentación usa título dinámico unificado; eliminado ítem duplicado de acceso rápido
+- `battery.lua`: alertas contextuales en batería baja (`— Batería baja`) y crítica (`— Batería crítica`)
+- `clipboard.lua`: buscador reemplazado por `hs.chooser` nativo con filtrado en tiempo real; eliminado `hs.dialog.textPrompt` que no existe en Hammerspoon
+- `breaks.lua`: eliminado label "Intervalo:" suelto que se veía igual que ítems accionables
+- `history.lua`: caché en memoria para `load_data()`; evita lectura de disco en cada apertura del menú
+- `presentation.lua`: diálogo de confirmación antes de ejecutar `killall Finder/Dock`; el usuario puede cancelar
+
+### Cambiado
+- Versión bumpeada a v2.2.0
+
 ## [2.1.4] - 2026-03-16
 
 ### Corregido

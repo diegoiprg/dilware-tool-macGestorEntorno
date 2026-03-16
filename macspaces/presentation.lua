@@ -44,20 +44,30 @@ local function activate(on_done)
 
     local pcfg = cfg.presentation or {}
 
+    -- Advertencia antes de reiniciar Finder/Dock
+    if pcfg.hide_desktop ~= false or pcfg.hide_dock ~= false then
+        local btn = hs.dialog.blockAlert(
+            "Activar modo presentación",
+            "Se reiniciarán el Dock y el Finder. Guarda tu trabajo antes de continuar.",
+            "Continuar", "Cancelar"
+        )
+        if btn ~= "Continuar" then
+            if on_done then on_done() end
+            return
+        end
+    end
+
     -- Guardar estado previo del Dock
     state.dock_was_hidden = dock_is_autohide()
 
-    -- Ocultar Dock si está configurado
     if pcfg.hide_dock ~= false then
         set_dock_autohide(true)
     end
 
-    -- Activar DND si está configurado
     if pcfg.enable_dnd ~= false then
         dnd.enable()
     end
 
-    -- Ocultar escritorio (quitar íconos del Finder)
     if pcfg.hide_desktop ~= false then
         hs.execute("defaults write com.apple.finder CreateDesktop -bool false")
         hs.execute("killall Finder")

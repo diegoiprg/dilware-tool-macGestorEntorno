@@ -37,6 +37,7 @@ function M.status_label()
 
     local pct = math.floor(M.percentage())
     local icon
+    local alert = ""
 
     if M.is_plugged() then
         icon = "⚡"
@@ -45,13 +46,15 @@ function M.status_label()
     elseif pct >= 40 then
         icon = "🔋"
     elseif pct >= 20 then
-        icon = "🪫"
+        icon  = "🪫"
+        alert = "  — Batería baja"
     else
-        icon = "🪫"
+        icon  = "🪫"
+        alert = "  — Batería crítica"
     end
 
     local state = M.is_plugged() and " (cargando)" or ""
-    return string.format("%s %d%%%s", icon, pct, state)
+    return string.format("%s %d%%%s%s", icon, pct, state, alert)
 end
 
 return M

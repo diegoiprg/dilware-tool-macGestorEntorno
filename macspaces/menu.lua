@@ -20,10 +20,6 @@ local launcher     = require("macspaces.launcher")
 
 local menubar = hs.menubar.new()
 
--- ─────────────────────────────────────────────
--- Construcción del menú
--- ─────────────────────────────────────────────
-
 local function refresh()
     M.build()
 end
@@ -31,13 +27,13 @@ end
 function M.build()
     local items = {}
 
-    -- ── Perfiles ──────────────────────────────
+    -- ══ Perfiles ══════════════════════════════
     for _, key in ipairs(cfg.profile_order) do
         local profile = cfg.profiles[key]
         if profile then
             local active = profiles.is_active(key)
             local label  = (active and "◉  " or "○  ") .. profile.name
-            local action = active and "  —  Cerrar" or "  —  Activar"
+            local action = active and "  —  Desactivar" or "  —  Activar"
 
             table.insert(items, {
                 title = label .. action,
@@ -64,104 +60,98 @@ function M.build()
         end
     end
 
-    -- ── Pomodoro: tiempo restante si activo ───
-    if pomodoro.is_active() then
-        local label = pomodoro.time_label()
-        if label then
-            table.insert(items, { title = "-" })
-            table.insert(items, {
-                title = label .. "  —  Ciclo " .. pomodoro.cycles_completed(),
-                fn    = function() end,
-            })
-        end
-    end
-
-    -- ── Modo presentación (acceso rápido) ─────
-    if presentation.is_active() then
-        table.insert(items, { title = "-" })
-        table.insert(items, {
-            title = "🎬  Presentación activa  —  Desactivar",
-            fn    = function() presentation.toggle(refresh) end,
-        })
-    end
-
-    -- ── Navegador predeterminado ───────────────
+    -- ══ Entorno ═══════════════════════════════
     table.insert(items, { title = "-" })
     table.insert(items, {
         title = "Navegador predeterminado",
         menu  = browsers.build_submenu(),
     })
-
-    -- ── Audio ─────────────────────────────────
     table.insert(items, {
         title = "Salida de audio",
         menu  = audio.build_submenu(),
     })
 
-    -- ── Batería (solo si aplica) ───────────────
+    -- ══ Dispositivos ══════════════════════════
+    table.insert(items, { title = "-" })
+
+    -- Batería inline (solo MacBook)
     local bat = battery.status_label()
     if bat then
         table.insert(items, { title = bat, fn = function() end })
     end
 
-    -- ── Bluetooth ─────────────────────────────
+    -- Bluetooth con conteo inline
+    local bt_devices = bluetooth.devices()
+    local bt_title   = #bt_devices > 0
+        and ("Bluetooth  (" .. #bt_devices .. ")")
+        or  "Bluetooth"
     table.insert(items, {
-        title = "Bluetooth",
+        title = bt_title,
         menu  = bluetooth.build_submenu(),
     })
 
-    -- ── Red ───────────────────────────────────
+    -- ══ Red ═══════════════════════════════════
+    table.insert(items, { title = "-" })
+
+    -- Red con IP local inline
+    local local_i   = network.local_info()
+    local net_title = "Red"
+    if local_i and local_i.local_ip then
+        local type_icon = ({ WiFi = "📶", Ethernet = "🔌", VPN = "🔒" })[local_i.type or ""] or "🌐"
+        net_title = "Red  " .. type_icon .. "  " .. local_i.local_ip
+    end
     table.insert(items, {
-        title = "Red",
+        title = net_title,
         menu  = network.build_submenu(refresh),
     })
 
-    -- ── VPN ───────────────────────────────────
     table.insert(items, {
         title = vpn.is_active() and "VPN  🔒" or "VPN",
         menu  = vpn.build_submenu(refresh),
     })
 
-    -- ── Portapapeles ──────────────────────────
+    -- ══ Productividad ═════════════════════════
     table.insert(items, { title = "-" })
     table.insert(items, {
         title = "Portapapeles",
         menu  = clipboard.build_submenu(refresh),
     })
-
-    -- ── Lanzador ──────────────────────────────
     table.insert(items, {
         title = "Lanzador",
         menu  = launcher.build_submenu(),
     })
 
-    -- ── Pomodoro ──────────────────────────────
-    table.insert(items, { title = "-" })
+    -- Pomodoro: tiempo restante en el título del ítem padre
+    local pom_title = pomodoro.is_active()
+        and ("Pomodoro  " .. (pomodoro.time_label() or ""))
+        or  "Pomodoro"
     table.insert(items, {
-        title = "Pomodoro",
+        title = pom_title,
         menu  = pomodoro.build_submenu(refresh),
     })
 
-    -- ── Descanso activo ───────────────────────
     table.insert(items, {
-        title = "Descanso activo",
+        title = breaks.is_enabled() and "Descanso activo  ◉" or "Descanso activo",
         menu  = breaks.build_submenu(refresh),
     })
 
-    -- ── Modo presentación ─────────────────────
+    -- Modo presentación: acceso rápido si está activo
+    local pres_title = presentation.is_active()
+        and "🎬  Presentación  —  Desactivar"
+        or  "Modo presentación"
     table.insert(items, {
-        title = "Modo presentación",
+        title = pres_title,
         menu  = presentation.build_submenu(refresh),
     })
 
-    -- ── Historial ─────────────────────────────
+    -- ══ Historial ═════════════════════════════
     table.insert(items, { title = "-" })
     table.insert(items, {
         title = "Historial de hoy",
         menu  = history.build_submenu(),
     })
 
-    -- ── Utilidades ────────────────────────────
+    -- ══ Sistema ═══════════════════════════════
     table.insert(items, { title = "-" })
     table.insert(items, {
         title = "Ver registro",

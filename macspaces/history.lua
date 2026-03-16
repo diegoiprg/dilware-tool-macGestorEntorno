@@ -9,20 +9,39 @@ local cfg   = require("macspaces.config")
 -- Ruta del archivo de historial (JSON simple)
 local history_path = os.getenv("HOME") .. "/.hammerspoon/macspaces_history.json"
 
+-- Caché en memoria: se invalida al registrar una sesión
+local cache = { data = nil, date = nil }
+
 -- ─────────────────────────────────────────────
 -- Persistencia
 -- ─────────────────────────────────────────────
 
 local function load_data()
+    local today = os.date("%Y-%m-%d")
+    -- Reusar caché si es del mismo día y no fue invalidado
+    if cache.data and cache.date == today then
+        return cache.data
+    end
+
     local f = io.open(history_path, "r")
-    if not f then return {} end
+    if not f then
+        cache.data = {}
+        cache.date = today
+        return cache.data
+    end
     local content = f:read("*a")
     f:close()
     local ok, data = pcall(function() return hs.json.decode(content) end)
-    return (ok and data) or {}
+    cache.data = (ok and data) or {}
+    cache.date = today
+    return cache.data
 end
 
 local function save_data(data)
+    -- Invalidar caché al escribir
+    cache.data = data
+    cache.date = os.date("%Y-%m-%d")
+
     local ok, encoded = pcall(function() return hs.json.encode(data, true) end)
     if not ok then
         utils.log("[ERROR] history: no se pudo serializar datos")
