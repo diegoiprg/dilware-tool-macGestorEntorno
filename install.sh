@@ -7,9 +7,8 @@ set -euo pipefail
 REPO_URL="https://github.com/diegoiprg/dilware-tool-macSpaces.git"
 REPO_DIR="${HOME}/dilware-tool-macSpaces"
 HS_DIR="${HOME}/.hammerspoon"
-INIT_FILE="init.lua"
 
-echo "◇ Instalando macSpaces..."
+echo "⌘ Instalando macSpaces..."
 
 # Verificar dependencia: git
 if ! command -v git &>/dev/null; then
@@ -30,7 +29,6 @@ if [ ! -d "${REPO_DIR}/.git" ]; then
   git clone "${REPO_URL}" "${REPO_DIR}"
 else
   echo "→ Actualizando repositorio..."
-  # Verificar conectividad antes de intentar pull
   if git -C "${REPO_DIR}" fetch --dry-run 2>/dev/null; then
     git -C "${REPO_DIR}" pull --ff-only
   else
@@ -38,16 +36,25 @@ else
   fi
 fi
 
-# Respaldar configuración existente si la hay
-if [ -f "${HS_DIR}/${INIT_FILE}" ]; then
-  BACKUP="${HS_DIR}/${INIT_FILE}.bak"
-  cp "${HS_DIR}/${INIT_FILE}" "${BACKUP}"
-  echo "→ Respaldo guardado en ${BACKUP}"
+# Respaldar init.lua existente
+if [ -f "${HS_DIR}/init.lua" ]; then
+  cp "${HS_DIR}/init.lua" "${HS_DIR}/init.lua.bak"
+  echo "→ Respaldo guardado: init.lua.bak"
 fi
 
-# Copiar configuración
-echo "→ Copiando ${INIT_FILE} a ${HS_DIR}..."
-cp "${REPO_DIR}/${INIT_FILE}" "${HS_DIR}/${INIT_FILE}"
+# Respaldar carpeta macspaces/ existente
+if [ -d "${HS_DIR}/macspaces" ]; then
+  rm -rf "${HS_DIR}/macspaces.bak"
+  cp -r "${HS_DIR}/macspaces" "${HS_DIR}/macspaces.bak"
+  echo "→ Respaldo guardado: macspaces.bak/"
+fi
+
+# Copiar archivos
+echo "→ Copiando init.lua..."
+cp "${REPO_DIR}/init.lua" "${HS_DIR}/init.lua"
+
+echo "→ Copiando módulos macspaces/..."
+cp -r "${REPO_DIR}/macspaces" "${HS_DIR}/macspaces"
 
 echo "✓ Instalación completa."
 echo "  Abre Hammerspoon y presiona ⌘R para recargar."

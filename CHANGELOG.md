@@ -2,71 +2,73 @@
 
 Registro de cambios del proyecto `dilware-tool-macSpaces`.
 
+## [2.0.0] - 2025-03-16
+
+### Agregado
+- Arquitectura modular: código reorganizado en `macspaces/` con un módulo por responsabilidad
+- `macspaces/config.lua` — configuración central editable por el usuario
+- `macspaces/utils.lua` — log, notificaciones y helpers compartidos
+- `macspaces/profiles.lua` — gestión de espacios y ciclo de vida de perfiles
+- `macspaces/browsers.lua` — navegador predeterminado con allowlist (filtra apps no navegadoras)
+- `macspaces/audio.lua` — selección de dispositivo de salida de audio desde el menú
+- `macspaces/battery.lua` — estado de batería condicional (invisible en Mac mini/iMac)
+- `macspaces/history.lua` — historial de sesiones por perfil con duración acumulada del día
+- `macspaces/pomodoro.lua` — temporizador Pomodoro con ciclos configurables y DND automático
+- `macspaces/breaks.lua` — recordatorios de descanso activo con intervalo configurable (30–90 min)
+- `macspaces/dnd.lua` — control de No Molestar integrado con Pomodoro
+- `macspaces/hotkeys.lua` — atajos de teclado globales ⌘⌥1 / ⌘⌥2 para activar perfiles
+- `macspaces/menu.lua` — menú principal centralizado con todos los submenús
+- Navegador vinculado al perfil: Personal → Safari, Work → Edge (cambio automático al activar)
+- Ícono del menú cambiado de ◇ a ⌘ (más idiomático para herramienta de control de macOS)
+- `install.sh` copia la carpeta `macspaces/` completa y hace respaldo de ambos
+
+### Cambiado
+- `init.lua` reducido a punto de entrada limpio (carga módulos, registra hotkeys, construye menú)
+- Perfiles Work actualizados: Google Chrome reemplazado por Microsoft Edge
+- Historial de sesiones registrado automáticamente al cerrar un perfil
+
 ## [1.3.0] - 2025-03-16
 
 ### Corregido
-- Orden no determinístico del menú al iterar `pairs()` — reemplazado por `profile_order` (array)
-- Estado inconsistente de `space_id` tras fallo de `removeSpace` — ahora siempre se limpia
+- Orden no determinístico del menú — reemplazado por `profile_order` (array)
+- Estado inconsistente de `space_id` tras fallo de `removeSpace`
 - Badge de versión en README desactualizado
-- Feedback prematuro al cambiar navegador — el menú ya no se actualiza antes de la confirmación del sistema
-- `install.sh`: supresión silenciosa de errores de git reemplazada por verificación de conectividad
-- `install.sh`: detección de repo inválido mejorada (verifica `.git/` en vez de solo el directorio)
-- Bundle ID duplicado de Arc (`com.arc.app` era incorrecto) — eliminado, se mantiene `company.thebrowser.Browser`
-- `require("hs.urlevent")` faltante — ahora se importa explícitamente como `local urlevent`
-- Notificación ruidosa al iniciar/recargar — eliminada, solo se registra en log
-- `open -a TextEdit` reemplazado por `open` genérico para respetar la app predeterminada del usuario para `.log`
+- Feedback prematuro al cambiar navegador antes de confirmación del sistema
+- `install.sh`: supresión silenciosa de errores de git
+- Bundle ID incorrecto de Arc (`com.arc.app`) eliminado
+- `require("hs.urlevent")` faltante — importado explícitamente
+- Notificación ruidosa al iniciar/recargar eliminada
+- `open -a TextEdit` reemplazado por `open` genérico
 
 ### Cambiado
-- `deactivate_profile` ahora espera `delay.medium * 2` antes de operar el espacio, dando tiempo a que las apps cierren
-- Declaración adelantada de `build_menu` para eliminar dependencias circulares entre módulos
-- Código reorganizado en secciones con separadores visuales para mejor legibilidad
-- Nombres de variables internos estandarizados (`app_name`, `new_space`, `target_space`, `win_app`)
-- Submenú de navegadores ordenado: activo primero, luego alfabético
-- `install.sh` agrega respaldo automático del `init.lua` existente antes de sobreescribir
-- `install.sh` verifica que `git` esté instalado antes de continuar
+- `deactivate_profile` espera `delay.medium * 2` para cierre limpio de apps
+- `install.sh` agrega respaldo automático y verifica conectividad antes de pull
 
 ## [1.2.0] - 2025-06-16
 
 ### Agregado
-- Submenú "Navegador predeterminado" en la barra de menú
-- Detección automática de todos los navegadores instalados capaces de manejar `http://`
-- Indicador visual del navegador activo (◉) en el submenú
-- Cambio de navegador predeterminado con un clic (muestra el prompt de confirmación del sistema)
-- Mapeo de bundle IDs a nombres legibles: Safari, Chrome, Edge, Firefox, Brave, Opera, Vivaldi, Arc
+- Submenú "Navegador predeterminado" con detección automática de navegadores instalados
+- Indicador visual del navegador activo (◉)
+- Mapeo de bundle IDs a nombres legibles
 
 ## [1.1.0] - 2025-06-16
 
 ### Corregido
-- `clearLog()` podía crashear si el archivo de log no existía (handle nulo)
-- `activate_profile` borraba el log completo al activar cualquier perfil
-- Variable `currentSpace` asignada pero nunca usada
-- `app:kill9()` reemplazado por `app:kill()` (cierre limpio)
-- `os.exit()` en opción "Salir" causaba cierre abrupto de Hammerspoon
-- Error de `pcall` no se mostraba en log al fallar creación de espacio
-- Posible crash al acceder a `win:application()` sin validar nil
+- `clearLog()` podía crashear con handle nulo
+- `activate_profile` borraba el log completo al activar
+- `app:kill9()` reemplazado por `app:kill()`
+- `os.exit()` en opción "Salir" causaba cierre abrupto
 
 ### Agregado
-- Protección contra doble activación de un mismo perfil
-- Estado visual de perfiles activos en el menú (◉ activo / ○ inactivo)
-- Lanzamiento secuencial de apps con delay configurable
-- Validación de espacios disponibles antes de operar
-- Referencia al portafolio del autor en README
-
-### Cambiado
-- Funciones refactorizadas a `local function`
-- Menú simplificado: una sola acción por perfil según su estado
-- Título del menú cambiado a símbolo tipográfico (◇)
-- Opción "Salir" removida
-- README reescrito en formato funcional/negocio
-- `install.sh` actualizado con URLs correctas y soporte para actualización
-- `.gitignore` actualizado para el stack del proyecto
+- Protección contra doble activación
+- Estado visual de perfiles en el menú
+- Lanzamiento secuencial de apps con delay
 
 ## [1.0.0] - 2025-06-09
 
 ### Agregado
-- Primera versión estable del gestor de espacios virtuales
-- Perfiles: Personal (Safari) y Work (Outlook, Teams, Chrome)
-- Menú en barra superior con controles
-- Notificaciones del sistema y registro en archivo
+- Primera versión estable
+- Perfiles Personal y Work
+- Menú en barra superior, notificaciones y log
 - Script de instalación automática
 - Licencia GPLv3

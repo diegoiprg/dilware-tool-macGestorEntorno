@@ -1,37 +1,38 @@
-# 🎯 macSpaces — Gestor de Espacios para macOS
+# ⌘ macSpaces — Gestor de Espacios para macOS
 
-![Versión](https://img.shields.io/badge/versión-v1.3.0-6366f1?style=flat-square)
+![Versión](https://img.shields.io/badge/versión-v2.0.0-6366f1?style=flat-square)
 ![Licencia](https://img.shields.io/badge/licencia-GPLv3-a855f7?style=flat-square)
 ![Plataforma](https://img.shields.io/badge/plataforma-macOS-222?style=flat-square&logo=apple&logoColor=white)
 
-Organiza tu Mac con un clic. Crea espacios de trabajo con las apps que necesitas, y ciérralos cuando termines.
+Organiza tu Mac con un clic. Crea espacios de trabajo con las apps que necesitas, cambia tu navegador y audio, y cuida tu productividad con Pomodoro y recordatorios de descanso.
 
 ---
 
 ## ¿Qué es?
 
-Una herramienta gratuita para macOS que te permite crear espacios virtuales (Mission Control) con perfiles predefinidos. Cada perfil abre automáticamente las apps que necesitas en un espacio dedicado, y al cerrar el perfil, todo se limpia solo.
+Una herramienta gratuita para macOS que gestiona espacios virtuales (Mission Control) con perfiles predefinidos, y centraliza en un solo ícono de barra de menú el control de tu entorno de trabajo.
 
 Funciona desde la barra de menú de macOS, sin ventanas extra ni configuraciones complicadas.
 
 ## ¿Qué puedo hacer?
 
-- Crear un espacio de trabajo con un clic desde la barra de menú
-- Abrir automáticamente las apps asociadas a cada perfil
+- Crear un espacio de trabajo con un clic y abrir automáticamente las apps del perfil
 - Cerrar un perfil y que se cierren sus apps y se elimine el espacio
-- Ver qué perfiles están activos directamente en el menú
-- Cambiar el navegador predeterminado del sistema desde el menú, sin abrir Preferencias del Sistema
-- Consultar el registro de actividad para depuración
-- Personalizar perfiles y apps editando un solo archivo
+- Cambiar el navegador predeterminado del sistema desde el menú (solo muestra navegadores reales)
+- Cambiar el dispositivo de salida de audio sin abrir Preferencias del Sistema
+- Activar perfiles con atajos de teclado (⌘⌥1 / ⌘⌥2)
+- Ver el tiempo acumulado por perfil en el día
+- Usar Pomodoro con ciclos configurables y No Molestar automático
+- Activar recordatorios de descanso activo con intervalo configurable
+- Ver el estado de batería en la barra de menú (solo en MacBook)
+- Personalizar todo editando un solo archivo: `macspaces/config.lua`
 
 ## Perfiles incluidos
 
-| Perfil | Apps |
-|--------|------|
-| Personal | Safari |
-| Work | Outlook, Teams, Chrome |
-
-Puedes agregar los tuyos editando `init.lua`.
+| Perfil | Apps | Navegador vinculado |
+|--------|------|---------------------|
+| Personal | Safari | Safari |
+| Work | Outlook, Teams, Edge | Microsoft Edge |
 
 ## ¿Para quién es?
 
