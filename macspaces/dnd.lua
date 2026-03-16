@@ -61,8 +61,16 @@ function M.toggle()
         utils.log("[INFO] DND " .. (not enabled and "activado" or "desactivado") .. " via hs.focus")
         return not enabled
     else
-        M.enable()
-        return true
+        -- Sin API nativa: leer estado actual antes de cambiar
+        local out = hs.execute("defaults -currentHost read com.apple.notificationcenterui doNotDisturb 2>/dev/null")
+        local currently_on = out:match("1") ~= nil
+        if currently_on then
+            M.disable()
+            return false
+        else
+            M.enable()
+            return true
+        end
     end
 end
 

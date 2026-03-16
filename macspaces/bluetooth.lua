@@ -6,6 +6,13 @@ local M = {}
 
 local utils = require("macspaces.utils")
 
+-- Caché para evitar múltiples llamadas a ioreg por apertura del menú
+local cache = {
+    devices    = nil,
+    last_fetch = 0,
+    ttl        = 30,   -- segundos
+}
+
 -- ─────────────────────────────────────────────
 -- Lectura via ioreg
 -- ─────────────────────────────────────────────
@@ -116,12 +123,19 @@ end
 -- ─────────────────────────────────────────────
 
 function M.devices()
+    local now = os.time()
+    if cache.devices and (now - cache.last_fetch) < cache.ttl then
+        return cache.devices
+    end
     local ok, result = pcall(parse_ioreg)
     if not ok then
         utils.log("[ERROR] bluetooth: " .. tostring(result))
-        return {}
+        cache.devices = {}
+    else
+        cache.devices = result
     end
-    return result
+    cache.last_fetch = now
+    return cache.devices
 end
 
 function M.build_submenu()

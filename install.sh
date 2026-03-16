@@ -31,7 +31,11 @@ else
   echo "→ Actualizando repositorio..."
   # fetch --dry-run puede fallar sin red; se envuelve para no abortar con set -e
   if (git -C "${REPO_DIR}" fetch --dry-run 2>/dev/null); then
-    git -C "${REPO_DIR}" pull --ff-only
+    # pull --ff-only falla si hay cambios locales; informar al usuario
+    if ! git -C "${REPO_DIR}" pull --ff-only 2>/dev/null; then
+      echo "  ⚠ No se pudo actualizar: hay cambios locales en ${REPO_DIR}"
+      echo "  Continúa con la versión local. Para actualizar: git -C ${REPO_DIR} stash && bash install.sh"
+    fi
   else
     echo "  (sin acceso a red, usando versión local)"
   fi
@@ -43,10 +47,14 @@ if [ -f "${HS_DIR}/init.lua" ]; then
   echo "→ Respaldo guardado: init.lua.bak"
 fi
 
-# Respaldar carpeta macspaces/ existente
+# Respaldar carpeta macspaces/ existente (con timestamp para no sobreescribir)
 if [ -d "${HS_DIR}/macspaces" ]; then
-  rm -rf "${HS_DIR}/macspaces.bak"
-  cp -r "${HS_DIR}/macspaces" "${HS_DIR}/macspaces.bak"
+  local_bak="${HS_DIR}/macspaces.bak"
+  if [ -d "${local_bak}" ]; then
+    mv "${local_bak}" "${local_bak}.$(date +%Y%m%d%H%M%S)"
+    echo "→ Respaldo anterior renombrado con timestamp"
+  fi
+  cp -r "${HS_DIR}/macspaces" "${local_bak}"
   echo "→ Respaldo guardado: macspaces.bak/"
 fi
 

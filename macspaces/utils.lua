@@ -3,7 +3,8 @@
 
 local M = {}
 
-local logFilePath = os.getenv("HOME") .. "/.hammerspoon/debug.log"
+local home        = os.getenv("HOME") or "/tmp"
+local logFilePath = home .. "/.hammerspoon/debug.log"
 
 -- Escribe una línea en el archivo de log
 function M.log(msg)
@@ -35,10 +36,22 @@ function M.table_contains(tbl, item)
     return false
 end
 
--- Formatea segundos como MM:SS
+-- Helper compartido: ítem informativo que copia su valor al portapapeles al hacer clic
+function M.info_item(label, value)
+    return {
+        title = label .. value,
+        fn    = function() hs.pasteboard.setContents(value) end,
+    }
+end
+
+-- Formatea segundos como HH:MM:SS (o MM:SS si menos de una hora)
 function M.format_time(seconds)
-    local m = math.floor(seconds / 60)
+    local h = math.floor(seconds / 3600)
+    local m = math.floor((seconds % 3600) / 60)
     local s = seconds % 60
+    if h > 0 then
+        return string.format("%d:%02d:%02d", h, m, s)
+    end
     return string.format("%02d:%02d", m, s)
 end
 

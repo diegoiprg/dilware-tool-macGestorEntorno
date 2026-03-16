@@ -62,6 +62,11 @@ local cache = {
 
 local function fetch_tunnel_info(tunnel_ip, on_done)
     if cache.fetching then return end
+    -- Nunca consultar sin IP de túnel: evita exponer la IP real del usuario
+    if not tunnel_ip or tunnel_ip == "" then
+        if on_done then on_done() end
+        return
+    end
 
     local now = os.time()
     -- Reusar caché si la IP no cambió y no expiró
@@ -110,22 +115,21 @@ function M.interfaces()
 end
 
 -- Refresca la información remota del túnel
+-- Solo consulta si hay una IP de túnel válida; evita consultar la IP real del usuario
 function M.refresh(on_done)
     local ifaces = detect_vpn_interfaces()
     if #ifaces > 0 and ifaces[1].ip then
         fetch_tunnel_info(ifaces[1].ip, on_done)
     else
+        -- Sin VPN activa o sin IP de túnel: limpiar caché y no consultar
         cache.data = nil
         if on_done then on_done() end
     end
 end
 
--- Helper: ítem informativo legible (copia valor al portapapeles al hacer clic)
+-- Helper: ítem informativo legible (usa utils.info_item compartido)
 local function info_item(label, value)
-    return {
-        title = label .. value,
-        fn    = function() hs.pasteboard.setContents(value) end,
-    }
+    return utils.info_item(label, value)
 end
 
 -- Construye el submenú de VPN

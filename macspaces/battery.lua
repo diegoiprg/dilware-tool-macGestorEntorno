@@ -45,6 +45,7 @@ function M.status_label()
         icon = "🔋"
     elseif pct >= 40 then
         icon = "🔋"
+        alert = "  — Carga media"
     elseif pct >= 20 then
         icon  = "🪫"
         alert = "  — Batería baja"

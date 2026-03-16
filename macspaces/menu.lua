@@ -81,7 +81,12 @@ local function build_items()
 
     local bat = battery.status_label()
     if bat then
-        table.insert(items, { title = bat, fn = function() end })
+        -- Clic copia el porcentaje al portapapeles
+        local pct_str = tostring(math.floor(battery.percentage())) .. "%"
+        table.insert(items, {
+            title = bat,
+            fn    = function() hs.pasteboard.setContents(pct_str) end,
+        })
     end
 
     local bt_devices = bluetooth.devices()
@@ -106,10 +111,15 @@ local function build_items()
         title = net_title,
         menu  = network.build_submenu(refresh),
     })
-    table.insert(items, {
-        title = vpn.is_active() and "VPN  🔒" or "VPN",
-        menu  = vpn.build_submenu(refresh),
-    })
+    -- VPN: solo mostrar submenú si está activa; si no, ítem informativo simple
+    if vpn.is_active() then
+        table.insert(items, {
+            title = "VPN  🔒",
+            menu  = vpn.build_submenu(refresh),
+        })
+    else
+        table.insert(items, { title = "VPN  🔓", fn = function() end })
+    end
 
     -- ══ Productividad ═════════════════════════
     table.insert(items, { title = "-" })

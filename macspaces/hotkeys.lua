@@ -17,8 +17,7 @@ function M.register(on_change)
     end
     registered = {}
 
-    for key, binding in pairs(cfg.hotkeys) do
-        local profile = cfg.profiles[key]
+    for key, binding in pairs(cfg.hotkeys) do        local profile = cfg.profiles[key]
         if profile and binding then
             local hk = hs.hotkey.bind(binding.mods, binding.key, function()
                 if profiles.is_active(key) then

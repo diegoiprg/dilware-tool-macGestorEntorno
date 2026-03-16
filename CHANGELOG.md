@@ -2,6 +2,31 @@
 
 Registro de cambios del proyecto `dilware-tool-macSpaces`.
 
+## [2.3.0] - 2026-03-16
+
+### Corregido
+- `vpn.lua`: `fetch_tunnel_info()` ya no consulta ip-api.com si `tunnel_ip` es nil — evitaba exponer la IP real del usuario en lugar de la del túnel VPN
+- `dnd.lua`: `M.toggle()` sin API nativa (`hs.focus`) ahora lee el estado actual antes de cambiar — antes siempre activaba DND, nunca desactivaba
+- `breaks.lua`: eliminada asignación `state.on_update = on_update` en `M.enable()` — campo no declarado en el estado inicial (código muerto residual)
+- `history.lua`: `load_data()` valida que el JSON decodificado sea una tabla — evita crash con archivos malformados o con estructura inesperada
+- `install.sh`: `pull --ff-only` ya no aborta el script si hay cambios locales — informa al usuario con mensaje claro y continúa con la versión local
+- `install.sh`: respaldo `macspaces.bak/` ya no sobreescribe silenciosamente — el respaldo anterior se renombra con timestamp antes de crear el nuevo
+
+### Mejorado
+- `utils.lua`: nueva función `M.info_item(label, value)` compartida — elimina duplicación entre `network.lua` y `vpn.lua`
+- `utils.lua`: guard para `HOME` nil — `logFilePath` usa `/tmp` como fallback en entornos restringidos
+- `history.lua`: guard para `HOME` nil en `history_path`
+- `history.lua`: nueva función `prune_old_entries()` — elimina entradas con más de 30 días al registrar una sesión; evita crecimiento indefinido del JSON
+- `bluetooth.lua`: caché de 30 segundos en `M.devices()` — evita llamadas repetidas a `ioreg` (proceso externo) en cada apertura del menú
+- `battery.lua`: rango 40–79% ahora muestra "Carga media" — distinguible visualmente de 80–100%
+- `menu.lua`: ítem de batería ahora copia el porcentaje al portapapeles al hacer clic
+- `menu.lua`: VPN inactiva ya no abre submenú vacío — muestra ítem informativo `VPN 🔓` directamente
+- `network.lua` y `vpn.lua`: usan `utils.info_item()` en lugar de función local duplicada
+- `hotkeys.lua`: iteración sobre `cfg.hotkeys` documentada (orden no garantizado por `pairs()`, aceptable para hotkeys independientes)
+
+### Cambiado
+- Versión bumpeada a v2.3.0
+
 ## [2.2.3] - 2026-03-16
 
 ### Corregido

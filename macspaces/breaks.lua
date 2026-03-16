@@ -61,8 +61,7 @@ function M.is_enabled()
 end
 
 function M.enable(on_update)
-    state.enabled   = true
-    state.on_update = on_update
+    state.enabled = true
     start_timer()
     utils.notify("macSpaces", "Descanso activo activado — cada " .. cfg.breaks.interval_minutes .. " min")
     if on_update then on_update() end

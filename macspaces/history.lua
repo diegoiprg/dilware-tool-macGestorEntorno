@@ -7,7 +7,8 @@ local utils = require("macspaces.utils")
 local cfg   = require("macspaces.config")
 
 -- Ruta del archivo de historial (JSON simple)
-local history_path = os.getenv("HOME") .. "/.hammerspoon/macspaces_history.json"
+local home         = os.getenv("HOME") or "/tmp"
+local history_path = home .. "/.hammerspoon/macspaces_history.json"
 
 -- Caché en memoria: se invalida al registrar una sesión
 local cache = { data = nil, date = nil }
@@ -32,9 +33,28 @@ local function load_data()
     local content = f:read("*a")
     f:close()
     local ok, data = pcall(function() return hs.json.decode(content) end)
-    cache.data = (ok and data) or {}
+    -- Validar que sea una tabla (no array ni nil)
+    if not ok or type(data) ~= "table" then data = {} end
+    cache.data = data
     cache.date = today
     return cache.data
+end
+
+-- Elimina entradas con más de 30 días de antigüedad
+local function prune_old_entries(data)
+    local cutoff = os.time() - (30 * 24 * 3600)
+    for date_key in pairs(data) do
+        -- date_key tiene formato "YYYY-MM-DD"
+        local y, m, d = date_key:match("^(%d+)-(%d+)-(%d+)$")
+        if y then
+            local entry_time = os.time({ year = tonumber(y), month = tonumber(m), day = tonumber(d) })
+            if entry_time < cutoff then
+                data[date_key] = nil
+                utils.log("[INFO] history: entrada antigua eliminada (" .. date_key .. ")")
+            end
+        end
+    end
+    return data
 end
 
 local function save_data(data)
@@ -72,6 +92,7 @@ function M.record_session(key, started_at)
     if not data[today][key] then data[today][key] = 0 end
 
     data[today][key] = data[today][key] + duration
+    prune_old_entries(data)
     save_data(data)
     utils.log(string.format("[INFO] Sesión %s registrada: %s", key, utils.format_time(duration)))
 end

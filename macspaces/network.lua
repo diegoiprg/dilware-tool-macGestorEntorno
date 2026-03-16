@@ -120,17 +120,6 @@ function M.remote_info()
 end
 
 -- ─────────────────────────────────────────────
--- Helper: ítem informativo legible
--- ─────────────────────────────────────────────
-
-local function info_item(label, value)
-    return {
-        title = label .. value,
-        fn    = function() hs.pasteboard.setContents(value) end,
-    }
-end
-
--- ─────────────────────────────────────────────
 -- Submenú
 -- ─────────────────────────────────────────────
 
@@ -147,20 +136,20 @@ function M.build_submenu(on_update)
         fn    = function() end,
     })
 
-    if local_i.ssid     then table.insert(items, info_item("Red: ",       local_i.ssid))     end
-    if local_i.local_ip then table.insert(items, info_item("IP local: ",  local_i.local_ip)) end
+    if local_i.ssid     then table.insert(items, utils.info_item("Red: ",       local_i.ssid))     end
+    if local_i.local_ip then table.insert(items, utils.info_item("IP local: ",  local_i.local_ip)) end
 
     -- ── IP externa ────────────────────────────
     table.insert(items, { title = "-" })
 
     if remote_i then
         table.insert(items, { title = "🌍  IP externa", fn = function() end })
-        table.insert(items, info_item("IP: ",       remote_i.query      or "?"))
-        table.insert(items, info_item("País: ",     remote_i.country    or "?"))
-        table.insert(items, info_item("Región: ",   remote_i.regionName or "?"))
-        table.insert(items, info_item("Ciudad: ",   remote_i.city       or "?"))
-        table.insert(items, info_item("ISP: ",      remote_i.isp        or "?"))
-        table.insert(items, info_item("Operador: ", remote_i.org        or "?"))
+        table.insert(items, utils.info_item("IP: ",       remote_i.query      or "?"))
+        table.insert(items, utils.info_item("País: ",     remote_i.country    or "?"))
+        table.insert(items, utils.info_item("Región: ",   remote_i.regionName or "?"))
+        table.insert(items, utils.info_item("Ciudad: ",   remote_i.city       or "?"))
+        table.insert(items, utils.info_item("ISP: ",      remote_i.isp        or "?"))
+        table.insert(items, utils.info_item("Operador: ", remote_i.org        or "?"))
 
         if remote_i.proxy or remote_i.hosting then
             table.insert(items, { title = "⚠️  Proxy/VPN detectado", fn = function() end })
