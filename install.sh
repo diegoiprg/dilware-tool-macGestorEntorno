@@ -29,7 +29,8 @@ if [ ! -d "${REPO_DIR}/.git" ]; then
   git clone "${REPO_URL}" "${REPO_DIR}"
 else
   echo "→ Actualizando repositorio..."
-  if git -C "${REPO_DIR}" fetch --dry-run 2>/dev/null; then
+  # fetch --dry-run puede fallar sin red; se envuelve para no abortar con set -e
+  if (git -C "${REPO_DIR}" fetch --dry-run 2>/dev/null); then
     git -C "${REPO_DIR}" pull --ff-only
   else
     echo "  (sin acceso a red, usando versión local)"

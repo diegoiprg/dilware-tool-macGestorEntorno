@@ -16,7 +16,6 @@ local state = {
     cycle         = 0,     -- ciclos de trabajo completados
     seconds_left  = 0,
     timer         = nil,
-    on_update     = nil,   -- callback para refrescar el menú
 }
 
 -- ─────────────────────────────────────────────
@@ -112,11 +111,10 @@ function M.time_label()
 end
 
 -- Inicia el Pomodoro
-function M.start(on_update)
+function M.start()
     if state.active then return end
     state.active   = true
     state.cycle    = 0
-    state.on_update = on_update
     utils.log("[INFO] Pomodoro iniciado")
     start_phase("work")
 end
@@ -130,7 +128,6 @@ function M.stop()
     state.phase        = nil
     state.seconds_left = 0
     state.cycle        = 0
-    state.on_update    = nil
 
     if cfg.pomodoro.enable_dnd then dnd.disable() end
     utils.log("[INFO] Pomodoro detenido")
@@ -189,7 +186,7 @@ function M.build_submenu(on_update)
         table.insert(items, { title = "-" })
         table.insert(items, {
             title = "▶  Iniciar Pomodoro",
-            fn    = function() M.start(on_update); if on_update then on_update() end end,
+            fn    = function() M.start(); if on_update then on_update() end end,
         })
     end
 

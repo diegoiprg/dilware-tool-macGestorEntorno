@@ -2,6 +2,17 @@
 
 Registro de cambios del proyecto `dilware-tool-macSpaces`.
 
+## [2.2.2] - 2026-03-16
+
+### Corregido
+- `bluetooth.lua`: `battery_icon()` corregía mal el rango 20–79% — ahora devuelve 🪫 en lugar de 🔋 para ese rango
+- `utils.lua`: `format_time()` mostraba solo `MM:SS` para duraciones ≥ 1 hora — ahora devuelve `H:MM:SS`
+- `pomodoro.lua`: eliminado campo `state.on_update` y parámetro `on_update` en `M.start()` — código muerto huérfano desde v2.2.1 (el timer ya no llama callbacks externos)
+- `install.sh`: `git fetch --dry-run` envuelto en subshell para no abortar el script con `set -euo pipefail` cuando no hay acceso a red
+
+### Cambiado
+- Versión bumpeada a v2.2.2
+
 ## [2.2.1] - 2026-03-16
 
 ### Corregido
