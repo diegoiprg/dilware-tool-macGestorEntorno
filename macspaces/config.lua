@@ -6,7 +6,7 @@ local M = {}
 -- ─────────────────────────────────────────────
 -- Versión
 -- ─────────────────────────────────────────────
-M.VERSION = "2.4.0"
+M.VERSION = "2.5.0"
 
 -- ─────────────────────────────────────────────
 -- Perfiles: orden de aparición en el menú
@@ -20,9 +20,15 @@ M.profiles = {
         browser  = "com.apple.Safari",
     },
     work = {
-        name     = "Work",
-        apps     = { "Microsoft Outlook", "Microsoft Teams", "Microsoft Edge" },
-        browser  = "com.microsoft.edgemac",
+        name    = "Work",
+        browser = "com.microsoft.edgemac",
+        -- PWAs instaladas en ~/Applications/Edge Apps.localized/
+        apps = {
+            "Microsoft Outlook webapp",
+            "Microsoft Teams webapp",
+            "Microsoft OneDrive",
+            "Microsoft Edge",
+        },
     },
 }
 

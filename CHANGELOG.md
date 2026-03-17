@@ -2,6 +2,15 @@
 
 Registro de cambios del proyecto `dilware-tool-macGestorEntorno`.
 
+## [2.5.0] - 2026-03-17
+
+### Agregado
+- `config.lua`: perfil Work reemplaza apps nativas de Microsoft (Outlook, Teams) por sus PWAs instaladas en `~/Applications/Edge Apps.localized/` — evita restricciones MDM que bloquean las apps nativas en entornos corporativos
+- `config.lua`: OneDrive agregado al perfil Work como PWA (`Microsoft OneDrive`)
+
+### Cambiado
+- Versión bumpeada a v2.5.0
+
 ## [2.4.0] - 2026-03-16
 
 ### Corregido
