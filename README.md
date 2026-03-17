@@ -1,4 +1,4 @@
-# ⌘ macSpaces — Gestor de Espacios para macOS
+# ⌘ macSpaces — Control de Entorno para macOS
 
 ![Versión](https://img.shields.io/badge/versión-v2.4.0-6366f1?style=flat-square)
 ![Licencia](https://img.shields.io/badge/licencia-GPLv3-a855f7?style=flat-square)
