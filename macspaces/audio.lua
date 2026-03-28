@@ -50,7 +50,7 @@ function M.build_submenu()
         local active = current and (dev:uid() == current:uid())
 
         table.insert(items, {
-            title   = (active and "◉  " or "○  ") .. name,
+            title   = name,
             checked = active,
             fn      = function()
                 if not active then M.set_output(dev) end

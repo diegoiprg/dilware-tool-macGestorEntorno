@@ -6,13 +6,25 @@ local M = {}
 local cfg   = require("macspaces.config")
 local utils = require("macspaces.utils")
 
--- Devuelve el nombre legible de un bundle ID, o nil si no está en la allowlist
+local cached_installed = nil
+local cached_current    = nil
+local cache_valid       = false
+
 function M.display_name(bundle_id)
     return cfg.browser_names[bundle_id]
 end
 
--- Devuelve solo los navegadores de la allowlist que están instalados
+function M.invalidate_cache()
+    cached_installed = nil
+    cached_current    = nil
+    cache_valid       = false
+end
+
 function M.installed()
+    if cache_valid and cached_installed then
+        return cached_installed
+    end
+
     local handlers = hs.urlevent.getAllHandlersForScheme("http")
     if not handlers then return {} end
 
@@ -23,30 +35,45 @@ function M.installed()
         end
     end
 
-    -- Ordenar: activo primero, luego alfabético
-    local current = hs.urlevent.getDefaultHandler("http")
     table.sort(result, function(a, b)
-        if a == current then return true end
-        if b == current then return false end
         return (cfg.browser_names[a] or a) < (cfg.browser_names[b] or b)
     end)
 
+    cached_installed = result
+    cache_valid       = true
     return result
 end
 
--- Devuelve el bundle ID del navegador predeterminado actual
 function M.current()
-    return hs.urlevent.getDefaultHandler("http")
+    if cache_valid and cached_current then
+        return cached_current
+    end
+
+    local ok, result = pcall(function()
+        return hs.urlevent.getDefaultHandler("http")
+    end)
+
+    if ok then
+        cached_current = result
+        cache_valid    = true
+        return result
+    end
+    return nil
 end
 
--- Solicita cambio de navegador predeterminado (muestra diálogo del sistema)
+function M.refresh_cache()
+    M.invalidate_cache()
+    M.installed()
+    M.current()
+end
+
 function M.set_default(bundle_id)
     local name = M.display_name(bundle_id) or bundle_id
     hs.urlevent.setDefaultHandler("http", bundle_id)
+    M.refresh_cache()
     utils.log("[OK] Solicitud de cambio de navegador a " .. name .. " (" .. bundle_id .. ")")
 end
 
--- Construye el submenú de selección de navegador
 function M.build_submenu()
     local installed = M.installed()
     local current   = M.current()
@@ -58,13 +85,17 @@ function M.build_submenu()
     local items = {}
     for _, bundle_id in ipairs(installed) do
         local name   = M.display_name(bundle_id)
-        local active = (bundle_id == current)
+        local active = current and (bundle_id == current)
 
         table.insert(items, {
-            title   = (active and "◉  " or "○  ") .. name,
+            title   = name,
             checked = active,
             fn      = function()
-                if not active then M.set_default(bundle_id) end
+                M.refresh_cache()
+                local new_current = M.current()
+                if bundle_id ~= new_current then
+                    M.set_default(bundle_id)
+                end
             end,
         })
     end

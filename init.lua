@@ -24,6 +24,33 @@ local network   = require("macspaces.network")
 local vpn       = require("macspaces.vpn")
 local menu      = require("macspaces.menu")
 
+local ok, err = pcall(function()
+    if type(cfg.VERSION) ~= "string" or #cfg.VERSION == 0 then
+        error("VERSION inválida en config")
+    end
+    if type(cfg.delay) ~= "table" then
+        error("delay debe ser una tabla")
+    end
+    if type(cfg.delay.short) ~= "number" or cfg.delay.short <= 0 then
+        error("delay.short debe ser un número positivo")
+    end
+    if type(cfg.profile_order) ~= "table" or #cfg.profile_order == 0 then
+        error("profile_order debe ser una tabla no vacía")
+    end
+    if type(cfg.profiles) ~= "table" then
+        error("profiles debe ser una tabla")
+    end
+end)
+
+if not ok then
+    utils.log("[ERROR] Validación de config falló: " .. tostring(err))
+    hs.notify.new({
+        title = "macSpaces Error",
+        informativeText = "Configuración inválida: " .. tostring(err)
+    }):send()
+    return
+end
+
 utils.clear_log()
 utils.log("[INFO] macSpaces v" .. cfg.VERSION .. " iniciado")
 

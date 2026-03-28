@@ -2,6 +2,23 @@
 
 Registro de cambios del proyecto `dilware-tool-macGestorEntorno`.
 
+## [2.6.0] - 2026-03-27
+
+### Agregado
+- `music.lua`: nuevo módulo para controlar Apple Music — muestra canción actual, artista y controles (play/pause, siguiente, anterior)
+- Menú de Apple Music integrado en la barra de estado después de Audio
+- SF Symbols para todos los ítems del menú siguiendo Apple Human Interface Guidelines
+
+### Cambiado
+- Menú reducido y más limpio: nombres más cortos (ej: "Navegador" en vez de "Navegador predeterminado")
+- Íconos SF Symbols en lugar de emojis para consistencia con macOS
+- Checkmarks visuales para elementos activos usando `checkmark.circle.fill`
+- Validación de configuración al inicio de la aplicación
+
+### Corregido
+- `browsers.lua`: cacheo implementado para evitar múltiples diálogos del sistema al cambiar navegador
+- Versión bumpeada a v2.6.0
+
 ## [2.5.0] - 2026-03-17
 
 ### Agregado

@@ -1,6 +1,6 @@
 # ⌘ Gestor de entorno macOS — Tool
 
-![Versión](https://img.shields.io/badge/versión-v2.4.0-6366f1?style=flat-square)
+![Versión](https://img.shields.io/badge/versión-v2.5.0-6366f1?style=flat-square)
 ![Licencia](https://img.shields.io/badge/licencia-GPLv3-a855f7?style=flat-square)
 ![Plataforma](https://img.shields.io/badge/plataforma-macOS-222?style=flat-square&logo=apple&logoColor=white)
 
@@ -20,6 +20,7 @@ Funciona en segundo plano, sin ventanas extra ni configuraciones complicadas. To
 - Cerrar el perfil y que se limpie todo: apps cerradas, espacio eliminado
 - Cambiar el navegador predeterminado del sistema sin abrir Preferencias del Sistema
 - Cambiar el dispositivo de salida de audio al instante
+- Controlar Apple Music: play/pause, siguiente, anterior, y ver canción actual
 - Ver el estado de batería directamente en el menú (solo en MacBook)
 - Consultar los dispositivos Bluetooth conectados con su nivel de batería
 - Ver información de tu red: tipo de conexión, IP local, IP externa, país e ISP
