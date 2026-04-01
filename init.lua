@@ -62,4 +62,26 @@ local function prewarm_caches()
 end
 
 hs.timer.doAfter(1, prewarm_caches)
-hs.timer.doEvery(30, prewarm_caches)
+local prewarm_timer = hs.timer.doEvery(30, prewarm_caches)
+
+-- Limpieza al cerrar, reiniciar o recargar Hammerspoon.
+-- Restaura el estado del sistema para que no queden cambios huérfanos.
+hs.shutdownCallback = function()
+    local pomodoro     = require("macspaces.pomodoro")
+    local presentation = require("macspaces.presentation")
+    local breaks       = require("macspaces.breaks")
+
+    -- Restaurar estado del sistema (DND, Dock, escritorio)
+    if pomodoro.is_active()     then pomodoro.stop() end
+    if presentation.is_active() then presentation.toggle() end
+
+    -- Liberar recursos
+    focus_menu.destroy()
+    menu.destroy()
+    clipboard.stop()
+    hotkeys.unregister()
+    if breaks.is_enabled() then breaks.disable() end
+    if prewarm_timer then prewarm_timer:stop() end
+
+    utils.log("[INFO] macSpaces: limpieza completada")
+end

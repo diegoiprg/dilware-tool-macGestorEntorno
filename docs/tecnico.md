@@ -1,4 +1,4 @@
-# Referencia Técnica — macSpaces v2.7.0
+# Referencia Técnica — macSpaces v2.7.1
 
 ## API de módulos
 
@@ -192,7 +192,17 @@ Notificaciones incluyen datos educativos rotativos (AAO, OSHA, Mayo Clinic, Corn
 | `M.stop()` | Oculta overlay y detiene timer |
 | `M.refresh()` | Actualiza contenido del overlay |
 
-Usa `hs.canvas` con `canJoinAllSpaces` (visible en todos los espacios).
+Usa `hs.canvas` con `canJoinAllSpaces` (visible en todos los espacios). El canvas se crea una sola vez y se actualiza en lugar de destruirse/recrearse, evitando parpadeo. Incluye fallback si `hs.drawing.getTextDrawingSize` (API deprecada) falla.
+
+---
+
+### init.lua
+
+| Función / Mecanismo | Descripción |
+|---|---|
+| Validación de config | Verifica campos obligatorios al inicio |
+| Prewarm de cachés | Timer cada 30s para mantener cachés calientes |
+| `hs.shutdownCallback` | Limpieza al cerrar, reiniciar o recargar: restaura DND, Dock, escritorio; libera timers, menubars, overlay, watcher y hotkeys |
 
 ---
 

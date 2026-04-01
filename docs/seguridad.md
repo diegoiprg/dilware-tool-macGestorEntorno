@@ -1,4 +1,4 @@
-# Seguridad — macSpaces v2.7.0
+# Seguridad — macSpaces v2.7.1
 
 ## Modelo de amenazas
 
@@ -45,6 +45,14 @@ Todas las llamadas a APIs externas usan HTTPS:
 
 - Scripts mínimos y estáticos (solo control de Music.app)
 - No se extiende con input del usuario
+
+### SEC-08: Limpieza al cerrar (`hs.shutdownCallback`)
+
+- Al apagar, reiniciar o recargar Hammerspoon se restaura el estado del sistema:
+  - DND desactivado si Pomodoro o Presentación lo habían activado
+  - Dock restaurado a su estado previo
+  - Íconos del escritorio restaurados
+- Se liberan timers, watchers, menubars, overlay y hotkeys para evitar duplicados al recargar
 
 ---
 

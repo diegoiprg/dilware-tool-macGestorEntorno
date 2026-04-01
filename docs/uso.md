@@ -1,4 +1,4 @@
-# Guía de Uso — macSpaces v2.7.0
+# Guía de Uso — macSpaces v2.7.1
 
 ## Requisitos
 

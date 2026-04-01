@@ -1,4 +1,4 @@
-# Arquitectura — macSpaces v2.7.0
+# Arquitectura — macSpaces v2.7.1
 
 ## Visión general
 
@@ -124,6 +124,7 @@ Hammerspoon → init.lua
   7. Inicializa menú de enfoque (focus_menu.init) + overlay
   8. Pre-calienta cachés costosos (diferido 1s)
   9. Inicia timer de prewarm cada 30s
+ 10. Registra hs.shutdownCallback (limpieza al cerrar/reiniciar/recargar)
 ```
 
 ## Dependencias externas

@@ -1,4 +1,4 @@
-# Especificación Funcional — macSpaces v2.7.0
+# Especificación Funcional — macSpaces v2.7.1
 
 ## Propósito
 
