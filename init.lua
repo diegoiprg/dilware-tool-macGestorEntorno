@@ -15,42 +15,30 @@ if not package.path:find(hs_lua_path, 1, true) then
                    package.path
 end
 
-local utils     = require("macspaces.utils")
-local cfg       = require("macspaces.config")
-local hotkeys   = require("macspaces.hotkeys")
-local clipboard = require("macspaces.clipboard")
-local network   = require("macspaces.network")
-local vpn       = require("macspaces.vpn")
-local bluetooth = require("macspaces.bluetooth")
-local browsers  = require("macspaces.browsers")
-local music     = require("macspaces.music")
-local battery   = require("macspaces.battery")
-local menu      = require("macspaces.menu")
+local utils      = require("macspaces.utils")
+local cfg        = require("macspaces.config")
+local hotkeys    = require("macspaces.hotkeys")
+local clipboard  = require("macspaces.clipboard")
+local network    = require("macspaces.network")
+local vpn        = require("macspaces.vpn")
+local bluetooth  = require("macspaces.bluetooth")
+local browsers   = require("macspaces.browsers")
+local music      = require("macspaces.music")
+local battery    = require("macspaces.battery")
+local menu       = require("macspaces.menu")
+local focus_menu = require("macspaces.focus_menu")
 
 local ok, err = pcall(function()
-    if type(cfg.VERSION) ~= "string" or #cfg.VERSION == 0 then
-        error("VERSION inválida en config")
-    end
-    if type(cfg.delay) ~= "table" then
-        error("delay debe ser una tabla")
-    end
-    if type(cfg.delay.short) ~= "number" or cfg.delay.short <= 0 then
-        error("delay.short debe ser un número positivo")
-    end
-    if type(cfg.profile_order) ~= "table" or #cfg.profile_order == 0 then
-        error("profile_order debe ser una tabla no vacía")
-    end
-    if type(cfg.profiles) ~= "table" then
-        error("profiles debe ser una tabla")
-    end
+    if type(cfg.VERSION) ~= "string" or #cfg.VERSION == 0 then error("VERSION inválida en config") end
+    if type(cfg.delay) ~= "table" then error("delay debe ser una tabla") end
+    if type(cfg.delay.short) ~= "number" or cfg.delay.short <= 0 then error("delay.short debe ser un número positivo") end
+    if type(cfg.profile_order) ~= "table" or #cfg.profile_order == 0 then error("profile_order debe ser una tabla no vacía") end
+    if type(cfg.profiles) ~= "table" then error("profiles debe ser una tabla") end
 end)
 
 if not ok then
     utils.log("[ERROR] Validación de config falló: " .. tostring(err))
-    hs.notify.new({
-        title = "macSpaces Error",
-        informativeText = "Configuración inválida: " .. tostring(err)
-    }):send()
+    hs.notify.new({ title = "macSpaces Error", informativeText = "Configuración inválida: " .. tostring(err) }):send()
     return
 end
 
@@ -62,22 +50,16 @@ network.refresh()
 vpn.refresh()
 hotkeys.register(function() menu.build() end)
 menu.init()
+focus_menu.init()
 
--- ─────────────────────────────────────────────
--- PERF: Pre-calentar cachés costosos en segundo plano
--- para que el menú abra instantáneamente.
--- ─────────────────────────────────────────────
-
+-- Pre-calentar cachés costosos en segundo plano
 local function prewarm_caches()
-    bluetooth.devices()   -- ioreg (el más lento, ~500ms-2s)
-    browsers.installed()  -- hs.urlevent handlers
+    bluetooth.devices()
+    browsers.installed()
     browsers.current()
     battery.has_battery()
-    music.is_running()    -- AppleScript
+    music.is_running()
 end
 
--- Pre-calentar al inicio (diferido para no bloquear el arranque)
 hs.timer.doAfter(1, prewarm_caches)
-
--- Refrescar cachés cada 30 segundos en segundo plano
 hs.timer.doEvery(30, prewarm_caches)

@@ -1,7 +1,6 @@
 -- macspaces/menu.lua
--- Menú de barra de estado con ítems pre-construidos.
--- Usa setMenu(items) en lugar de setMenu(fn) para apertura instantánea.
--- Los ítems se reconstruyen en segundo plano cada pocos segundos.
+-- Menú principal de barra de estado: perfiles, entorno, dispositivos, red.
+-- Pomodoro, descanso y presentación están en focus_menu.lua.
 
 local M = {}
 
@@ -11,23 +10,16 @@ local browsers     = require("macspaces.browsers")
 local audio        = require("macspaces.audio")
 local battery      = require("macspaces.battery")
 local history      = require("macspaces.history")
-local pomodoro     = require("macspaces.pomodoro")
-local breaks       = require("macspaces.breaks")
 local clipboard    = require("macspaces.clipboard")
 local bluetooth    = require("macspaces.bluetooth")
 local network      = require("macspaces.network")
 local vpn          = require("macspaces.vpn")
-local presentation = require("macspaces.presentation")
 local launcher     = require("macspaces.launcher")
 local music        = require("macspaces.music")
 local utils        = require("macspaces.utils")
 
 local menubar = hs.menubar.new()
 local rebuild_timer = nil
-
--- ─────────────────────────────────────────────
--- Ícono nativo de menubar
--- ─────────────────────────────────────────────
 
 local function load_template_icon()
     local path = (os.getenv("HOME") or "") .. "/.hammerspoon/macspaces_icon.png"
@@ -40,28 +32,11 @@ local function load_template_icon()
     return nil
 end
 
--- ─────────────────────────────────────────────
--- Título de menubar (Pomodoro countdown)
--- ─────────────────────────────────────────────
-
-local function update_menubar_title()
-    local pom_label = pomodoro.menubar_label()
-    menubar:setTitle(pom_label or cfg.menu_icon)
-end
-
--- ─────────────────────────────────────────────
--- Atajo de teclado para un perfil
--- ─────────────────────────────────────────────
-
 local function hotkey_label(key)
     local binding = cfg.hotkeys and cfg.hotkeys[key]
     if not binding then return "" end
     return "    ⌘⌥" .. binding.key
 end
-
--- ─────────────────────────────────────────────
--- Construcción del menú (se ejecuta en segundo plano)
--- ─────────────────────────────────────────────
 
 local function build_items()
     local function refresh() M.build() end
@@ -139,29 +114,14 @@ local function build_items()
     end
     table.insert(items, { title = "🌐  Red", menu = red })
 
-    -- ══ Productividad ══
-    local prod = {}
-    table.insert(prod, utils.disabled_item("📋  Portapapeles"))
-    for _, i in ipairs(clipboard.build_submenu(refresh)) do table.insert(prod, i) end
-    table.insert(prod, { title = "-" })
-    local pom_label = pomodoro.is_active()
-        and ("🍅  Pomodoro (" .. (pomodoro.time_label() or "") .. ")")
-        or  "🍅  Pomodoro"
-    table.insert(prod, utils.disabled_item(pom_label))
-    for _, i in ipairs(pomodoro.build_submenu(refresh)) do table.insert(prod, i) end
-    table.insert(prod, { title = "-" })
-    table.insert(prod, utils.disabled_item("🧘  Descanso activo"))
-    for _, i in ipairs(breaks.build_submenu(refresh)) do table.insert(prod, i) end
-    table.insert(prod, { title = "-" })
-    table.insert(prod, utils.disabled_item("🎬  Presentación"))
-    for _, i in ipairs(presentation.build_submenu(refresh)) do table.insert(prod, i) end
+    -- ══ Portapapeles ══
+    table.insert(items, { title = "📋  Portapapeles", menu = clipboard.build_submenu(refresh) })
+
+    -- ══ Lanzador ══
     local launcher_apps = (cfg.launcher and cfg.launcher.apps) or {}
     if #launcher_apps > 0 then
-        table.insert(prod, { title = "-" })
-        table.insert(prod, utils.disabled_item("🚀  Lanzador"))
-        for _, i in ipairs(launcher.build_submenu()) do table.insert(prod, i) end
+        table.insert(items, { title = "🚀  Lanzador", menu = launcher.build_submenu() })
     end
-    table.insert(items, { title = "⚡  Productividad", menu = prod })
 
     -- ══ Historial ══
     table.insert(items, { title = "-" })
@@ -171,47 +131,26 @@ local function build_items()
     table.insert(items, { title = "-" })
     table.insert(items, {
         title = "📄  Registro",
-        fn    = function()
-            hs.execute("open -a Console " .. (os.getenv("HOME") or "/tmp") .. "/.hammerspoon/debug.log")
-        end,
+        fn    = function() hs.execute("open -a Console " .. (os.getenv("HOME") or "/tmp") .. "/.hammerspoon/debug.log") end,
     })
     table.insert(items, { title = "🔄  Recargar", fn = hs.reload })
 
     return items
 end
 
--- ─────────────────────────────────────────────
--- API pública
--- ─────────────────────────────────────────────
-
--- Reconstruye el menú en segundo plano (no bloquea)
 function M.build()
-    update_menubar_title()
-    -- Diferir la reconstrucción para no bloquear el evento actual
-    hs.timer.doAfter(0, function()
-        menubar:setMenu(build_items())
-    end)
+    hs.timer.doAfter(0, function() menubar:setMenu(build_items()) end)
 end
 
 function M.init()
     local icon = load_template_icon()
     if icon then
-        menubar:setIcon(icon)
-        menubar:setTitle("")
+        menubar:setIcon(icon); menubar:setTitle("")
     else
         menubar:setTitle(cfg.menu_icon)
     end
-
-    -- Construir menú inicial (puede ser lento la primera vez, pero es al arranque)
     menubar:setMenu(build_items())
-
-    pomodoro.set_menubar_updater(update_menubar_title)
-
-    -- Reconstruir el menú cada 5 segundos para mantener datos frescos
-    -- (tiempo de perfiles, estado de Pomodoro, etc.)
-    rebuild_timer = hs.timer.doEvery(5, function()
-        menubar:setMenu(build_items())
-    end)
+    rebuild_timer = hs.timer.doEvery(5, function() menubar:setMenu(build_items()) end)
 end
 
 function M.destroy()
