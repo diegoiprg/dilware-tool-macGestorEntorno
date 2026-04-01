@@ -101,7 +101,13 @@ Módulos con datos costosos usan caché temporal:
 
 ### Overlay flotante (hs.canvas)
 
-`focus_overlay.lua` usa `hs.canvas` para un banner semi-transparente visible en todos los espacios. Se actualiza cada segundo y se oculta automáticamente cuando no hay estado activo.
+`focus_overlay.lua` usa `hs.canvas` para un banner unificado con filas coloreadas por estado, visible en todos los espacios. Posición por defecto: esquina inferior derecha (`fullFrame()`). Se recrea cada segundo para garantizar refresco visual. Arrastrable via `hs.eventtap` (la posición se mantiene durante la sesión). Se oculta automáticamente cuando no hay estado activo.
+
+Colores por estado:
+- Pomodoro trabajo: rojo
+- Pomodoro pausa: verde
+- Descanso activo: azul
+- Presentación: púrpura
 
 ### Callbacks asíncronos con timers
 

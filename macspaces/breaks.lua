@@ -59,12 +59,17 @@ function M.seconds_since_break()
 end
 
 function M.idle_label()
-    local secs = M.seconds_since_break()
-    if secs < 300 then return nil end
-    return "⏱ " .. utils.format_time(secs) .. " sin descanso"
+    if not state.enabled then return nil end
+    local remaining = (cfg.breaks.interval_minutes * 60) - M.seconds_since_break()
+    if remaining < 0 then remaining = 0 end
+    return "☁️ Descanso · " .. utils.format_time(remaining)
 end
 
 function M.is_enabled() return state.enabled end
+
+function M.init()
+    if state.enabled then start_timer() end
+end
 
 function M.enable(on_update)
     state.enabled = true; start_timer()

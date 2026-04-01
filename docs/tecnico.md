@@ -117,8 +117,8 @@ Tabla de configuración. Campos validados al inicio por `init.lua`:
 | `M.is_active()` | `true` si el Pomodoro está corriendo |
 | `M.current_phase()` | `"work"`, `"short_break"` o `"long_break"` |
 | `M.cycles_completed()` | Número de ciclos completados |
-| `M.time_label()` | String con ícono y tiempo restante |
-| `M.menubar_label()` | Etiqueta corta para menubar (`🍅 23m`) |
+| `M.time_label()` | String con ícono, nombre de fase y tiempo restante (reloj de pared) |
+| `M.menubar_label()` | Etiqueta corta para menubar (`🍅 23m`) (reloj de pared) |
 | `M.set_menubar_updater(fn)` | Registra callback para actualizar menubar |
 | `M.start()` / `M.stop()` / `M.skip()` | Control del temporizador |
 | `M.build_submenu(on_update)` | Ítems del submenú |
@@ -130,8 +130,9 @@ Notificaciones incluyen datos educativos rotativos (Cirillo, Baumeister, Dehaene
 | Función | Descripción |
 |---|---|
 | `M.is_enabled()` | `true` si está activo (default: `true`) |
+| `M.init()` | Arranca el timer si está habilitado en config (llamado al inicio) |
 | `M.seconds_since_break()` | Segundos desde el último descanso |
-| `M.idle_label()` | `"⏱ 12:34 sin descanso"` o `nil` si < 5 min |
+| `M.idle_label()` | `"☁️ Descanso · 48:30"` (countdown regresivo) o `nil` si desactivado |
 | `M.enable(on_update)` / `M.disable(on_update)` / `M.toggle(on_update)` | Control |
 | `M.build_submenu(on_update)` | Ítems del submenú (incluye tiempo sin descanso) |
 
@@ -192,7 +193,7 @@ Notificaciones incluyen datos educativos rotativos (AAO, OSHA, Mayo Clinic, Corn
 | `M.stop()` | Oculta overlay y detiene timer |
 | `M.refresh()` | Actualiza contenido del overlay |
 
-Usa `hs.canvas` con `canJoinAllSpaces` (visible en todos los espacios). El canvas se crea una sola vez y se actualiza en lugar de destruirse/recrearse, evitando parpadeo. Incluye fallback si `hs.drawing.getTextDrawingSize` (API deprecada) falla.
+Usa `hs.canvas` con `canJoinAllSpaces` (visible en todos los espacios). Canvas unificado con filas coloreadas por estado (rojo/verde/azul/púrpura). Se recrea cada segundo para garantizar refresco visual. Arrastrable via `hs.eventtap` (mouseDown + leftMouseDragged). Posición por defecto: esquina inferior derecha (`fullFrame()`). Incluye fallback si `hs.drawing.getTextDrawingSize` (API deprecada) falla.
 
 ---
 

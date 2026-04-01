@@ -20,9 +20,9 @@ local function update_title()
     elseif presentation.is_active() then
         menubar:setTitle("🎬")
     elseif breaks.is_enabled() then
-        menubar:setTitle("🧘")
+        menubar:setTitle("☁️")
     else
-        menubar:setTitle("🧘")
+        menubar:setTitle("☁️")
     end
 end
 
@@ -42,7 +42,7 @@ local function build_items()
 
     -- ══ Descanso activo ══
     table.insert(items, { title = "-" })
-    table.insert(items, utils.disabled_item("🧘  Descanso activo"))
+    table.insert(items, utils.disabled_item("☁️  Descanso activo"))
     for _, i in ipairs(breaks.build_submenu(refresh)) do table.insert(items, i) end
 
     -- ══ Presentación ══
@@ -66,6 +66,9 @@ function M.init()
         update_title()
         overlay.refresh()
     end)
+
+    -- Arrancar descanso activo si estaba habilitado en config
+    breaks.init()
 
     -- Arrancar el overlay (se muestra solo si hay algo activo)
     overlay.start()

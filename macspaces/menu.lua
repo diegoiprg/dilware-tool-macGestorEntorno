@@ -135,6 +135,10 @@ local function build_items()
     })
     table.insert(items, { title = "🔄  Recargar", fn = hs.reload })
 
+    -- ══ Versión ══
+    table.insert(items, { title = "-" })
+    table.insert(items, utils.disabled_item("macSpaces v" .. cfg.VERSION))
+
     return items
 end
 

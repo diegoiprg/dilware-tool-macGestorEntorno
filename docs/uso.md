@@ -42,21 +42,22 @@ macSpaces presenta dos íconos independientes:
 - Historial de sesiones
 - Registro y recarga
 
-### 🧘 Menú de enfoque — gestión de la concentración
+### ☁️ Menú de enfoque — gestión de la concentración
 - Pomodoro: temporizador con ciclos y DND automático
 - Descanso activo: recordatorios periódicos de postura y vista
 - Presentación: DND + Dock oculto + escritorio limpio
 
-El ícono de enfoque cambia según el estado: `🍅 23m` (Pomodoro), `🎬` (presentación), `🧘` (por defecto).
+El ícono de enfoque cambia según el estado: `🍅 23m` (Pomodoro), `🎬` (presentación), `☁️` (por defecto).
 
 ### Overlay flotante
 
-Un banner semi-transparente en la esquina superior derecha muestra:
-- Countdown del Pomodoro en tiempo real
-- Estado de presentación
-- Tiempo sin descanso (`⏱ 12:34 sin descanso`) cuando supera 5 minutos
+Un banner unificado en la esquina inferior derecha muestra filas coloreadas por estado:
+- 🍅 **Rojo**: Pomodoro con countdown, fase y ciclo
+- ☕ **Verde**: Pausa corta o larga
+- ☁️ **Azul**: Countdown regresivo hasta el próximo descanso
+- 🎬 **Púrpura**: Modo presentación activo
 
-Visible en todos los espacios de Mission Control. Se oculta automáticamente cuando no hay estado activo.
+Arrastrable: haz clic y arrastra para reposicionar. La posición se mantiene durante la sesión. Visible en todos los espacios de Mission Control. Se oculta automáticamente cuando no hay estado activo.
 
 ---
 
@@ -86,7 +87,7 @@ Activado por defecto. Cada 50 minutos recibes una notificación con:
 - Una sugerencia de estiramiento o hidratación
 - Un dato de salud basado en estándares (AAO, OSHA, Mayo Clinic)
 
-El overlay muestra cuánto tiempo llevas sin descanso. Puedes cambiar el intervalo (30-90 min) o desactivarlo desde el menú de enfoque.
+El overlay muestra un countdown regresivo con el tiempo restante hasta el próximo descanso. Puedes cambiar el intervalo (30-90 min) o desactivarlo desde el menú de enfoque.
 
 ### Modo presentación
 
@@ -166,5 +167,5 @@ Después de editar, presiona ⌘R para aplicar.
 | "Configuración inválida" | Revisa config.lua: `VERSION`, `delay.short`, `profile_order` y `profiles` son obligatorios. |
 | Bluetooth no muestra dispositivos | Verifica conexión. Caché se actualiza cada 120s. |
 | IP externa dice "Obteniendo…" | Verifica internet. ipapi.co puede estar inaccesible. |
-| Overlay no aparece | Se muestra solo cuando Pomodoro, presentación o descanso (>5 min) están activos. |
+| Overlay no aparece | Se muestra solo cuando Pomodoro, presentación o descanso activo están activos. |
 | Permisos de Accesibilidad | Preferencias del Sistema → Privacidad y Seguridad → Accesibilidad → Habilitar Hammerspoon. |

@@ -8,11 +8,13 @@ local utils = require("macspaces.utils")
 local dnd   = require("macspaces.dnd")
 
 local state = {
-    active        = false,
-    phase         = nil,
-    cycle         = 0,
-    seconds_left  = 0,
-    timer         = nil,
+    active         = false,
+    phase          = nil,
+    cycle          = 0,
+    seconds_left   = 0,
+    timer          = nil,
+    phase_started  = 0,
+    phase_duration = 0,
 }
 
 -- Callback para actualizar la menubar (se inyecta desde menu.lua)
@@ -55,6 +57,12 @@ local function notify_phase(phase)
     utils.notify("Pomodoro", (msgs[phase] or phase) .. "\n" .. next_tip())
 end
 
+local function remaining_seconds()
+    local elapsed = os.time() - state.phase_started
+    local r = state.phase_duration - elapsed
+    return r > 0 and r or 0
+end
+
 local function start_phase(phase)
     state.phase = phase
     local durations = {
@@ -62,21 +70,20 @@ local function start_phase(phase)
         short_break = cfg.pomodoro.short_break  * 60,
         long_break  = cfg.pomodoro.long_break   * 60,
     }
-    state.seconds_left = durations[phase] or (cfg.pomodoro.work_minutes * 60)
+    state.phase_duration = durations[phase] or (cfg.pomodoro.work_minutes * 60)
+    state.phase_started  = os.time()
+    state.seconds_left   = state.phase_duration
     notify_phase(phase)
 
-    if cfg.pomodoro.enable_dnd then
-        if phase == "work" then dnd.enable() else dnd.disable() end
-    end
+    pcall(function()
+        if cfg.pomodoro.enable_dnd then
+            if phase == "work" then dnd.enable() else dnd.disable() end
+        end
+    end)
 
     stop_timer()
-    local tick = 0
     state.timer = hs.timer.doEvery(1, function()
-        state.seconds_left = state.seconds_left - 1
-        tick = tick + 1
-
-        -- UX-06: Actualizar menubar cada 60s (no cada segundo)
-        if tick % 60 == 0 then update_menubar() end
+        state.seconds_left = remaining_seconds()
 
         if state.seconds_left <= 0 then
             stop_timer()
@@ -103,13 +110,18 @@ function M.cycles_completed() return state.cycle end
 function M.time_label()
     if not state.active then return nil end
     local icons = { work = "🍅", short_break = "☕", long_break = "🌿" }
-    return (icons[state.phase] or "⏱") .. " " .. utils.format_time(state.seconds_left)
+    local names = { work = "Pomodoro", short_break = "Pausa corta", long_break = "Pausa larga" }
+    local icon  = icons[state.phase] or "⏱"
+    local name  = names[state.phase] or ""
+    local total = cfg.pomodoro.cycles_before_long_break
+    local display_cycle = state.phase == "work" and (state.cycle + 1) or state.cycle
+    return icon .. " " .. name .. " · " .. utils.format_time(remaining_seconds()) .. " · Ciclo " .. display_cycle .. "/" .. total
 end
 
 -- UX-06: Etiqueta corta para la menubar
 function M.menubar_label()
     if not state.active then return nil end
-    local m = math.ceil(state.seconds_left / 60)
+    local m = math.ceil(remaining_seconds() / 60)
     local icons = { work = "🍅", short_break = "☕", long_break = "🌿" }
     return (icons[state.phase] or "⏱") .. " " .. m .. "m"
 end

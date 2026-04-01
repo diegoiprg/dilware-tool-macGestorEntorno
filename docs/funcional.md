@@ -13,17 +13,20 @@ macSpaces presenta dos menús independientes en la menubar:
 ### Menú principal (⌘)
 Gestión del entorno de trabajo: perfiles, navegador, audio, música, dispositivos, red, portapapeles.
 
-### Menú de enfoque (🧘)
+### Menú de enfoque (☁️)
 Gestión de la concentración: Pomodoro, descanso activo, modo presentación. El ícono cambia dinámicamente según el estado:
 - `🍅 23m` — Pomodoro activo
 - `🎬` — Presentación activa
-- `🧘` — Por defecto
+- `☁️` — Por defecto
 
 ### Overlay flotante
-Banner semi-transparente en esquina superior derecha, visible en todos los espacios:
-- Countdown del Pomodoro actualizado cada segundo
-- Estado de presentación
-- Tiempo sin descanso (`⏱ 12:34 sin descanso`) cuando supera 5 minutos
+Banner unificado en esquina inferior derecha, visible en todos los espacios. Contiene filas coloreadas independientes por estado:
+- 🍅 Pomodoro (rojo): countdown regresivo con fase y ciclo
+- ☕/🌿 Pausa (verde): countdown de pausa corta o larga
+- ☁️ Descanso (azul): countdown regresivo hasta el próximo descanso
+- 🎬 Presentación (púrpura): indicador de modo activo
+
+Arrastrable para reposicionar. La posición se mantiene durante la sesión. Se oculta automáticamente cuando no hay estado activo.
 
 ---
 
@@ -88,6 +91,8 @@ Temporizador con ciclos configurables y DND automático.
 
 - Trabajo: 25 min → Pausa corta: 5 min → Pausa larga: 15 min (cada 4 ciclos).
 - Countdown visible en ícono del menú de enfoque y en overlay flotante.
+- Etiquetas descriptivas: "🍅 Pomodoro · 24:30 · Ciclo 1/4", "☕ Pausa corta · 04:30 · Ciclo 1/4".
+- Basado en reloj de pared (`os.time`) para precisión independiente del timer.
 - Notificaciones con datos educativos rotativos sobre productividad (Cirillo, Baumeister, Dehaene, DeMarco).
 
 ### 12. Descanso activo (`breaks.lua`)
@@ -96,7 +101,8 @@ Recordatorios periódicos para postura y vista. Activado por defecto.
 
 - Intervalo configurable: 30/45/50/60/90 min (default: 50).
 - Mensajes rotativos con datos educativos de salud (AAO, OSHA, Mayo Clinic, Cornell, AHA).
-- Tiempo sin descanso visible en overlay flotante y en submenú.
+- Countdown regresivo visible en overlay flotante (tiempo restante hasta el próximo descanso).
+- Se activa automáticamente al iniciar/recargar Hammerspoon si está habilitado en config.
 
 ### 13. Modo presentación (`presentation.lua`)
 
@@ -108,6 +114,7 @@ Tiempo acumulado por perfil durante el día. Persistido en JSON. Limpieza autom�
 
 ### 15. Sistema
 
+- **Versión**: semver visible al final del menú principal (`macSpaces vX.Y.Z`).
 - **Registro**: abre `debug.log` en Console.app.
 - **Recargar**: ejecuta `hs.reload()`.
 

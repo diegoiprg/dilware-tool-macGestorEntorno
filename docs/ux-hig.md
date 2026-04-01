@@ -30,7 +30,8 @@ macSpaces es una menubar app con dos íconos independientes: menú principal (en
 |---|---|
 | Menú pre-construido | `setMenu(items)` — apertura instantánea, reconstrucción en segundo plano |
 | Dos menús con propósito claro | Principal = entorno, Enfoque = concentración |
-| Overlay flotante no invasivo | Semi-transparente, esquina superior derecha, auto-oculta |
+| Overlay flotante no invasivo | Semi-transparente, esquina inferior derecha, auto-oculta, arrastrable |
+| Filas coloreadas por estado | Rojo (trabajo), verde (pausa), azul (descanso), púrpura (presentación) |
 | Datos educativos en notificaciones | Rotativos, con fuentes (AAO, OSHA, Cirillo, etc.) |
 | Descanso activo por defecto | Opt-out en lugar de opt-in |
 | Tiempo sin descanso visible | Presión visual positiva para tomar pausas |
