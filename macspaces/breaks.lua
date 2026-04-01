@@ -1,6 +1,6 @@
 -- macspaces/breaks.lua
 -- Recordatorios de descanso activo para salud postural y visual.
--- Rastrea tiempo sin descanso para incentivar pausas.
+-- Incluye datos educativos basados en estándares (OSHA, AAO, Mayo Clinic).
 
 local M = {}
 
@@ -10,9 +10,10 @@ local utils = require("macspaces.utils")
 local state = {
     enabled       = cfg.breaks.enabled,
     timer         = nil,
-    last_break_at = os.time(),  -- timestamp del último descanso (o arranque)
+    last_break_at = os.time(),
 }
 
+-- Mensaje + dato educativo (rotan independientemente para más variedad)
 local BREAK_MESSAGES = {
     "Levántate y camina un par de minutos.",
     "Estira el cuello y los hombros.",
@@ -21,11 +22,23 @@ local BREAK_MESSAGES = {
     "Respira profundo y estira la espalda.",
     "Parpadea varias veces y relaja los ojos.",
 }
-local message_index = 0
+
+local HEALTH_TIPS = {
+    "Regla 20-20-20: cada 20 min, mira a 6m por 20s (AAO).",
+    "Estar sentado más de 1h seguida aumenta el riesgo lumbar (OSHA).",
+    "Pausas activas cada 45-60 min reducen fatiga muscular (Mayo Clinic).",
+    "Parpadeas un 66% menos frente a pantallas, causando ojo seco (AAO).",
+    "Microdescansos de 30s cada 20 min mejoran la productividad (Cornell).",
+    "Caminar 2 min cada hora reduce el riesgo cardiovascular (AHA).",
+}
+
+local msg_index = 0
+local tip_index = 0
 
 local function next_message()
-    message_index = (message_index % #BREAK_MESSAGES) + 1
-    return BREAK_MESSAGES[message_index]
+    msg_index = (msg_index % #BREAK_MESSAGES) + 1
+    tip_index = (tip_index % #HEALTH_TIPS) + 1
+    return BREAK_MESSAGES[msg_index] .. "\n" .. HEALTH_TIPS[tip_index]
 end
 
 local function stop_timer()
@@ -41,15 +54,13 @@ local function start_timer()
     end)
 end
 
--- Tiempo sin descanso en segundos
 function M.seconds_since_break()
     return os.time() - state.last_break_at
 end
 
--- Etiqueta para overlay: "⏱ 1:23 sin descanso"
 function M.idle_label()
     local secs = M.seconds_since_break()
-    if secs < 300 then return nil end  -- no mostrar si < 5 min
+    if secs < 300 then return nil end
     return "⏱ " .. utils.format_time(secs) .. " sin descanso"
 end
 
@@ -77,7 +88,6 @@ function M.build_submenu(on_update)
         or  "○  Inactivo"
     table.insert(items, utils.disabled_item(status))
 
-    -- Mostrar tiempo sin descanso
     local idle = M.idle_label()
     if idle then table.insert(items, utils.disabled_item(idle)) end
 

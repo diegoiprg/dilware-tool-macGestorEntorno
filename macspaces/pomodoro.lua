@@ -30,13 +30,29 @@ local function stop_timer()
     if state.timer then state.timer:stop(); state.timer = nil end
 end
 
+-- Datos educativos sobre la técnica Pomodoro (rotan en cada notificación)
+local POMODORO_TIPS = {
+    "Ciclos de 25 min optimizan la atención sostenida (Cirillo, 1980s).",
+    "Las pausas cortas previenen la fatiga de decisión (Baumeister).",
+    "Alternar foco y descanso mejora la memoria a largo plazo (Dehaene).",
+    "Después de 4 ciclos, una pausa larga restaura la energía mental.",
+    "Eliminar interrupciones durante 25 min duplica la productividad (DeMarco).",
+    "El cerebro consolida aprendizaje durante las pausas (Immordino-Yang).",
+}
+local tip_index = 0
+
+local function next_tip()
+    tip_index = (tip_index % #POMODORO_TIPS) + 1
+    return POMODORO_TIPS[tip_index]
+end
+
 local function notify_phase(phase)
     local msgs = {
         work        = "A trabajar — " .. cfg.pomodoro.work_minutes .. " min.",
         short_break = "Pausa corta — " .. cfg.pomodoro.short_break .. " min.",
         long_break  = "Pausa larga — " .. cfg.pomodoro.long_break .. " min.",
     }
-    utils.notify("Pomodoro", msgs[phase] or phase)
+    utils.notify("Pomodoro", (msgs[phase] or phase) .. "\n" .. next_tip())
 end
 
 local function start_phase(phase)
