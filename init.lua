@@ -3,12 +3,11 @@
 -- https://github.com/diegoiprg/dilware-tool-macSpaces
 
 -- ─────────────────────────────────────────────
--- Punto de entrada de macSpaces v2.4.0
+-- Punto de entrada de macSpaces
 -- Carga módulos y arranca el sistema.
 -- ─────────────────────────────────────────────
 
 local hs_dir = os.getenv("HOME") .. "/.hammerspoon"
--- Evitar duplicar rutas en package.path en recargas sucesivas (hs.reload)
 local hs_lua_path = hs_dir .. "/?.lua"
 if not package.path:find(hs_lua_path, 1, true) then
     package.path = hs_lua_path .. ";" ..
@@ -52,18 +51,11 @@ if not ok then
 end
 
 utils.clear_log()
+-- BUG-01: Versión unificada desde cfg.VERSION (fuente única de verdad)
 utils.log("[INFO] macSpaces v" .. cfg.VERSION .. " iniciado")
 
--- El portapapeles captura entradas en segundo plano (sin reconstruir el menú)
 clipboard.start()
-
--- Red y VPN obtienen datos en segundo plano (sin reconstruir el menú)
--- El menú se construye on-demand al abrirse, siempre con datos frescos
 network.refresh()
 vpn.refresh()
-
--- Registrar hotkeys globales
 hotkeys.register(function() menu.build() end)
-
--- Inicializar menú (setMenu con función on-demand)
 menu.init()

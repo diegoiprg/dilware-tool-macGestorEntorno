@@ -1,6 +1,6 @@
 # ⌘ Gestor de entorno macOS — Tool
 
-![Versión](https://img.shields.io/badge/versión-v2.5.0-6366f1?style=flat-square)
+![Versión](https://img.shields.io/badge/versión-v2.6.0-6366f1?style=flat-square)
 ![Licencia](https://img.shields.io/badge/licencia-GPLv3-a855f7?style=flat-square)
 ![Plataforma](https://img.shields.io/badge/plataforma-macOS-222?style=flat-square&logo=apple&logoColor=white)
 
@@ -55,11 +55,39 @@ Funciona en segundo plano, sin ventanas extra ni configuraciones complicadas. To
 
 ## Instalación
 
+### Método manual (recomendado)
+
+```bash
+# 1. Clonar el repositorio
+git clone https://github.com/diegoiprg/dilware-tool-macGestorEntorno.git ~/dilware-tool-macGestorEntorno
+
+# 2. Copiar archivos a Hammerspoon
+cp ~/dilware-tool-macGestorEntorno/init.lua ~/.hammerspoon/init.lua
+cp -r ~/dilware-tool-macGestorEntorno/macspaces ~/.hammerspoon/macspaces
+
+# 3. Abrir Hammerspoon y presionar ⌘R para recargar
+```
+
+### Script de instalación
+
+> ⚠️ Ejecutar scripts remotos con `curl | bash` implica confiar en el contenido del repositorio. Revisa el código antes de ejecutar.
+
 ```bash
 curl -sL https://raw.githubusercontent.com/diegoiprg/dilware-tool-macGestorEntorno/main/install.sh | bash
 ```
 
 Después abre Hammerspoon y presiona ⌘R para recargar. El ícono ⌘ aparecerá en tu barra de menú.
+
+## Documentación
+
+| Documento | Descripción |
+|-----------|-------------|
+| [Funcional](docs/funcional.md) | Qué hace cada módulo |
+| [Técnico](docs/tecnico.md) | Arquitectura, APIs, dependencias |
+| [Uso](docs/uso.md) | Guía de usuario |
+| [UX/HIG](docs/ux-hig.md) | Análisis de experiencia de usuario |
+| [Seguridad](docs/seguridad.md) | Modelo de amenazas y mitigaciones |
+| [Arquitectura](docs/arquitectura.md) | Diagrama de módulos |
 
 ---
 

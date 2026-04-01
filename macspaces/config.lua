@@ -3,14 +3,8 @@
 
 local M = {}
 
--- ─────────────────────────────────────────────
--- Versión
--- ─────────────────────────────────────────────
 M.VERSION = "2.6.0"
 
--- ─────────────────────────────────────────────
--- Perfiles: orden de aparición en el menú
--- ─────────────────────────────────────────────
 M.profile_order = { "personal", "work" }
 
 M.profiles = {
@@ -18,11 +12,12 @@ M.profiles = {
         name     = "Personal",
         apps     = { "Safari" },
         browser  = "com.apple.Safari",
+        confirm_deactivate = false,
     },
     work = {
         name    = "Work",
         browser = "com.microsoft.edgemac",
-        -- PWAs instaladas en ~/Applications/Edge Apps.localized/
+        confirm_deactivate = true,
         apps = {
             "Microsoft Outlook webapp",
             "Microsoft Teams webapp",
@@ -32,27 +27,17 @@ M.profiles = {
     },
 }
 
--- ─────────────────────────────────────────────
--- Retrasos (segundos)
--- ─────────────────────────────────────────────
 M.delay = {
     short      = 0.5,
     medium     = 1.0,
     app_launch = 1.5,
 }
 
--- ─────────────────────────────────────────────
--- Hotkeys: activar perfiles
--- ─────────────────────────────────────────────
 M.hotkeys = {
     personal = { mods = { "cmd", "alt" }, key = "1" },
     work     = { mods = { "cmd", "alt" }, key = "2" },
 }
 
--- ─────────────────────────────────────────────
--- Navegadores conocidos (allowlist)
--- Solo estos aparecen en el submenú.
--- ─────────────────────────────────────────────
 M.browser_names = {
     ["com.apple.Safari"]           = "Safari",
     ["com.google.Chrome"]          = "Google Chrome",
@@ -64,59 +49,44 @@ M.browser_names = {
     ["company.thebrowser.Browser"] = "Arc",
 }
 
--- ─────────────────────────────────────────────
--- Pomodoro
--- ─────────────────────────────────────────────
 M.pomodoro = {
-    work_minutes  = 25,   -- duración del ciclo de trabajo
-    short_break   = 5,    -- pausa corta entre ciclos
-    long_break    = 15,   -- pausa larga cada N ciclos
+    work_minutes  = 25,
+    short_break   = 5,
+    long_break    = 15,
     cycles_before_long_break = 4,
-    enable_dnd    = true, -- activar No Molestar durante el ciclo de trabajo
+    enable_dnd    = true,
 }
 
--- ─────────────────────────────────────────────
--- Descanso activo
--- ─────────────────────────────────────────────
 M.breaks = {
-    interval_minutes = 50, -- recordatorio cada N minutos
-    enabled          = false, -- desactivado por defecto, el usuario lo activa
+    interval_minutes = 50,
+    enabled          = false,
 }
 
--- ─────────────────────────────────────────────
--- Portapapeles
--- ─────────────────────────────────────────────
 M.clipboard = {
-    max_entries = 20, -- máximo de entradas en el historial
-}
-
--- ─────────────────────────────────────────────
--- Modo presentación
--- ─────────────────────────────────────────────
-M.presentation = {
-    enable_dnd    = true,  -- activar No Molestar al entrar en modo presentación
-    hide_dock     = true,  -- ocultar el Dock automáticamente
-    hide_desktop  = true,  -- ocultar íconos del escritorio
-}
-
--- ─────────────────────────────────────────────
--- Lanzador rápido de apps
--- Agrega entradas como: { name = "Nombre App", icon = "🚀" }
--- o simplemente como string: "Nombre App"
--- ─────────────────────────────────────────────
-M.launcher = {
-    apps = {
-        -- Ejemplos (descomenta los que quieras usar):
-        -- { name = "Safari",           icon = "🌐" },
-        -- { name = "Visual Studio Code", icon = "💻" },
-        -- { name = "Spotify",          icon = "🎵" },
-        -- { name = "Terminal",         icon = "⌨️"  },
+    max_entries = 20,
+    -- Apps cuyo contenido copiado NO se captura (gestores de contraseñas, etc.)
+    ignore_apps = {
+        "1Password",
+        "Keychain Access",
+        "Bitwarden",
+        "LastPass",
+        "Dashlane",
+        "KeePassXC",
     },
 }
 
--- ─────────────────────────────────────────────
--- Ícono del menú
--- ─────────────────────────────────────────────
+M.presentation = {
+    enable_dnd    = true,
+    hide_dock     = true,
+    hide_desktop  = true,
+}
+
+M.launcher = {
+    apps = {},
+}
+
+-- Ícono del menú (emoji fallback; para ícono nativo coloca macspaces_icon.png
+-- 18×18pt monocromática en ~/.hammerspoon/)
 M.menu_icon = "⌘"
 
 return M

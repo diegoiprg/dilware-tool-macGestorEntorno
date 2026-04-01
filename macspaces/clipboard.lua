@@ -1,22 +1,13 @@
 -- macspaces/clipboard.lua
--- Historial del portapapeles: almacena hasta N entradas recientes.
--- Al seleccionar una entrada, la restaura al portapapeles para pegado manual.
--- La búsqueda usa hs.chooser con filtrado nativo por texto.
+-- Historial del portapapeles con blocklist de apps sensibles.
 
 local M = {}
 
 local cfg   = require("macspaces.config")
 local utils = require("macspaces.utils")
 
--- ─────────────────────────────────────────────
--- Estado interno
--- ─────────────────────────────────────────────
 local history = {}
 local watcher = nil
-
--- ─────────────────────────────────────────────
--- Helpers
--- ─────────────────────────────────────────────
 
 local function truncate(str, max)
     if not str then return "" end
@@ -25,34 +16,37 @@ local function truncate(str, max)
     return str
 end
 
+-- SEC-05: Verifica si la app activa está en la blocklist
+local function is_ignored_app()
+    local ignore = cfg.clipboard and cfg.clipboard.ignore_apps
+    if not ignore or #ignore == 0 then return false end
+    local app = hs.application.frontmostApplication()
+    if not app then return false end
+    local name = app:name()
+    for _, blocked in ipairs(ignore) do
+        if name == blocked then return true end
+    end
+    return false
+end
+
 local function capture_entry()
+    if is_ignored_app() then return end
     local types = hs.pasteboard.contentTypes()
     if not types or #types == 0 then return end
 
     local entry = { timestamp = os.time() }
-
     local text = hs.pasteboard.getContents()
     if text and text ~= "" then
-        entry.type    = "text"
-        entry.content = text
-        entry.label   = truncate(text, 60)
+        entry.type = "text"; entry.content = text; entry.label = truncate(text, 60)
     elseif hs.pasteboard.readImage() then
-        local img = hs.pasteboard.readImage()
-        entry.type    = "image"
-        entry.content = img
-        entry.label   = "[Imagen]"
+        entry.type = "image"; entry.content = hs.pasteboard.readImage(); entry.label = "[Imagen]"
     elseif hs.pasteboard.readURL() then
         local url = hs.pasteboard.readURL()
-        entry.type    = "url"
-        entry.content = url
-        entry.label   = truncate(url, 60)
+        entry.type = "url"; entry.content = url; entry.label = truncate(url, 60)
     else
-        entry.type    = "other"
-        entry.content = nil
-        entry.label   = "[Contenido no previsualizable]"
+        entry.type = "other"; entry.content = nil; entry.label = "[Contenido no previsualizable]"
     end
 
-    -- Evitar duplicados consecutivos de texto; para imágenes comparar por timestamp aproximado
     if #history > 0 then
         local last = history[1]
         if entry.type == "text" and last.type == "text" and last.label == entry.label then return end
@@ -60,63 +54,33 @@ local function capture_entry()
     end
 
     table.insert(history, 1, entry)
-
     local max = cfg.clipboard and cfg.clipboard.max_entries or 20
     while #history > max do table.remove(history) end
-
-    utils.log("[INFO] Clipboard: entrada capturada (" .. entry.type .. ")")
 end
 
--- ─────────────────────────────────────────────
--- API pública
--- ─────────────────────────────────────────────
-
 function M.start(on_change)
-    -- hs.pasteboard.watcher es event-driven: solo dispara cuando cambia el portapapeles
     watcher = hs.pasteboard.watcher.new(function()
         capture_entry()
         if on_change then on_change() end
     end)
     watcher:start()
-    utils.log("[INFO] Clipboard watcher iniciado")
 end
 
-function M.stop()
-    if watcher then
-        watcher:stop()
-        watcher = nil
-    end
-end
-
-function M.clear()
-    history = {}
-    utils.log("[INFO] Clipboard: historial limpiado")
-end
+function M.stop()  if watcher then watcher:stop(); watcher = nil end end
+function M.clear() history = {} end
 
 function M.restore(index)
     local entry = history[index]
     if not entry then return end
-
-    if entry.type == "text" then
-        hs.pasteboard.setContents(entry.content)
-    elseif entry.type == "image" and entry.content then
-        hs.pasteboard.writeObjects(entry.content)
-    elseif entry.type == "url" then
-        hs.pasteboard.setContents(entry.content)
+    if entry.type == "text" then hs.pasteboard.setContents(entry.content)
+    elseif entry.type == "image" and entry.content then hs.pasteboard.writeObjects(entry.content)
+    elseif entry.type == "url" then hs.pasteboard.setContents(entry.content)
     end
-
-    utils.log("[OK] Clipboard: entrada " .. index .. " restaurada")
 end
 
--- Abre el chooser con todas las entradas; el usuario filtra escribiendo
 function M.open_chooser()
-    if #history == 0 then
-        utils.notify("macSpaces", "El historial del portapapeles está vacío")
-        return
-    end
-
+    if #history == 0 then utils.notify("macSpaces", "Historial vacío"); return end
     local icon_map = { text = "📝", image = "🖼️", url = "🔗", other = "📋" }
-
     local choices = {}
     for i, entry in ipairs(history) do
         table.insert(choices, {
@@ -125,66 +89,40 @@ function M.open_chooser()
             _index  = i,
         })
     end
-
     local chooser = hs.chooser.new(function(choice)
         if not choice then return end
         M.restore(choice._index)
-        utils.notify("macSpaces", "Portapapeles restaurado")
     end)
-
     chooser:choices(choices)
     chooser:placeholderText("Buscar en historial…")
-    chooser:searchSubText(true)   -- filtra también por subText (hora y tipo)
+    chooser:searchSubText(true)
     chooser:show()
 end
 
--- Construye el submenú del portapapeles
 function M.build_submenu(on_update)
     local items = {}
-    local max   = cfg.clipboard and cfg.clipboard.max_entries or 20
-
-    table.insert(items, {
-        title = string.format("Historial  %d/%d", #history, max),
-        fn    = function() end,
-    })
+    local max = cfg.clipboard and cfg.clipboard.max_entries or 20
+    table.insert(items, utils.disabled_item(string.format("Historial  %d/%d", #history, max)))
     table.insert(items, { title = "-" })
 
     if #history == 0 then
-        table.insert(items, { title = "Sin entradas aún", fn = function() end })
+        table.insert(items, utils.disabled_item("Sin entradas aún"))
         return items
     end
 
-    -- Búsqueda via chooser nativo
-    table.insert(items, {
-        title = "🔍  Buscar…",
-        fn    = function() M.open_chooser() end,
-    })
+    table.insert(items, { title = "🔍  Buscar…", fn = function() M.open_chooser() end })
     table.insert(items, { title = "-" })
 
-    -- Entradas del historial
     local icon_map = { text = "📝", image = "🖼️", url = "🔗", other = "📋" }
     for i, entry in ipairs(history) do
-        local time_label = os.date("%H:%M", entry.timestamp)
-        local icon = icon_map[entry.type] or "📋"
-
         table.insert(items, {
-            title = string.format("%s  %s  [%s]", icon, entry.label, time_label),
-            fn    = function()
-                M.restore(i)
-                utils.notify("macSpaces", "Portapapeles restaurado")
-            end,
+            title = string.format("%s  %s  [%s]", icon_map[entry.type] or "📋", entry.label, os.date("%H:%M", entry.timestamp)),
+            fn = function() M.restore(i) end,
         })
     end
 
     table.insert(items, { title = "-" })
-    table.insert(items, {
-        title = "Limpiar historial",
-        fn    = function()
-            M.clear()
-            if on_update then on_update() end
-        end,
-    })
-
+    table.insert(items, { title = "Limpiar historial", fn = function() M.clear(); if on_update then on_update() end end })
     return items
 end
 

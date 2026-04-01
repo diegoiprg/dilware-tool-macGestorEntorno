@@ -79,7 +79,7 @@ function M.build_submenu()
     local current   = M.current()
 
     if #installed == 0 then
-        return {{ title = "Sin navegadores detectados", fn = function() end }}
+        return {{ title = "Sin navegadores detectados", disabled = true }}
     end
 
     local items = {}
