@@ -1,40 +1,44 @@
-# Arquitectura — macSpaces v2.6.0
+# Arquitectura — macSpaces v2.7.0
 
 ## Visión general
 
-macSpaces es una herramienta de barra de menú para macOS construida sobre [Hammerspoon](https://www.hammerspoon.org), un framework de automatización que expone APIs del sistema a través de Lua. Se ejecuta como módulos Lua cargados por Hammerspoon al inicio, sin proceso propio ni empaquetado `.app`.
+macSpaces es una herramienta de barra de menú para macOS construida sobre [Hammerspoon](https://www.hammerspoon.org). Se ejecuta como módulos Lua cargados al inicio, sin proceso propio ni empaquetado `.app`. Presenta dos menús independientes en la menubar y un overlay flotante opcional.
 
 ## Diagrama de componentes
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    Hammerspoon (host)                    │
-│  ┌───────────────────────────────────────────────────┐  │
-│  │                    init.lua                        │  │
-│  │         (punto de entrada, validación)             │  │
-│  └──────────────────────┬────────────────────────────┘  │
-│                         │                                │
-│  ┌──────────────────────▼────────────────────────────┐  │
-│  │                   menu.lua                         │  │
-│  │        (menubar, construcción on-demand)           │  │
-│  └──┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬──┘  │
-│     │   │   │   │   │   │   │   │   │   │   │   │      │
-│     ▼   ▼   ▼   ▼   ▼   ▼   ▼   ▼   ▼   ▼   ▼   ▼    │
-│  ┌─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┐    │
-│  │prof.│brow.│audio│music│batt.│bluet│netw.│ vpn  │    │
-│  ├─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┤    │
-│  │clip.│laun.│pomo.│break│pres.│hist.│hotk.│ dnd  │    │
-│  └─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┘    │
-│                         │                                │
-│  ┌──────────────────────▼────────────────────────────┐  │
-│  │              config.lua  ·  utils.lua              │  │
-│  │         (configuración central y utilidades)       │  │
-│  └───────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                      Hammerspoon (host)                      │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │                      init.lua                          │  │
+│  │       (punto de entrada, validación, prewarm)          │  │
+│  └──────────┬──────────────────────┬─────────────────────┘  │
+│             │                      │                         │
+│  ┌──────────▼──────────┐  ┌───────▼──────────────────┐     │
+│  │      menu.lua       │  │    focus_menu.lua         │     │
+│  │  (menú principal)   │  │  (menú de enfoque)        │     │
+│  │  setMenu(items)     │  │  setMenu(items)           │     │
+│  └──┬──┬──┬──┬──┬──┬──┘  └──┬──────┬──────┬─────────┘     │
+│     │  │  │  │  │  │        │      │      │                 │
+│     ▼  ▼  ▼  ▼  ▼  ▼        ▼      ▼      ▼                │
+│  ┌─────┬─────┬─────┐    ┌─────┬──────┬──────┐              │
+│  │prof.│brow.│audio│    │pomo.│breaks│pres. │              │
+│  ├─────┼─────┼─────┤    └─────┴──────┴──────┘              │
+│  │music│batt.│bluet│         │                              │
+│  ├─────┼─────┼─────┤    ┌────▼───────────────┐              │
+│  │netw.│ vpn │clip.│    │  focus_overlay.lua  │              │
+│  ├─────┼─────┼─────┤    │  (banner flotante)  │              │
+│  │laun.│hist.│hotk.│    └────────────────────┘              │
+│  └─────┴─────┴─────┘                                        │
+│             │                                                │
+│  ┌──────────▼────────────────────────────────────────────┐  │
+│  │              config.lua  ·  utils.lua  ·  dnd.lua      │  │
+│  └───────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────┘
          │              │              │
          ▼              ▼              ▼
    ┌──────────┐  ┌───────────┐  ┌──────────┐
-   │ macOS    │  │ ipapi.co │  │ ioreg    │
+   │ macOS    │  │ ipapi.co  │  │ ioreg    │
    │ APIs     │  │ (HTTPS)   │  │ defaults │
    └──────────┘  └───────────┘  └──────────┘
 ```
@@ -43,11 +47,13 @@ macSpaces es una herramienta de barra de menú para macOS construida sobre [Hamm
 
 ```
 ~/.hammerspoon/
-├── init.lua                    ← Punto de entrada
+├── init.lua                    ← Punto de entrada, prewarm de cachés
 └── macspaces/
     ├── config.lua              ← Configuración central (editable)
     ├── utils.lua               ← Log, notificaciones, helpers
-    ├── menu.lua                ← Menú de barra de estado
+    ├── menu.lua                ← Menú principal (entorno)
+    ├── focus_menu.lua          ← Menú de enfoque (Pomodoro, descanso, presentación)
+    ├── focus_overlay.lua       ← Banner flotante persistente (hs.canvas)
     ├── profiles.lua            ← Espacios virtuales y perfiles
     ├── browsers.lua            ← Navegador predeterminado
     ├── audio.lua               ← Dispositivo de salida de audio
@@ -72,21 +78,34 @@ macSpaces es una herramienta de barra de menú para macOS construida sobre [Hamm
 
 Cada archivo retorna una tabla `M` con funciones públicas. El estado se mantiene en variables locales (closures). `require()` cachea módulos, garantizando una sola instancia.
 
-### Menú on-demand
+### Menú pre-construido
 
-`menubar:setMenu(build_items)` recibe una función, no una tabla. Hammerspoon la invoca al abrir el menú, evitando reconstrucciones innecesarias y parpadeo.
+Ambos menús usan `setMenu(items)` con una tabla pre-construida. La reconstrucción ocurre cada 5 segundos en segundo plano, no al hacer clic. Esto garantiza apertura instantánea.
+
+### Pre-calentamiento de cachés
+
+`init.lua` ejecuta un timer cada 30 segundos que llama a los módulos costosos (`bluetooth.devices()`, `browsers.installed()`, `music.is_running()`, `battery.has_battery()`) para mantener sus cachés calientes.
 
 ### Caché con TTL
 
-Módulos con datos costosos (`network`, `vpn`, `bluetooth`, `audio`) usan caché temporal:
+Módulos con datos costosos usan caché temporal:
 
-```lua
-local cache = { data = nil, last_fetch = 0, ttl = 60 }
-```
+| Módulo | TTL | Dato |
+|---|---|---|
+| bluetooth | 120s | Dispositivos ioreg |
+| vpn | 10s | Interfaces, is_active |
+| network | 60s | IP externa |
+| audio | 10s | Dispositivos |
+| battery | permanente | has_battery |
+| music | 3s | is_running |
+
+### Overlay flotante (hs.canvas)
+
+`focus_overlay.lua` usa `hs.canvas` para un banner semi-transparente visible en todos los espacios. Se actualiza cada segundo y se oculta automáticamente cuando no hay estado activo.
 
 ### Callbacks asíncronos con timers
 
-La activación de perfiles encadena `hs.timer.doAfter()` con delays configurables. No hay promesas ni corrutinas.
+La activación de perfiles encadena `hs.timer.doAfter()` con delays configurables.
 
 ### Configuración centralizada
 
@@ -96,25 +115,15 @@ La activación de perfiles encadena `hs.timer.doAfter()` con delays configurable
 
 ```
 Hammerspoon → init.lua
-  1. Configura package.path (sin duplicar en recargas)
+  1. Configura package.path
   2. Carga y valida config.lua
   3. Limpia log, inicia clipboard watcher
   4. Refresca red y VPN en segundo plano
   5. Registra hotkeys globales
-  6. Inicializa menubar con setMenu(fn)
-```
-
-## Flujo de activación de perfil
-
-```
-profiles.activate(key)
-  1. Crea espacio virtual → hs.spaces.addSpaceToScreen()
-  2. delay.short → obtiene ID del nuevo espacio
-  3. Navega al espacio → hs.spaces.gotoSpace()
-  4. delay.medium → lanza apps secuencialmente
-  5. Cada app: launchOrFocus → delay.app_launch → moveWindowToSpace
-  6. Cambia navegador predeterminado si aplica
-  7. Notifica y ejecuta on_done
+  6. Inicializa menú principal (menu.init)
+  7. Inicializa menú de enfoque (focus_menu.init) + overlay
+  8. Pre-calienta cachés costosos (diferido 1s)
+  9. Inicia timer de prewarm cada 30s
 ```
 
 ## Dependencias externas
@@ -132,14 +141,14 @@ profiles.activate(key)
 | Dato | Ubicación | Formato |
 |---|---|---|
 | Historial de sesiones | `~/.hammerspoon/macspaces_history.json` | JSON |
-| Log de depuración | `~/.hammerspoon/debug.log` | Texto plano |
+| Log de depuración | `~/.hammerspoon/debug.log` | Texto plano (rotación 1MB) |
 | Portapapeles | Solo memoria | — |
 | Estado de perfiles | Solo memoria | — |
 
 ## Limitaciones arquitectónicas
 
-1. **Sin proceso propio**: depende de Hammerspoon. Si se cierra, macSpaces deja de funcionar.
+1. **Sin proceso propio**: depende de Hammerspoon.
 2. **Sin hot-reload**: cambios en `config.lua` requieren ⌘R.
-3. **Coordinación por timers**: delays fijos, no eventos. Apps lentas pueden no moverse correctamente.
+3. **Coordinación por timers**: delays fijos, no eventos.
 4. **Estado volátil**: perfiles activos, portapapeles y Pomodoro se pierden al recargar.
 5. **Monopantalla**: `hs.screen.mainScreen()` asume una sola pantalla.

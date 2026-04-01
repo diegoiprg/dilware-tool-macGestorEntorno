@@ -1,8 +1,29 @@
-# Especificación Funcional — macSpaces v2.6.0
+# Especificación Funcional — macSpaces v2.7.0
 
 ## Propósito
 
-Centralizar el control del entorno de trabajo en macOS desde un único ícono en la barra de menú: espacios virtuales, navegador, audio, red, productividad y más.
+Centralizar el control del entorno de trabajo en macOS desde dos íconos en la barra de menú: uno para gestión del entorno (perfiles, dispositivos, red) y otro para gestión del enfoque (Pomodoro, descanso, presentación).
+
+---
+
+## Arquitectura de menús
+
+macSpaces presenta dos menús independientes en la menubar:
+
+### Menú principal (⌘)
+Gestión del entorno de trabajo: perfiles, navegador, audio, música, dispositivos, red, portapapeles.
+
+### Menú de enfoque (🧘)
+Gestión de la concentración: Pomodoro, descanso activo, modo presentación. El ícono cambia dinámicamente según el estado:
+- `🍅 23m` — Pomodoro activo
+- `🎬` — Presentación activa
+- `🧘` — Por defecto
+
+### Overlay flotante
+Banner semi-transparente en esquina superior derecha, visible en todos los espacios:
+- Countdown del Pomodoro actualizado cada segundo
+- Estado de presentación
+- Tiempo sin descanso (`⏱ 12:34 sin descanso`) cuando supera 5 minutos
 
 ---
 
@@ -13,7 +34,8 @@ Centralizar el control del entorno de trabajo en macOS desde un único ícono en
 Aísla contextos en espacios virtuales dedicados con apps asociadas.
 
 - Activar: crea espacio, navega, lanza apps, mueve ventanas, cambia navegador.
-- Desactivar: cierra apps, reubica ventanas huérfanas, elimina espacio, registra sesión.
+- Desactivar: cierra apps, reubica ventanas huérfanas, elimina espacio, restaura navegador previo, registra sesión.
+- Confirmación configurable al desactivar (`confirm_deactivate`).
 - Atajos: ⌘⌥1 (Personal), ⌘⌥2 (Work).
 
 | Perfil | Apps | Navegador |
@@ -27,96 +49,62 @@ Cambia el navegador predeterminado del sistema sin abrir Preferencias.
 
 - Allowlist configurable (Safari, Chrome, Edge, Firefox, Brave, Opera, Vivaldi, Arc).
 - Checkmark en el navegador activo.
-- Cambio inmediato y global (afecta todo el sistema).
 
 ### 3. Audio (`audio.lua`)
 
-Cambia el dispositivo de salida de audio predeterminado.
-
-- Lista dispositivos disponibles con checkmark en el activo.
-- Caché de 10 segundos.
+Cambia el dispositivo de salida de audio predeterminado. Caché de 10 segundos.
 
 ### 4. Apple Music (`music.lua`)
 
-Controla Apple Music via AppleScript.
-
-- Muestra canción, artista y álbum actuales.
-- Controles: play/pause, siguiente, anterior.
-- Si Music.app no está abierta, ofrece abrirla.
+Controla Apple Music via AppleScript: play/pause, siguiente, anterior, canción actual. Si Music.app no está abierta, ofrece abrirla.
 
 ### 5. Batería (`battery.lua`)
 
-Estado de batería (solo MacBook, invisible en escritorio).
-
-- Porcentaje, estado de carga, alertas (baja < 40%, crítica < 20%).
-- Clic copia porcentaje al portapapeles.
+Submenú con porcentaje, estado de carga, ciclos, tiempo restante. Solo visible en MacBook.
 
 ### 6. Bluetooth (`bluetooth.lua`)
 
-Dispositivos BT conectados con nivel de batería.
-
-- Detección via `ioreg`. Soporta Apple y terceros (Logitech, etc.).
-- Íconos por tipo: 🎧 auriculares, 🖱 mouse, ⌨️ teclado, etc.
-- Caché de 60 segundos.
+Dispositivos BT conectados con nivel de batería via `ioreg`. Íconos por tipo. Caché de 120 segundos.
 
 ### 7. Red (`network.lua`)
 
-Información de conexión local y remota.
-
-- Local: tipo (WiFi/Ethernet/VPN), SSID, IP local.
-- Remota (ipapi.co): IP externa, país, región, ciudad, ISP.
-- TTL de 60 segundos. Actualización manual disponible.
+Info local (tipo, SSID, IP) y remota (IP externa, país, ISP via ipapi.co). TTL 60s.
 
 ### 8. VPN (`vpn.lua`)
 
-Detección de VPN activa con geolocalización del túnel.
-
-- Detecta interfaces `utun*`/`ppp*` (excluye iCloud Private Relay, Handoff).
-- Muestra IP del túnel e info geográfica via ipapi.co.
-- Solo visible cuando hay VPN activa. TTL de 120 segundos.
+Detección de VPN activa con geolocalización del túnel. Interfaces cacheadas con TTL 10s. Solo visible cuando hay VPN activa.
 
 ### 9. Portapapeles (`clipboard.lua`)
 
-Historial de las últimas 20 entradas copiadas (configurable).
-
-- Captura texto, imágenes y URLs automáticamente.
-- Restaurar con clic. Búsqueda via `hs.chooser`.
-- Deduplicación de entradas consecutivas.
-- Solo en memoria (se pierde al recargar).
+Historial de las últimas 20 entradas. Restaurar con clic, búsqueda via `hs.chooser`. Blocklist de apps sensibles configurable. Solo en memoria.
 
 ### 10. Lanzador rápido (`launcher.lua`)
 
-Acceso directo a apps favoritas. Vacío por defecto, configurable en `config.lua`. No aparece si no hay apps configuradas.
+Acceso directo a apps favoritas. Configurable en `config.lua`. No aparece si no hay apps.
 
 ### 11. Pomodoro (`pomodoro.lua`)
 
 Temporizador con ciclos configurables y DND automático.
 
-- Trabajo: 25 min → Pausa corta: 5 min → ... → Pausa larga: 15 min (cada 4 ciclos).
-- Notificación al cambiar fase. Opción de saltar fase.
-- Tiempo restante visible en el título del ítem del menú.
+- Trabajo: 25 min → Pausa corta: 5 min → Pausa larga: 15 min (cada 4 ciclos).
+- Countdown visible en ícono del menú de enfoque y en overlay flotante.
+- Notificaciones con datos educativos rotativos sobre productividad (Cirillo, Baumeister, Dehaene, DeMarco).
 
 ### 12. Descanso activo (`breaks.lua`)
 
-Recordatorios periódicos para postura y vista.
+Recordatorios periódicos para postura y vista. Activado por defecto.
 
-- Desactivado por defecto. Intervalo: 30/45/50/60/90 min.
-- Mensajes rotativos con sugerencias de estiramiento e hidratación.
+- Intervalo configurable: 30/45/50/60/90 min (default: 50).
+- Mensajes rotativos con datos educativos de salud (AAO, OSHA, Mayo Clinic, Cornell, AHA).
+- Tiempo sin descanso visible en overlay flotante y en submenú.
 
 ### 13. Modo presentación (`presentation.lua`)
 
-Prepara el Mac para presentar con un clic.
-
-- Activa DND, oculta Dock, oculta íconos del escritorio.
-- Confirmación antes de activar (reinicia Dock/Finder).
-- Restaura estado original al desactivar.
+Activa DND, oculta Dock e íconos del escritorio. Confirmación antes de activar. Restaura estado al desactivar.
 
 ### 14. Historial de sesiones (`history.lua`)
 
-Tiempo acumulado por perfil durante el día.
-
-- Registro automático al desactivar perfil (ignora < 10 seg).
-- Persistido en JSON. Limpieza automática > 30 días.
+Tiempo acumulado por perfil durante el día. Persistido en JSON. Limpieza automática > 30 días.
 
 ### 15. Sistema
 
@@ -135,8 +123,8 @@ Tiempo acumulado por perfil durante el día.
 | `browser_names` | Allowlist de navegadores |
 | `delay` | Tiempos de espera (short, medium, app_launch) |
 | `pomodoro` | Duración de ciclos, pausas, DND |
-| `breaks` | Intervalo, estado inicial |
-| `clipboard` | Máximo de entradas |
+| `breaks` | Intervalo, estado inicial (default: activado) |
+| `clipboard` | Máximo de entradas, blocklist de apps |
 | `presentation` | DND, Dock, escritorio |
 | `launcher` | Apps con nombre e ícono |
 | `menu_icon` | Carácter del ícono en menubar |

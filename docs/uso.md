@@ -1,121 +1,104 @@
-# Guía de Uso — macSpaces v2.6.0
+# Guía de Uso — macSpaces v2.7.0
 
 ## Requisitos
 
 - macOS con Mission Control habilitado
-- [Hammerspoon](https://www.hammerspoon.org) instalado y ejecutado al menos una vez
-- Permisos de Accesibilidad y Automatización para Hammerspoon (Preferencias del Sistema → Privacidad y Seguridad)
+- [Hammerspoon](https://www.hammerspoon.org) instalado
+- Permisos de Accesibilidad y Automatización para Hammerspoon
 
 ## Instalación
+
+### Método manual (recomendado)
+
+```bash
+git clone https://github.com/diegoiprg/dilware-tool-macGestorEntorno.git ~/dilware-tool-macGestorEntorno
+cp ~/dilware-tool-macGestorEntorno/init.lua ~/.hammerspoon/init.lua
+cp -r ~/dilware-tool-macGestorEntorno/macspaces ~/.hammerspoon/macspaces
+```
+
+Abre Hammerspoon y presiona ⌘R para recargar.
+
+### Script de instalación
+
+> ⚠️ Revisa el código antes de ejecutar scripts remotos.
 
 ```bash
 curl -sL https://raw.githubusercontent.com/diegoiprg/dilware-tool-macGestorEntorno/main/install.sh | bash
 ```
 
-El script:
-1. Clona el repositorio en `~/dilware-tool-macSpaces` (o actualiza si ya existe)
-2. Respalda `init.lua` y `macspaces/` existentes
-3. Copia los archivos a `~/.hammerspoon/`
+---
 
-Después: abre Hammerspoon y presiona ⌘R para recargar. El ícono ⌘ aparecerá en la barra de menú.
+## Dos menús en la menubar
+
+macSpaces presenta dos íconos independientes:
+
+### ⌘ Menú principal — gestión del entorno
+- Perfiles de trabajo (activar/desactivar con clic o ⌘⌥1 / ⌘⌥2)
+- Entorno: navegador, audio, música
+- Dispositivos: batería, Bluetooth
+- Red: conexión local, IP externa, VPN
+- Portapapeles: historial, búsqueda
+- Lanzador rápido (si hay apps configuradas)
+- Historial de sesiones
+- Registro y recarga
+
+### 🧘 Menú de enfoque — gestión de la concentración
+- Pomodoro: temporizador con ciclos y DND automático
+- Descanso activo: recordatorios periódicos de postura y vista
+- Presentación: DND + Dock oculto + escritorio limpio
+
+El ícono de enfoque cambia según el estado: `🍅 23m` (Pomodoro), `🎬` (presentación), `🧘` (por defecto).
+
+### Overlay flotante
+
+Un banner semi-transparente en la esquina superior derecha muestra:
+- Countdown del Pomodoro en tiempo real
+- Estado de presentación
+- Tiempo sin descanso (`⏱ 12:34 sin descanso`) cuando supera 5 minutos
+
+Visible en todos los espacios de Mission Control. Se oculta automáticamente cuando no hay estado activo.
+
+---
 
 ## Uso básico
 
 ### Perfiles
 
-Haz clic en el ícono ⌘ de la barra de menú. Los perfiles aparecen en la parte superior:
+Los perfiles aparecen en la parte superior del menú principal:
 
 - **Personal** (⌘⌥1): abre Safari en un espacio dedicado
 - **Work** (⌘⌥2): abre Outlook, Teams, OneDrive y Edge en un espacio dedicado
 
-Al activar un perfil:
-- Se crea un nuevo espacio virtual
-- Se lanzan las apps configuradas y se mueven al espacio
-- El navegador predeterminado cambia al vinculado con el perfil
-
-Al hacer clic de nuevo en un perfil activo (o presionar el atajo):
-- Se cierran las apps del perfil
-- Se elimina el espacio virtual
-- Se registra el tiempo de la sesión
-
-### Navegador
-
-Submenú **Navegador**: muestra los navegadores instalados. Haz clic en uno para hacerlo predeterminado del sistema. El activo tiene un checkmark.
-
-### Audio
-
-Submenú **Audio**: lista los dispositivos de salida. Haz clic para cambiar.
-
-### Apple Music
-
-Submenú **Music**: muestra la canción actual y ofrece controles de reproducción. Si Music.app no está abierta, puedes abrirla desde aquí.
-
-### Batería
-
-Solo visible en MacBook. Muestra porcentaje y estado. Haz clic para copiar el porcentaje.
-
-### Bluetooth
-
-Submenú **Bluetooth**: lista dispositivos conectados con nivel de batería. El número entre paréntesis indica cuántos hay conectados.
-
-### Red
-
-Submenú **Red**: muestra tipo de conexión, IP local, IP externa con geolocalización. Botón "Actualizar" para refrescar.
-
-### VPN
-
-Solo aparece cuando hay una VPN activa. Muestra interfaz, IP del túnel e información geográfica de la IP pública via VPN.
-
-### Portapapeles
-
-Submenú **Portapapeles**: historial de las últimas 20 entradas copiadas.
-
-- Haz clic en una entrada para restaurarla al portapapeles
-- **Buscar…**: abre un buscador con filtrado en tiempo real
-- **Limpiar historial**: vacía todas las entradas
-
-⚠️ El historial se pierde al recargar Hammerspoon.
+Al activar: se crea espacio, se lanzan apps, se cambia navegador.
+Al desactivar: se cierran apps, se elimina espacio, se restaura navegador previo, se registra sesión.
 
 ### Pomodoro
 
-Submenú **Pomodoro**: temporizador de productividad.
-
-- **Iniciar**: comienza ciclo de 25 min trabajo → 5 min pausa
-- Cada 4 ciclos: pausa larga de 15 min
-- No Molestar se activa automáticamente durante el trabajo
-- **Saltar fase**: avanza a la siguiente fase
-- **Detener**: para el temporizador
-
-El tiempo restante aparece en el título del ítem cuando está activo.
+Desde el menú de enfoque 🧘:
+- **Iniciar**: 25 min trabajo → 5 min pausa → ... → 15 min pausa larga (cada 4 ciclos)
+- DND se activa automáticamente durante el trabajo
+- El countdown aparece en el ícono y en el overlay flotante
+- Cada notificación incluye un dato educativo sobre productividad
 
 ### Descanso activo
 
-Submenú **Descanso**: recordatorios periódicos para postura y vista.
+Activado por defecto. Cada 50 minutos recibes una notificación con:
+- Una sugerencia de estiramiento o hidratación
+- Un dato de salud basado en estándares (AAO, OSHA, Mayo Clinic)
 
-- Desactivado por defecto
-- Elige intervalo (30–90 min) y activa
-- Recibirás notificaciones con sugerencias de estiramiento
+El overlay muestra cuánto tiempo llevas sin descanso. Puedes cambiar el intervalo (30-90 min) o desactivarlo desde el menú de enfoque.
 
 ### Modo presentación
 
-Submenú **Presentación**: prepara el Mac para presentar.
+Desde el menú de enfoque: activa DND, oculta Dock y limpia escritorio con un clic. Pide confirmación. Al desactivar, restaura todo.
 
-- Activa No Molestar, oculta Dock y limpia escritorio
-- Pide confirmación antes de activar (reinicia Dock y Finder)
-- Al desactivar, restaura el estado original
+### Portapapeles
 
-### Lanzador rápido
+Historial de las últimas 20 entradas. Clic para restaurar. **Buscar…** abre un buscador con filtrado. Se pierde al recargar.
 
-Solo aparece si has configurado apps en `config.lua`. Permite abrir apps favoritas con un clic.
+### Red y VPN
 
-### Historial
-
-Submenú **Historial**: muestra el tiempo acumulado por perfil durante el día. Haz clic en un tiempo para copiarlo.
-
-### Sistema
-
-- **Registro**: abre el archivo de log en Console.app
-- **Recargar**: recarga Hammerspoon (aplica cambios en config)
+Submenú Red muestra conexión local e IP externa con geolocalización. VPN aparece solo cuando está activa, con IP del túnel e info geográfica.
 
 ---
 
@@ -132,22 +115,10 @@ M.profiles.study = {
     name    = "Study",
     apps    = { "Notion", "Safari" },
     browser = "com.apple.Safari",
+    confirm_deactivate = true,
 }
 
--- Opcional: atajo de teclado
 M.hotkeys.study = { mods = { "cmd", "alt" }, key = "3" }
-```
-
-### Configurar el lanzador
-
-```lua
-M.launcher = {
-    apps = {
-        { name = "Visual Studio Code", icon = "💻" },
-        { name = "Spotify",            icon = "🎵" },
-        { name = "Terminal",           icon = "⌨️"  },
-    },
-}
 ```
 
 ### Ajustar Pomodoro
@@ -162,13 +133,27 @@ M.pomodoro = {
 }
 ```
 
-### Cambiar ícono del menú
+### Ajustar descanso activo
 
 ```lua
-M.menu_icon = "◇"  -- o cualquier carácter/emoji
+M.breaks = {
+    interval_minutes = 45,
+    enabled          = true,
+}
 ```
 
-Después de editar, presiona ⌘R en Hammerspoon para aplicar.
+### Configurar lanzador
+
+```lua
+M.launcher = {
+    apps = {
+        { name = "Visual Studio Code", icon = "💻" },
+        { name = "Spotify",            icon = "🎵" },
+    },
+}
+```
+
+Después de editar, presiona ⌘R para aplicar.
 
 ---
 
@@ -176,10 +161,10 @@ Después de editar, presiona ⌘R en Hammerspoon para aplicar.
 
 | Problema | Solución |
 |---|---|
-| El ícono ⌘ no aparece | Verifica que Hammerspoon esté abierto. Presiona ⌘R para recargar. |
-| Las apps no se mueven al espacio | Aumenta `delay.app_launch` en config.lua (ej: 2.0 o 3.0). |
-| "Configuración inválida" al iniciar | Revisa config.lua: `VERSION`, `delay.short`, `profile_order` y `profiles` son obligatorios. |
-| Bluetooth no muestra dispositivos | Verifica que estén conectados. La detección usa `ioreg` y puede tardar hasta 60 seg en actualizar. |
-| IP externa dice "Obteniendo…" | Verifica conexión a internet. ipapi.co puede estar temporalmente inaccesible. |
-| Modo presentación no restaura el Dock | Ejecuta manualmente: `defaults write com.apple.dock autohide -bool false && killall Dock` |
-| Permisos de Accesibilidad | Preferencias del Sistema → Privacidad y Seguridad → Accesibilidad → Habilitar Hammerspoon |
+| Los íconos no aparecen | Verifica que Hammerspoon esté abierto. ⌘R para recargar. |
+| Apps no se mueven al espacio | Aumenta `delay.app_launch` en config.lua (ej: 2.0). |
+| "Configuración inválida" | Revisa config.lua: `VERSION`, `delay.short`, `profile_order` y `profiles` son obligatorios. |
+| Bluetooth no muestra dispositivos | Verifica conexión. Caché se actualiza cada 120s. |
+| IP externa dice "Obteniendo…" | Verifica internet. ipapi.co puede estar inaccesible. |
+| Overlay no aparece | Se muestra solo cuando Pomodoro, presentación o descanso (>5 min) están activos. |
+| Permisos de Accesibilidad | Preferencias del Sistema → Privacidad y Seguridad → Accesibilidad → Habilitar Hammerspoon. |

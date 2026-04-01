@@ -1,4 +1,4 @@
-# TODO — macSpaces v2.6.0
+# TODO — macSpaces v2.7.0
 
 Pendientes consolidados: seguridad, UX/HIG, rendimiento, bugs y mejoras.
 Generado: 2026-04-01. Actualizado: 2026-04-01.
@@ -8,113 +8,105 @@ Generado: 2026-04-01. Actualizado: 2026-04-01.
 ## ✅ Completados
 
 ### BUG-01: Versión inconsistente entre archivos
-- **Acción**: `init.lua` ya no tiene versión hardcodeada; usa `cfg.VERSION` como fuente única.
-- **Archivos**: `init.lua`, `config.lua`, `README.md` — todos en v2.6.0.
+- `init.lua` usa `cfg.VERSION` como fuente única.
 
 ### SEC-01: HTTP sin cifrar para ip-api.com
-- **Acción**: migrado a `https://ipapi.co/json/` (HTTPS gratuito) en `network.lua` y `vpn.lua`.
-- **Respuesta normalizada** para mantener compatibilidad con el resto del código.
+- Migrado a `https://ipapi.co/json/` (HTTPS) en `network.lua` y `vpn.lua`.
 
 ### SEC-02: Instalación `curl | bash` sin verificación
-- **Acción**: `README.md` documenta instalación manual como método principal con advertencia en script.
+- `README.md` documenta instalación manual como método principal.
 
 ### SEC-03: Log sin permisos restrictivos ni rotación
-- **Acción**: `utils.lua` ahora establece permisos `0600`, rota por tamaño (max 1MB), ofusca IPs.
+- `utils.lua`: permisos `0600`, rotación por tamaño (max 1MB), ofuscación de IPs.
 
 ### SEC-04: Historial JSON sin permisos restrictivos
-- **Acción**: `history.lua` establece permisos `0600` al crear/escribir.
+- `history.lua`: permisos `0600` al crear/escribir.
 
 ### SEC-05: Portapapeles captura contenido sensible sin filtro
-- **Acción**: `clipboard.lua` filtra por `cfg.clipboard.ignore_apps`. Blocklist en `config.lua`.
+- `clipboard.lua` filtra por `cfg.clipboard.ignore_apps`.
 
 ### UX-01: Ícono del menú es emoji, no template image
-- **Acción**: `menu.lua` busca `~/.hammerspoon/macspaces_icon.png` como template image. Fallback a emoji.
-- **Pendiente**: el usuario debe crear/proveer la imagen 18×18pt monocromática.
+- `menu.lua` busca `~/.hammerspoon/macspaces_icon.png` como template image. Fallback a emoji.
 
 ### UX-02: Sin feedback visual claro de perfil activo
-- **Acción**: `menu.lua` usa `checked = true/false` nativo + indicador textual `● / ○` + tiempo activo inline.
+- `checked = true/false` nativo + indicador `● / ○` + tiempo activo inline.
 
 ### UX-03: Menú demasiado largo
-- **Acción**: `menu.lua` reorganizado en submenús semánticos: Entorno, Dispositivos, Red, Productividad, Historial, Sistema. ~8 ítems de primer nivel.
+- Menú principal reorganizado en submenús semánticos (~8 ítems de primer nivel).
+- Pomodoro, descanso y presentación separados en menú de enfoque independiente.
 
 ### UX-04: Inconsistencia visual SF Symbols vs emojis
-- **Acción**: unificado a emojis en todo el menú (más compatible con Hammerspoon).
+- Unificado a emojis en todo el menú.
 
 ### UX-05: Atajos de teclado no visibles en el menú
-- **Acción**: `menu.lua` muestra `⌘⌥1` / `⌘⌥2` junto al nombre del perfil.
+- `⌘⌥1` / `⌘⌥2` junto al nombre del perfil.
 
 ### UX-06: Pomodoro sin countdown en la menubar
-- **Acción**: `pomodoro.lua` expone `menubar_label()` y `set_menubar_updater()`. `menu.lua` actualiza el título cada 60s.
+- Countdown visible en el ícono del menú de enfoque (`🍅 23m`).
+- Overlay flotante persistente con tiempo restante actualizado cada segundo.
 
 ### UX-07: Sin confirmación al desactivar perfil
-- **Acción**: `profiles.lua` usa `hs.dialog.blockAlert` si `profile.confirm_deactivate = true`. Configurable en `config.lua`.
+- `hs.dialog.blockAlert` si `profile.confirm_deactivate = true`.
 
 ### UX-08: Navegador global, no contextual
-- **Acción**: `profiles.lua` guarda `prev_browser` al activar y lo restaura al desactivar.
+- `profiles.lua` guarda/restaura navegador previo al activar/desactivar.
 
 ### UX-09: Batería sin submenú
-- **Acción**: `battery.lua` tiene `build_submenu()` con porcentaje, estado, ciclos, tiempo restante.
+- `battery.lua` con submenú: porcentaje, estado, ciclos, tiempo restante.
 
 ### UX-10: Idioma mezclado en la UI
-- **Acción**: "Music" renombrado a "Música" en el menú. UI consistente en español.
+- UI consistente en español.
 
 ### UX-02b: Ítems no accionables parecen clicables
-- **Acción**: `utils.disabled_item()` creado. Todos los módulos usan `disabled = true` para ítems informativos; `info_item` para los que copian al portapapeles.
+- `utils.disabled_item()` con `disabled = true` en todos los módulos.
 
 ### PERF-01: Demora al abrir el menú
-- **Acción**: `vpn.is_active()` cacheado con TTL 10s. Bluetooth TTL aumentado a 120s. `battery.has_battery()` cacheado permanentemente.
+- `setMenu(items)` con tabla pre-construida (apertura instantánea).
+- Reconstrucción automática cada 5s en segundo plano.
+- Pre-calentamiento de cachés costosos cada 30s (bluetooth, browsers, music, battery).
+- Cachés con TTL: VPN 10s, Bluetooth 120s, battery permanente.
+
+### PERF-02: Menú de enfoque separado
+- `focus_menu.lua`: menú independiente con Pomodoro, descanso activo, presentación.
+- `focus_overlay.lua`: banner flotante persistente con estado de enfoque.
+
+### UX-11: Incentivar descanso activo
+- Activado por defecto en `config.lua`.
+- Tiempo sin descanso visible en overlay (`⏱ 12:34 sin descanso`).
+- Datos educativos rotativos en notificaciones (AAO, OSHA, Mayo Clinic, Cornell, AHA).
+
+### UX-12: Tips educativos en Pomodoro
+- Datos sobre productividad y neurociencia en cada notificación de fase (Cirillo, Baumeister, Dehaene, DeMarco).
 
 ### DOCS-01: Sincronizar documentación con código
-- **Acción**: `README.md` con versión correcta v2.6.0 y tabla de documentación.
+- Todos los docs actualizados con estado actual del código.
 
 ---
 
 ## 🟢 Pendientes (baja prioridad / futuro)
 
 ### ARCH-01: Coordinación por timers, no por eventos
-- **Archivo**: `profiles.lua`
-- **Problema**: delays fijos para lanzar/mover apps
-- **Acción**: investigar `hs.application.watcher` para detectar cuándo la app está lista
+- Investigar `hs.application.watcher` para detectar cuándo la app está lista.
 
 ### ARCH-02: Sin hot-reload de config
-- **Archivo**: `init.lua`
-- **Acción**: evaluar viabilidad de recargar solo `config.lua` sin perder estado
+- Evaluar viabilidad de recargar solo `config.lua` sin perder estado.
 
 ### ARCH-03: Monopantalla
-- **Archivo**: `profiles.lua:47`
-- **Acción**: documentar limitación; evaluar soporte multi-monitor en versión futura
+- Documentar limitación; evaluar soporte multi-monitor.
 
 ### ARCH-04: Estado volátil
-- **Acción**: persistir estado de Pomodoro y portapapeles en archivo JSON
+- Persistir estado de Pomodoro y portapapeles en archivo JSON.
 
 ### SEC-06: Shell commands hardcodeados (bajo riesgo)
-- **Acción**: documentar como regla de desarrollo que nunca se concatene input del usuario en `hs.execute()`
+- Documentar como regla de desarrollo.
 
 ### SEC-07: AppleScript sin sandboxing (bajo riesgo)
-- **Acción**: mantener scripts mínimos; documentar que no se extienda con input del usuario
-
----
-
-## 💎 Mejoras "premium" (experiencia de usuario — futuro)
-
-### PREM-01: Menú minimalista y enfocado
-- ✅ Implementado en UX-03
-
-### PREM-02: Feedback visual inmediato en perfiles
-- ✅ Implementado en UX-02
-
-### PREM-03: Ícono nativo de menubar
-- ✅ Parcialmente implementado en UX-01 (falta crear la imagen)
+- Mantener scripts mínimos.
 
 ### PREM-04: Transiciones suaves
-- Investigar animaciones en notificaciones y feedback sonoro
+- Investigar animaciones y feedback sonoro.
 
-### PREM-05: Consistencia visual total
-- ✅ Implementado en UX-04
-
-### PREM-06: Portapapeles inteligente
-- ✅ Blocklist implementado en SEC-05
-- Pendiente: auto-expiración configurable
+### PREM-06: Portapapeles — auto-expiración configurable
 
 ### PREM-07: Historial enriquecido
-- Gráfico semanal, exportar CSV, resumen diario via notificación
+- Gráfico semanal, exportar CSV, resumen diario.

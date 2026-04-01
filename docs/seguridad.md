@@ -1,163 +1,81 @@
-# Análisis de Seguridad — macSpaces v2.6.0
+# Seguridad — macSpaces v2.7.0
 
-## Resumen ejecutivo
+## Modelo de amenazas
 
-macSpaces opera con los privilegios de Hammerspoon (Accesibilidad + Automatización), lo que le da acceso amplio al sistema. La mayoría de operaciones son locales y de bajo riesgo, pero hay áreas que requieren atención.
-
----
-
-## Hallazgos
-
-### 🔴 Crítico
-
-#### S-01: ✅ RESUELTO — Consultas HTTP sin cifrar a ip-api.com
-
-**Archivos**: `network.lua`, `vpn.lua` — migrado a `https://ipapi.co/json/`
-
-```lua
-local url = "https://ipapi.co/json/"  -- migrado a HTTPS
-```
-
-**Resuelto en v2.6.0**: migrado de `http://ip-api.com` a `https://ipapi.co/json/` (HTTPS gratuito). Las consultas ahora viajan cifradas.
+macSpaces se ejecuta dentro de Hammerspoon con los mismos permisos del usuario. No tiene superficie de red propia, pero realiza llamadas HTTP salientes y ejecuta comandos del sistema.
 
 ---
 
-#### S-02: Instalación via `curl | bash`
+## Mitigaciones implementadas
 
-**Archivo**: `README.md`, `install.sh`
+### SEC-01: Comunicaciones HTTPS
 
-```bash
-curl -sL https://raw.githubusercontent.com/...install.sh | bash
-```
+Todas las llamadas a APIs externas usan HTTPS:
+- `https://ipapi.co/json/` para IP externa y geolocalización
+- Migrado desde `http://ip-api.com` (HTTP sin cifrar)
 
-Este patrón ejecuta código remoto sin verificación de integridad. Un ataque MITM (man-in-the-middle) o compromiso del repositorio podría inyectar código malicioso.
+### SEC-02: Instalación segura
 
-**Recomendación**:
-1. Documentar instalación manual como alternativa principal (clonar → copiar).
-2. Si se mantiene `curl | bash`, agregar verificación de checksum.
-3. Considerar firmar releases con GPG.
+- Método manual documentado como principal en README
+- Script `install.sh` con advertencia explícita sobre `curl | bash`
 
----
+### SEC-03: Log seguro
 
-### 🟡 Medio
+- Permisos `0600` al crear `debug.log`
+- Rotación automática al superar 1MB
+- IPs ofuscadas en el log (últimos octetos reemplazados)
 
-#### S-03: Log contiene datos sensibles sin protección
+### SEC-04: Historial seguro
 
-**Archivo**: `utils.lua`
+- `macspaces_history.json` con permisos `0600`
+- Limpieza automática de entradas > 30 días
 
-El archivo `debug.log` registra:
-- Direcciones IP (local y externa)
-- Nombres de dispositivos Bluetooth
-- Nombres de apps abiertas/cerradas
-- Timestamps de actividad
+### SEC-05: Portapapeles filtrado
 
-El log se escribe sin permisos restrictivos y no tiene rotación ni límite de tamaño. Se limpia solo al reiniciar Hammerspoon.
+- Blocklist de apps sensibles en `cfg.clipboard.ignore_apps`
+- Contenido de apps en la blocklist no se captura en el historial
 
-**Recomendación**:
-1. Establecer permisos `0600` al crear el archivo.
-2. Implementar rotación o límite de tamaño.
-3. No registrar IPs completas en el log (ofuscar últimos octetos).
+### SEC-06: Comandos del sistema (bajo riesgo)
 
----
+- Todos los comandos `hs.execute()` usan strings estáticos
+- No se concatena input del usuario en comandos shell
+- Regla de desarrollo: nunca interpolar variables de usuario en `hs.execute()`
 
-#### S-04: Historial JSON sin permisos restrictivos
+### SEC-07: AppleScript (bajo riesgo)
 
-**Archivo**: `history.lua`
-
-`macspaces_history.json` contiene patrones de uso (qué perfiles se usan, cuándo y por cuánto tiempo). Se crea con los permisos por defecto del sistema.
-
-**Recomendación**: Establecer permisos `0600` al crear/escribir el archivo.
+- Scripts mínimos y estáticos (solo control de Music.app)
+- No se extiende con input del usuario
 
 ---
-
-#### S-05: Portapapeles almacena contenido sensible
-
-**Archivo**: `clipboard.lua`
-
-El historial del portapapeles captura todo lo que se copia, incluyendo potencialmente:
-- Contraseñas copiadas de gestores de contraseñas
-- Tokens de autenticación
-- Datos personales
-
-No hay mecanismo para:
-- Excluir apps específicas (ej: 1Password, Keychain)
-- Auto-expirar entradas sensibles
-- Cifrar el historial en memoria
-
-**Recomendación**:
-1. Agregar allowlist/blocklist de apps cuyo contenido no se captura.
-2. Implementar auto-expiración configurable.
-3. Documentar claramente que el historial es en memoria y se pierde al recargar.
-
----
-
-#### S-06: Ejecución de comandos shell
-
-**Archivos**: `presentation.lua`, `bluetooth.lua`, `dnd.lua`
-
-Se ejecutan comandos via `hs.execute()`:
-- `defaults write/read ...`
-- `killall Dock`, `killall Finder`, `killall NotificationCenter`
-- `ioreg -r -k ...`
-
-Los comandos están hardcodeados (no hay inyección de input del usuario), pero la superficie de ataque existe si un módulo futuro concatena input sin sanitizar.
-
-**Recomendación**: Mantener la práctica actual de comandos hardcodeados. Documentar como regla de desarrollo que nunca se debe concatenar input del usuario en `hs.execute()`.
-
----
-
-#### S-07: AppleScript sin sandboxing
-
-**Archivo**: `music.lua`
-
-Los scripts de AppleScript se ejecutan con los privilegios completos de Hammerspoon. Actualmente solo controlan Music.app, pero el patrón permite ejecutar cualquier AppleScript.
-
-**Recomendación**: Mantener los scripts mínimos y documentar que no se debe extender este patrón con input del usuario.
-
----
-
-### 🟢 Bajo
-
-#### S-08: Versión inconsistente entre archivos
-
-- `init.lua`: v2.4.0
-- `config.lua`: v2.6.0
-- `README.md`: v2.5.0
-- `CHANGELOG.md`: v2.6.0
-
-No es un riesgo de seguridad directo, pero dificulta la trazabilidad y verificación de integridad.
-
-**Recomendación**: Unificar la versión en un solo lugar (`config.lua`) y que los demás archivos la referencien o se actualicen en el mismo commit.
-
----
-
-## Permisos requeridos
-
-| Permiso | Uso | Riesgo |
-|---|---|---|
-| Accesibilidad | Mover ventanas, crear espacios, hotkeys globales | Alto (acceso completo a UI) |
-| Automatización | AppleScript para Music.app | Medio |
-| Red | Consultas a ipapi.co (HTTPS) | Bajo (solo lectura) |
 
 ## Superficie de ataque
 
-```
-┌─────────────────────────────────────────┐
-│            Vectores de entrada          │
-├─────────────────────────────────────────┤
-│ 1. config.lua (editable por usuario)    │ → Validado al inicio
-│ 2. ipapi.co (respuesta HTTPS)           │ → JSON parseado con pcall
-│ 3. ioreg (salida de proceso)            │ → Parseado con regex
-│ 4. Portapapeles (contenido del sistema) │ → Filtrado por blocklist de apps
-│ 5. install.sh (código remoto)           │ → Sin verificación
-└─────────────────────────────────────────┘
-```
+| Vector | Riesgo | Mitigación |
+|---|---|---|
+| API ipapi.co | Bajo | HTTPS, datos no sensibles (IP pública) |
+| Log en disco | Bajo | Permisos 0600, IPs ofuscadas, rotación |
+| Historial JSON | Bajo | Permisos 0600, solo duraciones |
+| Portapapeles | Medio | Blocklist de apps, solo en memoria |
+| Shell commands | Bajo | Strings estáticos, sin interpolación |
+| AppleScript | Bajo | Scripts estáticos, solo Music.app |
+| Config.lua | N/A | Archivo local, editado manualmente por el usuario |
 
-## Recomendaciones priorizadas
+---
 
-1. 🔴 Migrar de HTTP a HTTPS para consultas de IP externa
-2. 🔴 Ofrecer instalación manual como método principal
-3. 🟡 Permisos `0600` para log e historial
-4. 🟡 Blocklist de apps para el portapapeles
-5. 🟡 Rotación/límite del archivo de log
-6. 🟢 Unificar versión en todos los archivos
+## Datos almacenados
+
+| Dato | Ubicación | Sensibilidad | Protección |
+|---|---|---|---|
+| Sesiones de trabajo | `macspaces_history.json` | Baja | Permisos 0600 |
+| Log de depuración | `debug.log` | Baja | Permisos 0600, IPs ofuscadas, rotación 1MB |
+| Portapapeles | Memoria | Media | Blocklist, no persiste |
+| Estado de perfiles | Memoria | Ninguna | No persiste |
+
+---
+
+## Recomendaciones para el usuario
+
+1. No agregar datos sensibles a `config.lua` (contraseñas, tokens)
+2. Revisar `cfg.clipboard.ignore_apps` y agregar apps que manejen datos sensibles
+3. No extender los scripts AppleScript con input externo
+4. Mantener Hammerspoon actualizado para parches de seguridad

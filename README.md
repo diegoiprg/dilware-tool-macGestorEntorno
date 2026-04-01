@@ -1,6 +1,6 @@
 # ⌘ Gestor de entorno macOS — Tool
 
-![Versión](https://img.shields.io/badge/versión-v2.6.0-6366f1?style=flat-square)
+![Versión](https://img.shields.io/badge/versión-v2.7.0-6366f1?style=flat-square)
 ![Licencia](https://img.shields.io/badge/licencia-GPLv3-a855f7?style=flat-square)
 ![Plataforma](https://img.shields.io/badge/plataforma-macOS-222?style=flat-square&logo=apple&logoColor=white)
 
@@ -17,7 +17,7 @@ Funciona en segundo plano, sin ventanas extra ni configuraciones complicadas. To
 ## ¿Qué puedo hacer?
 
 - Activar un perfil de trabajo con un clic y abrir automáticamente todas sus apps en un espacio dedicado
-- Cerrar el perfil y que se limpie todo: apps cerradas, espacio eliminado
+- Cerrar el perfil y que se limpie todo: apps cerradas, espacio eliminado, navegador restaurado
 - Cambiar el navegador predeterminado del sistema sin abrir Preferencias del Sistema
 - Cambiar el dispositivo de salida de audio al instante
 - Controlar Apple Music: play/pause, siguiente, anterior, y ver canción actual
@@ -26,13 +26,24 @@ Funciona en segundo plano, sin ventanas extra ni configuraciones complicadas. To
 - Ver información de tu red: tipo de conexión, IP local, IP externa, país e ISP
 - Detectar si estás conectado a una VPN con información del túnel y su geolocalización
 - Mantener un historial del portapapeles con hasta 20 entradas y restaurar cualquiera con un clic
-- Usar Pomodoro con ciclos configurables y No Molestar automático durante el trabajo
-- Activar recordatorios de descanso activo para cuidar tu postura y vista
+- Usar Pomodoro con ciclos configurables, DND automático y countdown flotante en pantalla
+- Recibir recordatorios de descanso activo con datos de salud (activado por defecto)
 - Entrar en modo presentación: No Molestar, Dock oculto y escritorio limpio con un solo clic
 - Lanzar tus apps favoritas desde un acceso rápido configurable
 - Ver el tiempo acumulado por perfil durante el día
 - Activar perfiles con atajos de teclado (⌘⌥1 / ⌘⌥2)
 - Personalizar todo editando un solo archivo: `macspaces/config.lua`
+
+## Dos menús, un propósito
+
+macSpaces presenta dos íconos en la barra de menú:
+
+| Ícono | Propósito | Contenido |
+|-------|-----------|-----------|
+| ⌘ | Gestión del entorno | Perfiles, navegador, audio, música, dispositivos, red, portapapeles |
+| 🧘 | Gestión del enfoque | Pomodoro, descanso activo, modo presentación |
+
+El ícono de enfoque cambia dinámicamente: `🍅 23m` durante Pomodoro, `🎬` en presentación. Un overlay flotante muestra el countdown en tiempo real.
 
 ## Perfiles incluidos
 
