@@ -1,4 +1,4 @@
-# Seguridad — macSpaces v2.7.1
+# Seguridad — macSpaces v2.8.0
 
 ## Modelo de amenazas
 

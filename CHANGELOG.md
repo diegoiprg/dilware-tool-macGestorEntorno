@@ -2,6 +2,26 @@
 
 Registro de cambios del proyecto `dilware-tool-macGestorEntorno`.
 
+## [2.8.0] - 2026-04-02
+
+### Agregado
+- `set_browser.swift`: helper Swift nativo para cambiar navegador predeterminado sin diálogos del SO (usa `NSWorkspace.setDefaultApplication`)
+- Banner "Actual: ..." en submenú de navegador
+- `focus_icon` configurable en `config.lua` para el menú de enfoque
+- Soporte para ícono template PNG (`macspaces_focus_icon.png`) en menú de enfoque
+- Auto-compilación del helper Swift al iniciar si no existe (`init.lua`)
+
+### Corregido
+- Bug: seleccionar navegador generaba hasta 4 diálogos de confirmación del SO
+- Bug: menú de navegador no reflejaba la selección real tras el cambio
+- Reintento automático en `set_default` si la API falla silenciosamente
+
+### Cambiado
+- Ícono del menú de enfoque: ☁️ → ◎ (visible en modo claro y oscuro)
+- Ícono de enfoque fijo (◎) — ya no cambia a 🍅/🎬 (el overlay cubre esa info)
+- `browsers.lua` reescrito: helper Swift en vez de `hs.urlevent.setDefaultHandler`
+- `install.sh` actualizado para compilar el helper Swift
+
 ## [2.6.0] - 2026-03-27
 
 ### Agregado

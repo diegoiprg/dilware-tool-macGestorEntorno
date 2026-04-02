@@ -1,4 +1,4 @@
-# Guía de Uso — macSpaces v2.7.1
+# Guía de Uso — macSpaces v2.8.0
 
 ## Requisitos
 
@@ -42,19 +42,19 @@ macSpaces presenta dos íconos independientes:
 - Historial de sesiones
 - Registro y recarga
 
-### ☁️ Menú de enfoque — gestión de la concentración
+### ◎ Menú de enfoque — gestión de la concentración
 - Pomodoro: temporizador con ciclos y DND automático
 - Descanso activo: recordatorios periódicos de postura y vista
 - Presentación: DND + Dock oculto + escritorio limpio
 
-El ícono de enfoque cambia según el estado: `🍅 23m` (Pomodoro), `🎬` (presentación), `☁️` (por defecto).
+El ícono de enfoque cambia según el estado: `🍅 23m` (Pomodoro), `🎬` (presentación), `◎` (por defecto).
 
 ### Overlay flotante
 
 Un banner unificado en la esquina inferior derecha muestra filas coloreadas por estado:
 - 🍅 **Rojo**: Pomodoro con countdown, fase y ciclo
 - ☕ **Verde**: Pausa corta o larga
-- ☁️ **Azul**: Countdown regresivo hasta el próximo descanso
+- ◎ **Azul**: Countdown regresivo hasta el próximo descanso
 - 🎬 **Púrpura**: Modo presentación activo
 
 Arrastrable: haz clic y arrastra para reposicionar. La posición se mantiene durante la sesión. Visible en todos los espacios de Mission Control. Se oculta automáticamente cuando no hay estado activo.

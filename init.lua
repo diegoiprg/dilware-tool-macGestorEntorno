@@ -45,6 +45,18 @@ end
 utils.clear_log()
 utils.log("[INFO] macSpaces v" .. cfg.VERSION .. " iniciado")
 
+-- Compilar helper de navegador si no existe
+local set_browser_bin = hs_dir .. "/set_browser"
+local set_browser_src = hs_dir .. "/macspaces/set_browser.swift"
+if not io.open(set_browser_bin, "r") then
+    local src = io.open(set_browser_src, "r")
+    if src then
+        src:close()
+        utils.log("[INFO] Compilando set_browser...")
+        hs.execute("swiftc '" .. set_browser_src .. "' -o '" .. set_browser_bin .. "' 2>/dev/null")
+    end
+end
+
 clipboard.start()
 network.refresh()
 vpn.refresh()

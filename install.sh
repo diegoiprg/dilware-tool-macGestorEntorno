@@ -65,5 +65,13 @@ cp "${REPO_DIR}/init.lua" "${HS_DIR}/init.lua"
 echo "→ Copiando módulos macspaces/..."
 cp -r "${REPO_DIR}/macspaces" "${HS_DIR}/macspaces"
 
+# Compilar helper nativo para cambio de navegador predeterminado
+echo "→ Compilando set_browser..."
+if swiftc "${HS_DIR}/macspaces/set_browser.swift" -o "${HS_DIR}/set_browser" 2>/dev/null; then
+  echo "✓ set_browser compilado"
+else
+  echo "⚠ No se pudo compilar set_browser (requiere Xcode CLI tools)"
+fi
+
 echo "✓ Instalación completa."
 echo "  Abre Hammerspoon y presiona ⌘R para recargar."

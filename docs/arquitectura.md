@@ -1,4 +1,4 @@
-# Arquitectura — macSpaces v2.7.1
+# Arquitectura — macSpaces v2.8.0
 
 ## Visión general
 
@@ -55,7 +55,8 @@ macSpaces es una herramienta de barra de menú para macOS construida sobre [Hamm
     ├── focus_menu.lua          ← Menú de enfoque (Pomodoro, descanso, presentación)
     ├── focus_overlay.lua       ← Banner flotante persistente (hs.canvas)
     ├── profiles.lua            ← Espacios virtuales y perfiles
-    ├── browsers.lua            ← Navegador predeterminado
+    ├── browsers.lua            ← Navegador predeterminado (helper Swift)
+    ├── set_browser.swift       ← Fuente del helper nativo (NSWorkspace)
     ├── audio.lua               ← Dispositivo de salida de audio
     ├── music.lua               ← Control de Apple Music (AppleScript)
     ├── battery.lua             ← Estado de batería (solo MacBook)

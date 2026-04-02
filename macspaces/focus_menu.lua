@@ -14,16 +14,29 @@ local utils        = require("macspaces.utils")
 local menubar = hs.menubar.new()
 local rebuild_timer = nil
 
-local function update_title()
-    if pomodoro.is_active() then
-        menubar:setTitle(pomodoro.menubar_label() or "🍅")
-    elseif presentation.is_active() then
-        menubar:setTitle("🎬")
-    elseif breaks.is_enabled() then
-        menubar:setTitle("☁️")
-    else
-        menubar:setTitle("☁️")
+local function load_focus_icon()
+    local path = (os.getenv("HOME") or "") .. "/.hammerspoon/macspaces_focus_icon.png"
+    local f = io.open(path, "r")
+    if f then
+        f:close()
+        local img = hs.image.imageFromPath(path)
+        if img then img:setSize({ w = 18, h = 18 }); img:template(true); return img end
     end
+    return nil
+end
+
+local focus_icon = nil  -- se carga en init()
+
+local function set_idle_icon()
+    if focus_icon then
+        menubar:setIcon(focus_icon); menubar:setTitle("")
+    else
+        menubar:setTitle(cfg.focus_icon)
+    end
+end
+
+local function update_title()
+    set_idle_icon()
 end
 
 local function build_items()
@@ -42,7 +55,7 @@ local function build_items()
 
     -- ══ Descanso activo ══
     table.insert(items, { title = "-" })
-    table.insert(items, utils.disabled_item("☁️  Descanso activo"))
+    table.insert(items, utils.disabled_item("◎  Descanso activo"))
     for _, i in ipairs(breaks.build_submenu(refresh)) do table.insert(items, i) end
 
     -- ══ Presentación ══
@@ -59,6 +72,7 @@ function M.build()
 end
 
 function M.init()
+    focus_icon = load_focus_icon()
     update_title()
     menubar:setMenu(build_items())
 

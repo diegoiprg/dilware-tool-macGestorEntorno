@@ -1,4 +1,4 @@
-# Especificación Funcional — macSpaces v2.7.1
+# Especificación Funcional — macSpaces v2.8.0
 
 ## Propósito
 
@@ -13,17 +13,17 @@ macSpaces presenta dos menús independientes en la menubar:
 ### Menú principal (⌘)
 Gestión del entorno de trabajo: perfiles, navegador, audio, música, dispositivos, red, portapapeles.
 
-### Menú de enfoque (☁️)
+### Menú de enfoque (◎)
 Gestión de la concentración: Pomodoro, descanso activo, modo presentación. El ícono cambia dinámicamente según el estado:
 - `🍅 23m` — Pomodoro activo
 - `🎬` — Presentación activa
-- `☁️` — Por defecto
+- `◎` — Por defecto
 
 ### Overlay flotante
 Banner unificado en esquina inferior derecha, visible en todos los espacios. Contiene filas coloreadas independientes por estado:
 - 🍅 Pomodoro (rojo): countdown regresivo con fase y ciclo
 - ☕/🌿 Pausa (verde): countdown de pausa corta o larga
-- ☁️ Descanso (azul): countdown regresivo hasta el próximo descanso
+- ◎ Descanso (azul): countdown regresivo hasta el próximo descanso
 - 🎬 Presentación (púrpura): indicador de modo activo
 
 Arrastrable para reposicionar. La posición se mantiene durante la sesión. Se oculta automáticamente cuando no hay estado activo.
@@ -48,10 +48,13 @@ Aísla contextos en espacios virtuales dedicados con apps asociadas.
 
 ### 2. Navegador predeterminado (`browsers.lua`)
 
-Cambia el navegador predeterminado del sistema sin abrir Preferencias.
+Cambia el navegador predeterminado del sistema sin diálogos del SO. Usa un helper Swift nativo (`set_browser`) que invoca `NSWorkspace.setDefaultApplication`.
 
 - Allowlist configurable (Safari, Chrome, Edge, Firefox, Brave, Opera, Vivaldi, Arc).
 - Checkmark en el navegador activo.
+- Banner "Actual: ..." en el submenú.
+- Reintento automático si la API falla silenciosamente.
+- El helper se auto-compila al iniciar si no existe (`init.lua`).
 
 ### 3. Audio (`audio.lua`)
 

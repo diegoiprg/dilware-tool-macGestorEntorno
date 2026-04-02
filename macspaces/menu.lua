@@ -82,7 +82,7 @@ local function build_items()
     table.insert(items, { title = "-" })
     local entorno = {}
     table.insert(entorno, utils.disabled_item("🌐  Navegador"))
-    for _, i in ipairs(browsers.build_submenu()) do table.insert(entorno, i) end
+    for _, i in ipairs(browsers.build_submenu(refresh)) do table.insert(entorno, i) end
     table.insert(entorno, { title = "-" })
     table.insert(entorno, utils.disabled_item("🔊  Audio"))
     for _, i in ipairs(audio.build_submenu()) do table.insert(entorno, i) end

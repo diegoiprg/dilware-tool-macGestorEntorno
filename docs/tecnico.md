@@ -1,4 +1,4 @@
-# Referencia Técnica — macSpaces v2.7.1
+# Referencia Técnica — macSpaces v2.8.0
 
 ## API de módulos
 
@@ -41,10 +41,9 @@ Tabla de configuración. Campos validados al inicio por `init.lua`:
 |---|---|
 | `M.display_name(bundle_id)` | Nombre legible del navegador |
 | `M.installed()` | Lista de bundle IDs instalados (con caché) |
-| `M.current()` | Bundle ID del navegador predeterminado actual |
-| `M.set_default(bundle_id)` | Cambia el navegador predeterminado |
-| `M.refresh_cache()` | Invalida y recarga caché |
-| `M.build_submenu()` | Ítems del submenú |
+| `M.current()` | Bundle ID del navegador predeterminado actual (vía helper Swift) |
+| `M.set_default(bundle_id)` | Cambia el navegador predeterminado (con reintento) |
+| `M.build_submenu(on_update)` | Ítems del submenú con banner de navegador actual |
 
 ### audio.lua
 
@@ -132,7 +131,7 @@ Notificaciones incluyen datos educativos rotativos (Cirillo, Baumeister, Dehaene
 | `M.is_enabled()` | `true` si está activo (default: `true`) |
 | `M.init()` | Arranca el timer si está habilitado en config (llamado al inicio) |
 | `M.seconds_since_break()` | Segundos desde el último descanso |
-| `M.idle_label()` | `"☁️ Descanso · 48:30"` (countdown regresivo) o `nil` si desactivado |
+| `M.idle_label()` | `"◎ Descanso · 48:30"` (countdown regresivo) o `nil` si desactivado |
 | `M.enable(on_update)` / `M.disable(on_update)` / `M.toggle(on_update)` | Control |
 | `M.build_submenu(on_update)` | Ítems del submenú (incluye tiempo sin descanso) |
 

@@ -3,7 +3,7 @@
 
 local M = {}
 
-M.VERSION = "2.7.1"
+M.VERSION = "2.8.0"
 
 M.profile_order = { "personal", "work" }
 
@@ -88,5 +88,9 @@ M.launcher = {
 -- Ícono del menú (emoji fallback; para ícono nativo coloca macspaces_icon.png
 -- 18×18pt monocromática en ~/.hammerspoon/)
 M.menu_icon = "⌘"
+
+-- Ícono del menú de enfoque (emoji fallback; para ícono nativo coloca
+-- macspaces_focus_icon.png 18×18pt monocromática en ~/.hammerspoon/)
+M.focus_icon = "◎"
 
 return M

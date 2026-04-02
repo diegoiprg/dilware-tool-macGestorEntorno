@@ -62,7 +62,7 @@ function M.idle_label()
     if not state.enabled then return nil end
     local remaining = (cfg.breaks.interval_minutes * 60) - M.seconds_since_break()
     if remaining < 0 then remaining = 0 end
-    return "☁️ Descanso · " .. utils.format_time(remaining)
+    return "◎ Descanso · " .. utils.format_time(remaining)
 end
 
 function M.is_enabled() return state.enabled end
