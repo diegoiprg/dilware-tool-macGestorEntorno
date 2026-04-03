@@ -45,12 +45,17 @@ local function stop_timer()
     if state.timer then state.timer:stop(); state.timer = nil end
 end
 
-local function start_timer()
+local function schedule_next()
     stop_timer()
     state.last_break_at = os.time()
-    state.timer = hs.timer.doEvery(cfg.breaks.interval_minutes * 60, function()
-        utils.alert_notify("Descanso activo", next_message())
-        state.last_break_at = os.time()
+    local interval = cfg.breaks.interval_minutes * 60
+    local display  = cfg.breaks.break_display_seconds or 15
+    state.timer = hs.timer.doAfter(interval, function()
+        utils.alert_notify("Descanso activo", next_message(), display)
+        -- El siguiente ciclo inicia DESPUÉS de que termine la visualización
+        hs.timer.doAfter(display, function()
+            if state.enabled then schedule_next() end
+        end)
     end)
 end
 
@@ -68,11 +73,11 @@ end
 function M.is_enabled() return state.enabled end
 
 function M.init()
-    if state.enabled then start_timer() end
+    if state.enabled then schedule_next() end
 end
 
 function M.enable(on_update)
-    state.enabled = true; start_timer()
+    state.enabled = true; schedule_next()
     utils.notify("macSpaces", "Descanso activo — cada " .. cfg.breaks.interval_minutes .. " min")
     if on_update then on_update() end
 end
@@ -112,7 +117,7 @@ function M.build_submenu(on_update)
             checked = current,
             fn      = function()
                 cfg.breaks.interval_minutes = mins
-                if state.enabled then start_timer(); utils.notify("Descanso activo", "Intervalo: " .. mins .. " min") end
+                if state.enabled then schedule_next(); utils.notify("Descanso activo", "Intervalo: " .. mins .. " min") end
                 if on_update then on_update() end
             end,
         })

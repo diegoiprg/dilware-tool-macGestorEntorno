@@ -3,7 +3,7 @@
 
 local M = {}
 
-M.VERSION = "2.9.0"
+M.VERSION = "2.9.1"
 
 M.profile_order = { "personal", "work" }
 
@@ -58,8 +58,9 @@ M.pomodoro = {
 }
 
 M.breaks = {
-    interval_minutes = 50,
-    enabled          = true,
+    interval_minutes      = 50,
+    enabled               = true,
+    break_display_seconds = 15,
 }
 
 M.clipboard = {

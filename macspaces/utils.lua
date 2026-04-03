@@ -57,9 +57,9 @@ function M.notify(title, msg)
 end
 
 -- Notificación llamativa: sonido del sistema + overlay en pantalla + notificación estándar
-function M.alert_notify(title, msg)
+function M.alert_notify(title, msg, duration)
     M.notify(title, msg)
-    hs.alert.show(title .. "\n" .. msg, { textSize = 26 }, hs.screen.mainScreen(), 4)
+    hs.alert.show(title .. "\n" .. msg, { textSize = 26 }, hs.screen.mainScreen(), duration or 4)
     local sound = hs.sound.getByName("Glass")
     if sound then sound:play() end
 end

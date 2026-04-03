@@ -2,6 +2,15 @@
 
 Registro de cambios del proyecto `dilware-tool-macGestorEntorno`.
 
+## [2.9.1] - 2026-04-03
+
+### Cambiado
+- `breaks.lua`: el mensaje de descanso activo permanece en pantalla 15s (configurable) para dar tiempo a leer y ejecutar las instrucciones de salud
+- `breaks.lua`: el siguiente ciclo de descanso inicia DESPUÉS de que termine la visualización, no al dispararse
+- `utils.lua`: `alert_notify()` acepta duración como parámetro opcional
+- `config.lua`: nuevo campo `breaks.break_display_seconds` (default 15)
+- Versión bumpeada a v2.9.1
+
 ## [2.9.0] - 2026-04-02
 
 ### Agregado
