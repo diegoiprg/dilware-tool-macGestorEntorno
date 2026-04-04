@@ -13,32 +13,29 @@ local state = {
     last_break_at = os.time(),
 }
 
--- Mensaje + dato educativo (rotan independientemente para más variedad)
+-- Mensajes con instrucciones paso a paso + dato educativo de respaldo
 local BREAK_MESSAGES = {
-    "Levántate y camina un par de minutos.",
-    "Estira el cuello y los hombros.",
-    "Descansa la vista: mira algo lejano por 20 segundos.",
-    "Toma agua y mueve las muñecas.",
-    "Respira profundo y estira la espalda.",
-    "Parpadea varias veces y relaja los ojos.",
-}
-
-local HEALTH_TIPS = {
-    "Regla 20-20-20: cada 20 min, mira a 6m por 20s (AAO).",
-    "Estar sentado más de 1h seguida aumenta el riesgo lumbar (OSHA).",
-    "Pausas activas cada 45-60 min reducen fatiga muscular (Mayo Clinic).",
-    "Parpadeas un 66% menos frente a pantallas, causando ojo seco (AAO).",
-    "Microdescansos de 30s cada 20 min mejoran la productividad (Cornell).",
-    "Caminar 2 min cada hora reduce el riesgo cardiovascular (AHA).",
+    -- Vista
+    "Regla 20-20-20 — Ahora:\n1. Busca un punto a 6 metros de distancia.\n2. Enfócate en él durante 20 segundos.\n3. Luego parpadea 10 veces despacio.\nReduces el ojo seco causado por pantallas (AAO).",
+    -- Cuello y hombros
+    "Estiramiento cervical — Ahora:\n1. Inclina la cabeza hacia el hombro derecho 10s.\n2. Repite al lado izquierdo 10s.\n3. Gira lentamente el cuello en círculos 3 veces.\nAlivia tensión acumulada en trapecio y cervicales (OSHA).",
+    -- Muñecas y manos
+    "Muñecas y manos — Ahora:\n1. Cierra los puños y ábrelos 10 veces.\n2. Gira las muñecas 5 veces en cada sentido.\n3. Estira los dedos hacia atrás suavemente 10s.\nPreviene el síndrome del túnel carpiano (Mayo Clinic).",
+    -- Levantarse
+    "Levántate — Ahora:\n1. Ponte de pie lentamente.\n2. Camina al menos 2 minutos (cocina, ventana, lo que sea).\n3. Antes de sentarte, estira los isquiotibiales 15s.\nCaminar 2 min/hora reduce riesgo cardiovascular en 33% (AHA).",
+    -- Espalda baja
+    "Espalda lumbar — Ahora:\n1. Siéntate al borde de la silla con pies planos en el suelo.\n2. Inclínate suave hacia adelante, deja caer los brazos 15s.\n3. Vuelve erguido y aprieta el abdomen 5s. Repite 3 veces.\nSentarse >1h continua aumenta presión discal L4-L5 (OSHA).",
+    -- Respiración
+    "Respiración 4-7-8 — Ahora:\n1. Inhala por la nariz contando 4 segundos.\n2. Mantén el aire contando 7 segundos.\n3. Exhala por la boca contando 8 segundos. Repite 3 ciclos.\nActiva el sistema parasimpático y reduce el cortisol (Harvard Med).",
+    -- Hidratación
+    "Hidratación — Ahora:\n1. Levántate y ve por un vaso de agua (250ml mínimo).\n2. Mientras caminas, estira los brazos por encima de la cabeza.\n3. Bebe el agua de pie antes de volver.\nLa deshidratación leve (1-2%) reduce concentración un 20% (EFSA).",
 }
 
 local msg_index = 0
-local tip_index = 0
 
 local function next_message()
     msg_index = (msg_index % #BREAK_MESSAGES) + 1
-    tip_index = (tip_index % #HEALTH_TIPS) + 1
-    return BREAK_MESSAGES[msg_index] .. "\n" .. HEALTH_TIPS[tip_index]
+    return BREAK_MESSAGES[msg_index]
 end
 
 local function stop_timer()

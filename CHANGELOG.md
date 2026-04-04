@@ -2,6 +2,13 @@
 
 Registro de cambios del proyecto `dilware-tool-macGestorEntorno`.
 
+## [2.9.2] - 2026-04-04
+
+### Cambiado
+- `breaks.lua`: mensajes de descanso activo ampliados con instrucciones paso a paso (3 pasos concretos + fuente científica por categoría: vista, cuello, muñecas, espalda, respiración, hidratación, movilidad)
+- `breaks.lua`: eliminado array `HEALTH_TIPS` separado — cada mensaje ya incluye el dato educativo integrado
+- `config.lua`: `breaks.break_display_seconds` subido de 15s a 60s para dar tiempo real de leer y ejecutar las instrucciones
+
 ## [2.9.1] - 2026-04-03
 
 ### Cambiado
