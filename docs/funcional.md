@@ -1,4 +1,4 @@
-# Especificación Funcional — macSpaces v2.9.0
+# Especificación Funcional — macSpaces v2.10.0
 
 ## Propósito
 
@@ -97,6 +97,7 @@ Temporizador con ciclos configurables y DND automático.
 - Etiquetas descriptivas: "🍅 Pomodoro · 24:30 · Ciclo 1/4", "☕ Pausa corta · 04:30 · Ciclo 1/4".
 - Basado en reloj de pared (`os.time`) para precisión independiente del timer.
 - Notificaciones con datos educativos rotativos sobre productividad (Cirillo, Baumeister, Dehaene, DeMarco).
+- Reinicio automático del ciclo tras suspensión del sistema.
 
 ### 12. Descanso activo (`breaks.lua`)
 
@@ -106,6 +107,8 @@ Recordatorios periódicos para postura y vista. Activado por defecto.
 - Mensajes rotativos con datos educativos de salud (AAO, OSHA, Mayo Clinic, Cornell, AHA).
 - Countdown regresivo visible en overlay flotante (tiempo restante hasta el próximo descanso).
 - Se activa automáticamente al iniciar/recargar Hammerspoon si está habilitado en config.
+- Reinicio automático del ciclo tras suspensión del sistema (tratado como ciclo nuevo).
+- Timer de display (60s) ahora cancelable — desactivar durante el display cancela el ciclo correctamente.
 
 ### 13. Modo presentación (`presentation.lua`)
 
@@ -120,6 +123,7 @@ Tiempo acumulado por perfil durante el día. Persistido en JSON. Limpieza autom�
 - **Versión**: semver visible al final del menú principal (`macSpaces vX.Y.Z`).
 - **Registro**: abre `debug.log` en Console.app.
 - **Recargar**: ejecuta `hs.reload()`.
+- **Wake detection**: `hs.caffeinate.watcher` en `init.lua` detecta `systemDidWake` y `screensDidWake`. Al despertar llama `breaks.handle_wake()` y `pomodoro.handle_wake()`, y reinicia la menubar.
 
 ---
 

@@ -1,4 +1,4 @@
-# Referencia Técnica — macSpaces v2.9.0
+# Referencia Técnica — macSpaces v2.10.0
 
 ## API de módulos
 
@@ -120,6 +120,7 @@ Tabla de configuración. Campos validados al inicio por `init.lua`:
 | `M.menubar_label()` | Etiqueta corta para menubar (`🍅 23m`) (reloj de pared) |
 | `M.set_menubar_updater(fn)` | Registra callback para actualizar menubar |
 | `M.start()` / `M.stop()` / `M.skip()` | Control del temporizador |
+| `M.handle_wake()` | Evalúa remaining_seconds() al wake: avanza fase si expiró, reinicia tick timer si no |
 | `M.build_submenu(on_update)` | Ítems del submenú |
 
 Notificaciones incluyen datos educativos rotativos (Cirillo, Baumeister, Dehaene, DeMarco).
@@ -133,6 +134,7 @@ Notificaciones incluyen datos educativos rotativos (Cirillo, Baumeister, Dehaene
 | `M.seconds_since_break()` | Segundos desde el último descanso |
 | `M.idle_label()` | `"◎ Descanso · 48:30"` (countdown regresivo) o `nil` si desactivado |
 | `M.enable(on_update)` / `M.disable(on_update)` / `M.toggle(on_update)` | Control |
+| `M.handle_wake()` | Reinicia ciclo de descanso al despertar el sistema |
 | `M.build_submenu(on_update)` | Ítems del submenú (incluye tiempo sin descanso) |
 
 Notificaciones incluyen datos educativos rotativos (AAO, OSHA, Mayo Clinic, Cornell, AHA).
@@ -202,6 +204,7 @@ Usa `hs.canvas` con `canJoinAllSpaces` (visible en todos los espacios). Canvas u
 |---|---|
 | Validación de config | Verifica campos obligatorios al inicio |
 | Prewarm de cachés | Timer cada 30s para mantener cachés calientes |
+| `hs.caffeinate.watcher` | Detecta `systemDidWake`/`screensDidWake` → llama `handle_wake()` en breaks y pomodoro; reinicia menubar |
 | `hs.shutdownCallback` | Limpieza al cerrar, reiniciar o recargar: restaura DND, Dock, escritorio; libera timers, menubars, overlay, watcher y hotkeys |
 
 ---

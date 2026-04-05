@@ -1,6 +1,6 @@
 # ⌘ Gestor de entorno macOS — Tool
 
-![Versión](https://img.shields.io/badge/versión-v2.9.1-6366f1?style=flat-square)
+![Versión](https://img.shields.io/badge/versión-v2.10.0-6366f1?style=flat-square)
 ![Licencia](https://img.shields.io/badge/licencia-GPLv3-a855f7?style=flat-square)
 ![Plataforma](https://img.shields.io/badge/plataforma-macOS-222?style=flat-square&logo=apple&logoColor=white)
 
