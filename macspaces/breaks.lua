@@ -8,10 +8,11 @@ local cfg   = require("macspaces.config")
 local utils = require("macspaces.utils")
 
 local state = {
-    enabled       = cfg.breaks.enabled,
-    timer         = nil,
-    display_timer = nil,
-    next_break_at = nil,   -- tiempo absoluto en que disparará el próximo break
+    enabled        = cfg.breaks.enabled,
+    timer          = nil,
+    display_timer  = nil,
+    next_break_at  = nil,   -- tiempo absoluto en que disparará el próximo break
+    break_end_at   = nil,   -- tiempo absoluto en que termina el banner de descanso
 }
 
 -- Mensajes con instrucciones paso a paso + dato educativo de respaldo
@@ -42,6 +43,7 @@ end
 local function stop_timer()
     if state.display_timer then state.display_timer:stop(); state.display_timer = nil end
     if state.timer then state.timer:stop(); state.timer = nil end
+    state.break_end_at = nil
 end
 
 local function schedule_next()
@@ -51,10 +53,12 @@ local function schedule_next()
     state.next_break_at = os.time() + interval
     state.timer = hs.timer.doAfter(interval, function()
         state.timer = nil
-        state.next_break_at = nil   -- break en curso; no mostrar countdown
+        state.next_break_at = nil   -- break en curso; no mostrar countdown de intervalo
+        state.break_end_at  = os.time() + display
         utils.alert_notify("Descanso activo", next_message(), display)
         state.display_timer = hs.timer.doAfter(display, function()
             state.display_timer = nil
+            state.break_end_at  = nil
             if state.enabled then schedule_next() end
         end)
     end)
@@ -62,11 +66,18 @@ end
 
 function M.idle_label()
     if not state.enabled then return nil end
+    if state.break_end_at then
+        local remaining = state.break_end_at - os.time()
+        if remaining < 0 then remaining = 0 end
+        return "🧘 Descanso · " .. utils.format_time(remaining)
+    end
     if not state.next_break_at then return nil end
     local remaining = state.next_break_at - os.time()
     if remaining < 0 then remaining = 0 end
     return "◎ Descanso · " .. utils.format_time(remaining)
 end
+
+function M.is_on_break() return state.break_end_at ~= nil end
 
 function M.is_enabled() return state.enabled end
 

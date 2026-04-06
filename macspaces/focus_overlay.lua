@@ -34,6 +34,7 @@ local BG_COLORS = {
     short_break  = { red = 0.15, green = 0.55, blue = 0.25, alpha = BG_ALPHA },
     long_break   = { red = 0.15, green = 0.55, blue = 0.25, alpha = BG_ALPHA },
     breaks       = { red = 0.20, green = 0.40, blue = 0.65, alpha = BG_ALPHA },
+    breaks_active = { red = 0.15, green = 0.55, blue = 0.25, alpha = BG_ALPHA },
     presentation = { red = 0.45, green = 0.20, blue = 0.60, alpha = BG_ALPHA },
 }
 
@@ -75,7 +76,8 @@ local function get_entries()
     end
     local idle = breaks.idle_label()
     if idle then
-        table.insert(entries, { label = idle, color = BG_COLORS.breaks })
+        local color = breaks.is_on_break() and BG_COLORS.breaks_active or BG_COLORS.breaks
+        table.insert(entries, { label = idle, color = color })
     end
     return entries
 end
