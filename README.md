@@ -45,6 +45,8 @@ macSpaces presenta dos íconos en la barra de menú:
 
 El ícono de enfoque cambia dinámicamente: `🍅 23m` durante Pomodoro, `🎬` en presentación. Un overlay flotante en la esquina inferior derecha muestra countdowns en tiempo real con filas coloreadas por estado. Es arrastrable para reposicionar.
 
+El overlay también muestra el uso de rate limits de Claude Code en dos filas independientes (ventana de 5 horas y ventana de 7 días), con color semáforo (verde / amarillo / rojo) y tiempo hasta el reset. Esta información se lee desde `~/.claude/usage_cache.json`, que es generado automáticamente por `statusline.sh` en [dil-claude-config](https://github.com/diegoiprg/dil-claude-config).
+
 ## Perfiles incluidos
 
 | Perfil | Apps | Navegador vinculado |
