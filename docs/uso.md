@@ -1,4 +1,4 @@
-# Guía de Uso — macSpaces v2.10.0
+# Guía de Uso — macSpaces v2.11.0
 
 ## Requisitos
 
@@ -47,17 +47,21 @@ macSpaces presenta dos íconos independientes:
 - Descanso activo: recordatorios periódicos de postura y vista
 - Presentación: DND + Dock oculto + escritorio limpio
 
-El ícono de enfoque cambia según el estado: `🍅 23m` (Pomodoro), `🎬` (presentación), `◎` (por defecto).
+El ícono de enfoque es estático (◎ por defecto, configurable).
 
 ### Overlay flotante
 
 Un banner unificado en la esquina inferior derecha muestra filas coloreadas por estado:
-- 🍅 **Rojo**: Pomodoro con countdown, fase y ciclo
-- ☕ **Verde**: Pausa corta o larga
+- 🍅 **Rojo**: Pomodoro trabajando — countdown, fase y ciclo
+- ☕ **Verde**: Pausa corta o larga de Pomodoro
 - ◎ **Azul**: Countdown regresivo hasta el próximo descanso
+- 🧘 **Verde**: Banner de descanso activo en curso
 - 🎬 **Púrpura**: Modo presentación activo
+- ✦ **Verde/Amarillo/Rojo**: Uso de Claude Code (ventana 5h y/o 7d)
 
-Arrastrable: haz clic y arrastra para reposicionar. La posición se mantiene durante la sesión. Visible en todos los espacios de Mission Control. Se oculta automáticamente cuando no hay estado activo.
+Arrastrable: haz clic y arrastra para reposicionar. La posición se persiste en disco (`overlay_pos.json`) y se restaura entre reinicios de Hammerspoon. Visible en todos los espacios de Mission Control. Se oculta automáticamente cuando no hay estado activo.
+
+En MacBook, las filas de Claude usan formato compacto (sin barra de progreso) para evitar solapamiento con el Dock.
 
 ---
 

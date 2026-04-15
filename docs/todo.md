@@ -1,11 +1,16 @@
-# TODO — macSpaces v2.9.0
+# TODO — macSpaces v2.11.0
 
 Pendientes consolidados: seguridad, UX/HIG, rendimiento, bugs y mejoras.
-Generado: 2026-04-01. Actualizado: 2026-04-01.
+Generado: 2026-04-01. Actualizado: 2026-04-15.
+
+## Tabla de contenido
+
+- [Completados](#completados)
+- [Pendientes](#pendientes)
 
 ---
 
-## ✅ Completados
+## Completados
 
 ### BUG-01: Versión inconsistente entre archivos
 - `init.lua` usa `cfg.VERSION` como fuente única.
@@ -27,6 +32,7 @@ Generado: 2026-04-01. Actualizado: 2026-04-01.
 
 ### UX-01: Ícono del menú es emoji, no template image
 - `menu.lua` busca `~/.hammerspoon/macspaces_icon.png` como template image. Fallback a emoji.
+- `focus_menu.lua` busca `~/.hammerspoon/macspaces_focus_icon.png`. Fallback a emoji.
 
 ### UX-02: Sin feedback visual claro de perfil activo
 - `checked = true/false` nativo + indicador `● / ○` + tiempo activo inline.
@@ -42,8 +48,7 @@ Generado: 2026-04-01. Actualizado: 2026-04-01.
 - `⌘⌥1` / `⌘⌥2` junto al nombre del perfil.
 
 ### UX-06: Pomodoro sin countdown en la menubar
-- Countdown visible en el ícono del menú de enfoque (`🍅 23m`).
-- Overlay flotante persistente con tiempo restante actualizado cada segundo.
+- Countdown visible en el overlay flotante con fase y número de ciclo.
 
 ### UX-07: Sin confirmación al desactivar perfil
 - `hs.dialog.blockAlert` si `profile.confirm_deactivate = true`.
@@ -60,6 +65,14 @@ Generado: 2026-04-01. Actualizado: 2026-04-01.
 ### UX-02b: Ítems no accionables parecen clicables
 - `utils.disabled_item()` con `disabled = true` en todos los módulos.
 
+### UX-11: Incentivar descanso activo
+- Activado por defecto en `config.lua`.
+- Countdown en overlay (`◎ Descanso · 48:30`).
+- Datos educativos rotativos en notificaciones (AAO, OSHA, Mayo Clinic, AHA, EFSA, Harvard Med).
+
+### UX-12: Tips educativos en Pomodoro
+- Datos sobre productividad y neurociencia en cada notificación de fase (Cirillo, Baumeister, Dehaene, DeMarco).
+
 ### PERF-01: Demora al abrir el menú
 - `setMenu(items)` con tabla pre-construida (apertura instantánea).
 - Reconstrucción automática cada 5s en segundo plano.
@@ -70,43 +83,43 @@ Generado: 2026-04-01. Actualizado: 2026-04-01.
 - `focus_menu.lua`: menú independiente con Pomodoro, descanso activo, presentación.
 - `focus_overlay.lua`: banner flotante persistente con estado de enfoque.
 
-### UX-11: Incentivar descanso activo
-- Activado por defecto en `config.lua`.
-- Tiempo sin descanso visible en overlay (`⏱ 12:34 sin descanso`).
-- Datos educativos rotativos en notificaciones (AAO, OSHA, Mayo Clinic, Cornell, AHA).
+### OVERLAY-01: Posición del overlay no persiste entre reinicios
+- `focus_overlay.lua`: posición guardada en `overlay_pos.json` al soltar el drag.
+- Posición restaurada al iniciar desde disco.
 
-### UX-12: Tips educativos en Pomodoro
-- Datos sobre productividad y neurociencia en cada notificación de fase (Cirillo, Baumeister, Dehaene, DeMarco).
+### OVERLAY-02: Barra de progreso de Claude con caracteres inconsistentes
+- Actualizado de `█░` a `▰▱` para mejor alineación visual con Apple HIG.
+
+### OVERLAY-03: Modo compacto en MacBook
+- `IS_MACBOOK` detectado via `hs.host.localizedName()`.
+- En MacBook: filas de Claude sin barra de progreso para evitar solapamiento con el Dock.
 
 ### DOCS-01: Sincronizar documentación con código
-- Todos los docs actualizados con estado actual del código.
+- Todos los docs actualizados a v2.11.0.
+- Creados `docs/modulos.md` y `docs/configuracion.md`.
 
 ---
 
-## 🟢 Pendientes (baja prioridad / futuro)
+## Pendientes
 
 ### ARCH-01: Coordinación por timers, no por eventos
-- Investigar `hs.application.watcher` para detectar cuándo la app está lista.
+- Investigar `hs.application.watcher` para detectar cuándo la app está lista antes de mover ventanas.
+- Impacto: eliminaría los delays fijos de `cfg.delay.app_launch`.
 
 ### ARCH-02: Sin hot-reload de config
-- Evaluar viabilidad de recargar solo `config.lua` sin perder estado.
+- Evaluar viabilidad de recargar solo `config.lua` sin perder estado de perfiles, Pomodoro y portapapeles.
 
 ### ARCH-03: Monopantalla
-- Documentar limitación; evaluar soporte multi-monitor.
+- Documentar limitación; evaluar soporte multi-monitor con `hs.screen.allScreens()`.
 
 ### ARCH-04: Estado volátil
-- Persistir estado de Pomodoro y portapapeles en archivo JSON.
-
-### SEC-06: Shell commands hardcodeados (bajo riesgo)
-- Documentar como regla de desarrollo.
-
-### SEC-07: AppleScript sin sandboxing (bajo riesgo)
-- Mantener scripts mínimos.
+- Persistir estado de Pomodoro y portapapeles en archivo JSON para sobrevivir recargas.
 
 ### PREM-04: Transiciones suaves
-- Investigar animaciones y feedback sonoro.
+- Investigar animaciones y feedback sonoro adicional en transiciones de fase Pomodoro.
 
 ### PREM-06: Portapapeles — auto-expiración configurable
+- Agregar campo `clipboard.ttl_minutes` para expirar entradas antiguas automáticamente.
 
 ### PREM-07: Historial enriquecido
-- Gráfico semanal, exportar CSV, resumen diario.
+- Gráfico semanal de tiempo por perfil, exportar CSV, resumen diario en notificación.
