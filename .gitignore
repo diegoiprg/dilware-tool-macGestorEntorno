@@ -27,3 +27,7 @@ macspaces_history.json
 
 # Kiro (IDE local, no parte del proyecto)
 .kiro/
+
+# Claude Code — session log local
+# Para sincronizar entre máquinas: git add -f .claude/session_log.md
+.claude/
