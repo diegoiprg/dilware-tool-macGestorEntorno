@@ -1,4 +1,4 @@
-# Guía de Uso — macSpaces v2.11.1
+# Guía de Uso — macSpaces v2.11.0
 
 ## Tabla de contenido
 
@@ -90,7 +90,7 @@ Un banner unificado en la esquina inferior derecha muestra filas coloreadas por 
 | Púrpura | Presentación activa | Indicador de modo activo |
 | Verde/Amarillo/Rojo | Claude activo | Uso 5h y/o 7d con % y tiempo de reset |
 
-Arrastrable: haz clic y arrastra para reposicionar. La posición se mantiene en memoria durante la sesión activa y se resetea al recargar Hammerspoon. Visible en todos los espacios de Mission Control. Se oculta automáticamente cuando no hay estado activo.
+Arrastrable: haz clic y arrastra para reposicionar. La posición se persiste en disco (`~/.hammerspoon/overlay_pos.json`) y se restaura entre reinicios de Hammerspoon. Visible en todos los espacios de Mission Control. Se oculta automáticamente cuando no hay estado activo.
 
 En MacBook, las filas de Claude usan formato compacto (sin barra de progreso `▰▱`) para evitar solapamiento con el Dock.
 
