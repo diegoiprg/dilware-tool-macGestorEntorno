@@ -2,6 +2,11 @@
 
 Registro de cambios del proyecto `dilware-tool-macGestorEntorno`.
 
+## [2.11.2] - 2026-04-16
+
+### Corregido
+- `claude.lua`: la fila de quota 7d no se mostraba en el overlay cuando el porcentaje era exactamente 0% (tras reset de quota). La condición `sd.pct > 0` ocultaba la fila — reemplazada por `sd.reset and sd.reset > 0` en `overlay_rows()` y `build_submenu()`
+
 ## [2.11.1] - 2026-04-15
 
 ### Eliminado

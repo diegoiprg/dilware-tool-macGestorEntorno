@@ -1,4 +1,4 @@
-# Especificación Funcional — macSpaces v2.11.1
+# Especificación Funcional — macSpaces v2.11.2
 
 ## Tabla de contenido
 
@@ -297,7 +297,7 @@ Al desactivar:
 
 Ítems fijos en el menú principal:
 
-- **Versión**: semver visible al final (`macSpaces v2.11.1`)
+- **Versión**: semver visible al final (`macSpaces v2.11.2`)
 - **Registro**: abre `~/.hammerspoon/debug.log` en Console.app
 - **Recargar**: ejecuta `hs.reload()` para aplicar cambios en config.lua
 

@@ -121,7 +121,7 @@ function M.overlay_rows(minimal)
             label = string.format("✦ Claude 5h  %d%%  ↺%s", fh.pct, fmt_reset(fh.reset)),
             pct   = fh.pct,
         })
-        if sd.pct and sd.pct > 0 then
+        if sd.reset and sd.reset > 0 then
             table.insert(rows, {
                 label = string.format("✦ Claude 7d  %d%%  ↺%s", sd.pct, fmt_reset(sd.reset)),
                 pct   = sd.pct,
@@ -132,7 +132,7 @@ function M.overlay_rows(minimal)
             label = string.format("✦ Claude 5h  %s %d%%  ↺%s", bar(fh.pct, 8), fh.pct, fmt_reset(fh.reset)),
             pct   = fh.pct,
         })
-        if sd.pct and sd.pct > 0 then
+        if sd.reset and sd.reset > 0 then
             table.insert(rows, {
                 label = string.format("✦ Claude 7d  %s %d%%  ↺%s", bar(sd.pct, 8), sd.pct, fmt_reset(sd.reset)),
                 pct   = sd.pct,
@@ -175,7 +175,7 @@ function M.build_submenu()
     ))
 
     -- Ventana 7 días
-    if sd.pct > 0 then
+    if sd.reset and sd.reset > 0 then
         table.insert(items, { title = "-" })
         table.insert(items, utils.disabled_item(
             string.format("7d   %s %d%%", bar(sd.pct, 10), sd.pct)
