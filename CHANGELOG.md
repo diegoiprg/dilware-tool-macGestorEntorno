@@ -2,6 +2,11 @@
 
 Registro de cambios del proyecto `dilware-tool-macGestorEntorno`.
 
+## [2.11.4] - 2026-04-17
+
+### Corregido
+- `claude.lua`: el overlay y menú mostraban 100% con fondo rojo cuando el epoch de reset de la ventana 5h (o 7d) ya había pasado. Nueva función `adjusted_pct()` devuelve 0% cuando `reset <= os.time()`, aplicada tanto al leer el JSON como al servir datos desde cache (cubre el caso donde el reset ocurre durante el TTL de 60s)
+
 ## [2.11.3] - 2026-04-16
 
 ### Corregido

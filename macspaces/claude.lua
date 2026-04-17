@@ -28,6 +28,12 @@ local function fmt_reset(epoch)
     return m .. "m"
 end
 
+-- Si el epoch de reset ya pasó, la ventana se reinició → pct real es 0
+local function adjusted_pct(pct, reset_epoch)
+    if reset_epoch and reset_epoch > 0 and reset_epoch <= os.time() then return 0 end
+    return pct or 0
+end
+
 local function read_from_claude_code()
     local home = os.getenv("HOME") or ""
     local f = io.open(home .. "/.claude/usage_cache.json", "r")
@@ -46,9 +52,9 @@ local function read_from_claude_code()
     if not fh then return nil end
 
     return {
-        five_hour = { pct = fh.pct or 0, reset = fh.reset or 0 },
+        five_hour = { pct = adjusted_pct(fh.pct, fh.reset), reset = fh.reset or 0 },
         seven_day = {
-            pct   = (data.seven_day and data.seven_day.pct)   or 0,
+            pct   = adjusted_pct(data.seven_day and data.seven_day.pct, data.seven_day and data.seven_day.reset),
             reset = (data.seven_day and data.seven_day.reset) or 0,
         },
         source = "code",
@@ -58,7 +64,15 @@ end
 function M.fetch()
     local now = os.time()
     if cache.data and (now - cache.last_fetch) < cache.ttl then
-        return cache.data
+        -- Re-evaluar pct por si el reset epoch pasó durante el TTL del cache
+        local d = cache.data
+        if d.five_hour then
+            d.five_hour.pct = adjusted_pct(d.five_hour.pct, d.five_hour.reset)
+        end
+        if d.seven_day then
+            d.seven_day.pct = adjusted_pct(d.seven_day.pct, d.seven_day.reset)
+        end
+        return d
     end
     local data = read_from_claude_code() or { source = "none" }
     cache.data = data

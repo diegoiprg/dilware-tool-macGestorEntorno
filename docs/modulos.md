@@ -575,7 +575,7 @@ cache = {
 
 **Barra de progreso**: caracteres `▰▱` (8 caracteres en overlay, 10 en submenú).
 
-**Caducidad**: ignora caches con más de 6 horas de antigüedad (`updated_at`).
+**Caducidad**: ignora caches con más de 6 horas de antigüedad (`updated_at`). Si el epoch de reset de una ventana ya pasó, `adjusted_pct()` devuelve 0% automáticamente — aplicado al leer el JSON y al servir desde cache (cubre resets que ocurren durante el TTL de 60s).
 
 **Dependencias**: `utils.lua`.
 
