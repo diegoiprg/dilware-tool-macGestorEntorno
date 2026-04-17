@@ -65,6 +65,15 @@ end
 
 local advance_phase
 
+local function tick()
+    state.seconds_left = remaining_seconds()
+    if state.seconds_left <= 0 then
+        stop_timer()
+        advance_phase()
+        update_menubar()
+    end
+end
+
 local function start_phase(phase)
     state.phase = phase
     local durations = {
@@ -84,15 +93,7 @@ local function start_phase(phase)
     end)
 
     stop_timer()
-    state.timer = hs.timer.doEvery(1, function()
-        state.seconds_left = remaining_seconds()
-
-        if state.seconds_left <= 0 then
-            stop_timer()
-            advance_phase()
-            update_menubar()
-        end
-    end)
+    state.timer = hs.timer.doEvery(1, tick)
     update_menubar()
 end
 
@@ -124,7 +125,6 @@ function M.time_label()
     return icon .. " " .. name .. " · " .. utils.format_time(remaining_seconds()) .. " · Ciclo " .. display_cycle .. "/" .. total
 end
 
--- UX-06: Etiqueta corta para la menubar
 function M.menubar_label()
     if not state.active then return nil end
     local m = math.ceil(remaining_seconds() / 60)
@@ -165,14 +165,7 @@ function M.handle_wake()
     else
         state.seconds_left = r
         stop_timer()
-        state.timer = hs.timer.doEvery(1, function()
-            state.seconds_left = remaining_seconds()
-            if state.seconds_left <= 0 then
-                stop_timer()
-                advance_phase()
-                update_menubar()
-            end
-        end)
+        state.timer = hs.timer.doEvery(1, tick)
         update_menubar()
     end
 end

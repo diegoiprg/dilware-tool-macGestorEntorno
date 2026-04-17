@@ -84,10 +84,8 @@ local function get_entries()
         local color = breaks.is_on_break() and BG_COLORS.breaks_active or BG_COLORS.breaks
         table.insert(entries, { label = idle, color = color })
     end
-    -- Claude: se muestra siempre que haya sesión activa (va después de breaks)
-    local cl_rows = claude.overlay_rows(IS_MACBOOK)
-    if not cl_rows[1].label:find("sin sesión") then
-        for _, row in ipairs(cl_rows) do
+    if claude.has_session() then
+        for _, row in ipairs(claude.overlay_rows(IS_MACBOOK)) do
             table.insert(entries, { label = row.label, color = claude.color_for(row.pct) })
         end
     end

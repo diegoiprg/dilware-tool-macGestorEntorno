@@ -562,7 +562,7 @@ cache = {
 | `color_for` | `(pct: number) → table` | Color semáforo: verde (<60%), amarillo (60–84%), rojo (≥85%). |
 | `build_submenu` | `() → table` | Ítems del submenú con ventanas 5h y 7d. |
 
-**Archivo fuente**: `~/.claude/usage_cache.json`. Generado por `statusline.sh` del proyecto `dil-claude-config`. macSpaces solo lee este archivo, nunca lo modifica.
+**Archivo fuente**: `~/.claude/usage_cache.json`. Generado por `statusline.sh` del proyecto `dil-ia-config`. macSpaces solo lee este archivo, nunca lo modifica.
 
 **Estructura esperada del archivo**:
 ```json

@@ -2,6 +2,18 @@
 
 Registro de cambios del proyecto `dilware-tool-macGestorEntorno`.
 
+## [2.11.3] - 2026-04-16
+
+### Corregido
+- **Docs**: referencias a `dil-claude-config` actualizadas a `dil-ia-config` en README.md, docs/tecnico.md, docs/modulos.md y docs/uso.md — el repo fue renombrado y los symlinks de `statusline.sh`/`notify.sh` estaban rotos
+
+### Mejorado
+- `claude.lua`: constante `CACHE_MAX_AGE = 6 * 3600` reemplaza el literal `21600`
+- `claude.lua`: `overlay_rows()` unifica las ramas `minimal`/normal con helper interno `row_label()` — elimina bloque duplicado
+- `claude.lua`: nueva función `M.has_session()` como API limpia para consultar si hay sesión activa
+- `focus_overlay.lua`: reemplaza check frágil `cl_rows[1].label:find("sin sesión")` por `claude.has_session()`
+- `pomodoro.lua`: cuerpo del timer extraído a función `tick()` — elimina duplicación entre `start_phase` y `handle_wake`
+
 ## [2.11.2] - 2026-04-16
 
 ### Corregido

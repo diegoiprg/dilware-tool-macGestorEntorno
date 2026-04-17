@@ -61,7 +61,7 @@ macSpaces presenta dos íconos en la barra de menú:
 
 El ícono de enfoque muestra el ícono configurado (por defecto ◎). Un overlay flotante en la esquina inferior derecha muestra countdowns en tiempo real con filas coloreadas por estado. Es arrastrable para reposicionar, y la posición se persiste en disco entre reinicios de Hammerspoon.
 
-El overlay también muestra el uso de rate limits de Claude Code en dos filas independientes (ventana de 5 horas y ventana de 7 días), con color semáforo (verde / amarillo / rojo) y tiempo hasta el reset. Esta información se lee desde `~/.claude/usage_cache.json`, generado automáticamente por `statusline.sh` del proyecto [dil-claude-config](https://github.com/diegoiprg/dil-claude-config). En MacBook, el formato es compacto (sin barra de progreso) para evitar solapamiento.
+El overlay también muestra el uso de rate limits de Claude Code en dos filas independientes (ventana de 5 horas y ventana de 7 días), con color semáforo (verde / amarillo / rojo) y tiempo hasta el reset. Esta información se lee desde `~/.claude/usage_cache.json`, generado automáticamente por `statusline.sh` del proyecto [dil-ia-config](https://github.com/diegoiprg/dil-ia-config). En MacBook, el formato es compacto (sin barra de progreso) para evitar solapamiento.
 
 ## Módulos
 

@@ -186,7 +186,7 @@ El submenú **Claude** muestra el uso de rate limits de Claude Code:
 - Barra de progreso con `▰▱` y color semáforo (verde < 60%, amarillo 60–84%, rojo ≥ 85%)
 - El overlay flotante muestra estas filas cuando hay una sesión activa
 
-Esta información se lee desde `~/.claude/usage_cache.json`, generado por `statusline.sh` del proyecto [dil-claude-config](https://github.com/diegoiprg/dil-claude-config). Sin ese archivo, la sección de Claude no aparece.
+Esta información se lee desde `~/.claude/usage_cache.json`, generado por `statusline.sh` del proyecto [dil-ia-config](https://github.com/diegoiprg/dil-ia-config). Sin ese archivo, la sección de Claude no aparece.
 
 ---
 
