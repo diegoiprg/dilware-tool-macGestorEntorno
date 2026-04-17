@@ -136,9 +136,9 @@ function M.overlay_rows(minimal)
     local function row_label(name, pct, reset_epoch)
         local fresh = freshness_indicator(d.updated_at)
         if minimal then
-            return string.format("✦ Claude %s  %d%%%s  ↺%s", name, pct, fresh, fmt_reset(reset_epoch))
+            return string.format("✦ Claude %s  %3d%%%s  ↺%s", name, pct, fresh, fmt_reset(reset_epoch))
         end
-        return string.format("✦ Claude %s  %s %d%%%s  ↺%s", name, bar(pct, 8), pct, fresh, fmt_reset(reset_epoch))
+        return string.format("✦ Claude %s  %s %3d%%%s  ↺%s", name, bar(pct, 8), pct, fresh, fmt_reset(reset_epoch))
     end
 
     local rows = {{ label = row_label("5h", fh.pct, fh.reset), pct = fh.pct }}
