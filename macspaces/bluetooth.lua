@@ -28,8 +28,8 @@ end
 
 local function parse_helper()
     if not ensure_binary() then return {} end
-    local output, ok = hs.execute(BIN .. " 2>/dev/null", true)
-    if not ok or not output or output == "" then return {} end
+    local output = hs.execute(BIN .. " 2>/dev/null", true)
+    if not output or type(output) ~= "string" or output == "" then return {} end
 
     local devices = {}
     for line in output:gmatch("[^\n]+") do
@@ -66,9 +66,9 @@ function M.devices()
     local now = os.time()
     if cache.devices and (now - cache.last_fetch) < cache.ttl then return cache.devices end
     local ok, result = pcall(parse_helper)
+    if not ok then utils.log("[ERROR] bluetooth: " .. tostring(result)) end
     cache.devices = ok and result or {}
     cache.last_fetch = now
-    if not ok then utils.log("[ERROR] bluetooth: " .. tostring(result)) end
     return cache.devices
 end
 
