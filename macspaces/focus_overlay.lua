@@ -23,29 +23,36 @@ local IS_MACBOOK = (hs.host.localizedName() or ""):lower():find("macbook") ~= ni
 
 -- ── Constantes visuales ──
 
-local OUTER_PAD  = 5
-local ROW_PAD_X  = 10
-local ROW_PAD_Y  = 6
-local ROW_GAP    = 4
-local MARGIN     = 8
+local OUTER_PAD  = 8
+local ROW_PAD_X  = 14
+local ROW_PAD_Y  = 7
+local ROW_GAP    = 3
+local MARGIN     = 12
 local TOP_OFFSET = 30
-local FONT_SIZE  = 14
-local BG_ALPHA   = 0.80
-local CORNER_R   = 8
-local ROW_R      = 5
+local FONT_SIZE  = 13
+local BG_ALPHA   = 0.82
+local CORNER_R   = 12
+local ROW_R      = 8
+local SHADOW_R   = 14
+local SHADOW_OFF = 3
 
 local BG_COLORS = {
-    work         = { red = 0.75, green = 0.15, blue = 0.10, alpha = BG_ALPHA },
-    short_break  = { red = 0.15, green = 0.55, blue = 0.25, alpha = BG_ALPHA },
-    long_break   = { red = 0.15, green = 0.55, blue = 0.25, alpha = BG_ALPHA },
-    breaks       = { red = 0.20, green = 0.40, blue = 0.65, alpha = BG_ALPHA },
-    breaks_active = { red = 0.15, green = 0.55, blue = 0.25, alpha = BG_ALPHA },
-    presentation = { red = 0.45, green = 0.20, blue = 0.60, alpha = BG_ALPHA },
+    work          = { red = 0.80, green = 0.18, blue = 0.15, alpha = BG_ALPHA },
+    short_break   = { red = 0.18, green = 0.58, blue = 0.30, alpha = BG_ALPHA },
+    long_break    = { red = 0.18, green = 0.58, blue = 0.30, alpha = BG_ALPHA },
+    breaks        = { red = 0.22, green = 0.42, blue = 0.68, alpha = BG_ALPHA },
+    breaks_active = { red = 0.18, green = 0.58, blue = 0.30, alpha = BG_ALPHA },
+    presentation  = { red = 0.48, green = 0.22, blue = 0.62, alpha = BG_ALPHA },
 }
 
 local TEXT_STYLE = {
     font  = { name = ".AppleSystemUIFont", size = FONT_SIZE },
-    color = { white = 1, alpha = 1 },
+    color = { white = 1, alpha = 0.95 },
+    shadow = {
+        offset  = { h = 0, w = 0 },
+        blurRadius = 2,
+        color   = { white = 0, alpha = 0.40 },
+    },
 }
 
 -- ── Helpers ──
@@ -115,7 +122,12 @@ local function render(entries)
     local cw = inner_w + OUTER_PAD * 2
     local ch = inner_h + OUTER_PAD * 2
 
-    -- Posición: prioridad → guardada en disco → esquina inferior-derecha del área visible
+    -- Espacio extra para sombra
+    local shadow_extra = SHADOW_R + SHADOW_OFF
+    local total_w = cw + shadow_extra * 2
+    local total_h = ch + shadow_extra * 2
+
+    -- Posición: prioridad → guardada en memoria → esquina inferior-derecha
     local cx, cy
     if saved_pos then
         cx, cy = saved_pos.x, saved_pos.y
@@ -123,42 +135,73 @@ local function render(entries)
         local scr = hs.screen.primaryScreen()
         if not scr then return end
         local screen = scr:fullFrame()
-        cx = screen.x + screen.w - cw - MARGIN
-        cy = screen.y + screen.h - ch - MARGIN
+        cx = screen.x + screen.w - total_w - MARGIN
+        cy = screen.y + screen.h - total_h - MARGIN
     end
 
-    canvas = hs.canvas.new({ x = cx, y = cy, w = cw, h = ch })
+    canvas = hs.canvas.new({ x = cx, y = cy, w = total_w, h = total_h })
     canvas:behavior(hs.canvas.windowBehaviors.canJoinAllSpaces + hs.canvas.windowBehaviors.stationary)
     canvas:level(hs.canvas.windowLevels.floating)
     canvas:clickActivating(false)
 
-    -- Fondo exterior
+    local ox = shadow_extra  -- offset para centrar contenido dentro del espacio de sombra
+    local oy = shadow_extra
+
+    -- Sombra exterior (rectángulo oscuro difuso detrás del fondo)
     canvas[1] = {
         type             = "rectangle",
-        fillColor        = { white = 0, alpha = 0.50 },
-        strokeColor      = { white = 1, alpha = 0.10 },
-        strokeWidth      = 0.5,
-        roundedRectRadii = { xRadius = CORNER_R, yRadius = CORNER_R },
-        action           = "strokeAndFill",
+        frame            = { x = ox + SHADOW_OFF, y = oy + SHADOW_OFF, w = cw, h = ch },
+        fillColor        = { white = 0, alpha = 0.35 },
+        roundedRectRadii = { xRadius = SHADOW_R, yRadius = SHADOW_R },
+        action           = "fill",
     }
 
-    -- Filas coloreadas
-    local idx = 2
-    local ry = OUTER_PAD
+    -- Fondo principal — vidrio oscuro
+    canvas[2] = {
+        type             = "rectangle",
+        frame            = { x = ox, y = oy, w = cw, h = ch },
+        fillColor        = { white = 0.08, alpha = 0.70 },
+        roundedRectRadii = { xRadius = CORNER_R, yRadius = CORNER_R },
+        action           = "fill",
+    }
+
+    -- Borde exterior sutil — brillo superior
+    canvas[3] = {
+        type             = "rectangle",
+        frame            = { x = ox, y = oy, w = cw, h = ch },
+        strokeColor      = { white = 1, alpha = 0.12 },
+        strokeWidth      = 0.5,
+        roundedRectRadii = { xRadius = CORNER_R, yRadius = CORNER_R },
+        action           = "stroke",
+    }
+
+    -- Filas coloreadas con highlight sutil
+    local idx = 4
+    local ry = oy + OUTER_PAD
     for _, row in ipairs(rows) do
+        -- Fila de color
         canvas[idx] = {
             type             = "rectangle",
-            frame            = { x = OUTER_PAD, y = ry, w = inner_w, h = row_h },
+            frame            = { x = ox + OUTER_PAD, y = ry, w = inner_w, h = row_h },
             fillColor        = row.color,
             roundedRectRadii = { xRadius = ROW_R, yRadius = ROW_R },
             action           = "fill",
         }
+        -- Highlight superior (simula profundidad / luz cenital)
         canvas[idx + 1] = {
+            type             = "rectangle",
+            frame            = { x = ox + OUTER_PAD + 1, y = ry + 1, w = inner_w - 2, h = row_h * 0.45 },
+            fillColor        = { white = 1, alpha = 0.08 },
+            roundedRectRadii = { xRadius = ROW_R - 1, yRadius = ROW_R - 1 },
+            action           = "fill",
+        }
+        -- Texto
+        canvas[idx + 2] = {
             type  = "text",
             text  = row.styled,
-            frame = { x = OUTER_PAD + ROW_PAD_X, y = ry + ROW_PAD_Y, w = row.size.w, h = row.size.h },
+            frame = { x = ox + OUTER_PAD + ROW_PAD_X, y = ry + ROW_PAD_Y, w = row.size.w, h = row.size.h },
         }
-        idx = idx + 2
+        idx = idx + 3
         ry = ry + row_h + ROW_GAP
     end
 
