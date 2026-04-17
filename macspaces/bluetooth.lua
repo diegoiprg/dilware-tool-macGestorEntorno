@@ -21,14 +21,14 @@ local function ensure_binary()
     if not fs then utils.log("[WARN] bluetooth: bt_devices.swift no encontrado"); return false end
     fs:close()
     local cmd = string.format("swiftc %s -o %s 2>&1", SRC, BIN)
-    local output, ok = hs.execute(cmd)
+    local output, ok = hs.execute(cmd, true)
     if not ok then utils.log("[ERROR] bluetooth: compilación falló — " .. (output or "")); return false end
     return true
 end
 
 local function parse_helper()
     if not ensure_binary() then return {} end
-    local output, ok = hs.execute(BIN .. " 2>/dev/null")
+    local output, ok = hs.execute(BIN .. " 2>/dev/null", true)
     if not ok or not output or output == "" then return {} end
 
     local devices = {}
