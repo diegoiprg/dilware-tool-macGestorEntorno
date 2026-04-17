@@ -1,4 +1,4 @@
-# Referencia Técnica — macSpaces v2.11.5
+# Referencia Técnica — macSpaces v2.11.6
 
 ## Tabla de contenido
 
@@ -279,7 +279,7 @@ Usa `hs.focus.setFocusModeEnabled()` si disponible (Hammerspoon 0.9.97+). Fallba
 | `M.color_for(pct)` | Color semáforo: verde (<60%), amarillo (60–84%), rojo (≥85%) |
 | `M.build_submenu()` | Ítems del submenú con uso de ventanas 5h y 7d |
 
-Fuente de datos: `~/.claude/usage_cache.json` generado por `statusline.sh`. Ignora caches con más de 6 horas de antigüedad (`updated_at`). Barra de progreso usa caracteres `▰▱`. La función `overlay_rows()` retorna 1 o 2 filas según disponibilidad de datos de 7 días. Si el epoch de reset de una ventana ya pasó, `adjusted_pct()` devuelve 0% automáticamente (aplicado al leer el JSON y al servir desde cache). Indicador de frescura `freshness_indicator()`: 🟢 si el dato tiene <10 min (`STALE_THRESHOLD`), 🔴 con tiempo transcurrido si es más antiguo.
+Fuente de datos: `~/.claude/usage_cache.json` generado por `statusline.sh`. Ignora caches con más de 6 horas de antigüedad (`updated_at`). Barra de progreso usa caracteres `▰▱`. La función `overlay_rows()` retorna 1 o 2 filas según disponibilidad de datos de 7 días. Si el epoch de reset de una ventana ya pasó, `adjusted_pct()` devuelve 0% automáticamente (aplicado al leer el JSON y al servir desde cache). Indicador de frescura `freshness_indicator()`: `[▶]` si el dato tiene <10 min (`STALE_THRESHOLD`), `[⏸ Xm]` con tiempo transcurrido si es más antiguo.
 
 ---
 

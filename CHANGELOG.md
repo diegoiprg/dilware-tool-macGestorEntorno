@@ -2,6 +2,17 @@
 
 Registro de cambios del proyecto `dilware-tool-macGestorEntorno`.
 
+## [2.11.6] - 2026-04-17
+
+### Mejorado
+- `claude.lua`: indicador de frescura cambiado de 🟢/🔴 a `[▶]`/`[⏸ Xm]` (play/pause) para evitar confusión con el color semáforo de cuota
+- `claude.lua`: `fmt_reset()` ahora muestra días para valores >24h (ej: `5d 20h 31m` en vez de `140h 31m`)
+- `claude.lua`: padding `%3d` en porcentaje para alineación consistente entre filas 5h y 7d
+- `claude.lua`: semáforo reposicionado después del `%` para alineación visual consistente
+- `focus_overlay.lua`: rediseño visual premium — sombra difusa, fondo vidrio oscuro translúcido, borde con brillo sutil, highlight cenital en filas, esquinas redondeadas (12px/8px), fuente 13pt con sombra de texto
+- `menu.lua`: rediseño con encabezados de sección en mayúsculas (PERFILES, ENTORNO, DISPOSITIVOS, HERRAMIENTAS), cada módulo como submenú propio, historial junto a perfiles
+- `focus_menu.lua`: cada sección (Pomodoro, Descanso, Presentación) como submenú propio con estado inline (countdown, activo)
+
 ## [2.11.5] - 2026-04-17
 
 ### Agregado

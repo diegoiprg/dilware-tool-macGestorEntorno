@@ -1,4 +1,4 @@
-# Especificación Funcional — macSpaces v2.11.5
+# Especificación Funcional — macSpaces v2.11.6
 
 ## Tabla de contenido
 
@@ -55,9 +55,11 @@ Banner unificado en esquina inferior derecha (posición configurable), visible e
 | Descanso pendiente | Azul | Countdown hasta el próximo descanso |
 | Descanso en curso | Verde | Countdown del banner de descanso |
 | Presentación activa | Púrpura | Indicador de modo activo |
-| Claude (baja carga) | Verde oscuro | Uso 5h y/o 7d con % y tiempo de reset |
+| Claude (baja carga) | Verde oscuro | Uso 5h y/o 7d con %, indicador de frescura `[▶]`/`[⏸]` y tiempo de reset |
 | Claude (media carga) | Amarillo | Ídem |
 | Claude (alta carga) | Rojo | Ídem |
+
+**Diseño visual:** fondo vidrio oscuro translúcido con sombra difusa, borde con brillo sutil, esquinas redondeadas (12px exterior, 8px filas), highlight cenital en cada fila para simular profundidad, fuente SF 13pt con sombra de texto.
 
 Arrastrable para reposicionar. La posición se mantiene en memoria durante la sesión y se resetea al recargar Hammerspoon. Se oculta automáticamente cuando no hay ningún estado activo.
 
@@ -276,7 +278,7 @@ Al desactivar:
 - Barra de progreso con caracteres `▰▱` (8 o 10 caracteres según contexto)
 - Porcentaje de uso y tiempo hasta el reset
 - Color semáforo: verde (<60%), amarillo (60–84%), rojo (≥85%)
-- Indicador de frescura del dato: 🟢 (dato <10 min) / 🔴 con tiempo transcurrido (dato >10 min sin actualizar)
+- Indicador de frescura del dato: `[▶]` (dato <10 min) / `[⏸ Xm]` con tiempo transcurrido (dato >10 min sin actualizar)
 - En MacBook: modo compacto sin barra de progreso para ahorrar espacio
 - Caché de 60 segundos; ignora caches con más de 6 horas de antigüedad
 - El submenú incluye botón de actualización e ítem para abrir `claude.ai/settings/usage`
