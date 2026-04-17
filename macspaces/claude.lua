@@ -23,8 +23,10 @@ local function fmt_reset(epoch)
     if not epoch or epoch == 0 then return "—" end
     local remaining = epoch - os.time()
     if remaining <= 0 then return "ahora" end
-    local h = math.floor(remaining / 3600)
+    local d = math.floor(remaining / 86400)
+    local h = math.floor((remaining % 86400) / 3600)
     local m = math.floor((remaining % 3600) / 60)
+    if d > 0 then return d .. "d " .. h .. "h " .. m .. "m" end
     if h > 0 then return h .. "h " .. m .. "m" end
     return m .. "m"
 end
@@ -130,13 +132,13 @@ function M.overlay_rows(minimal)
 
     local fh = d.five_hour
     local sd = d.seven_day or { pct = 0, reset = 0 }
-    local stale = freshness_indicator(d.updated_at)
 
     local function row_label(name, pct, reset_epoch)
+        local fresh = freshness_indicator(d.updated_at)
         if minimal then
-            return string.format("✦ Claude %s  %d%%  ↺%s%s", name, pct, fmt_reset(reset_epoch), stale)
+            return string.format("✦ Claude %s  %d%%%s  ↺%s", name, pct, fresh, fmt_reset(reset_epoch))
         end
-        return string.format("✦ Claude %s  %s %d%%  ↺%s%s", name, bar(pct, 8), pct, fmt_reset(reset_epoch), stale)
+        return string.format("✦ Claude %s  %s %d%%%s  ↺%s", name, bar(pct, 8), pct, fresh, fmt_reset(reset_epoch))
     end
 
     local rows = {{ label = row_label("5h", fh.pct, fh.reset), pct = fh.pct }}
