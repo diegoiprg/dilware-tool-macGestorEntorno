@@ -65,16 +65,16 @@ local function read_from_claude_code()
     }
 end
 
--- Indicador de frescura del dato: ▶ fluyendo, ⏸ pausado con tiempo
+-- Indicador de frescura del dato: [▶] fluyendo, [⏸ Xm] pausado
 local function freshness_indicator(updated_at)
-    if not updated_at or updated_at == 0 then return " ⏸" end
+    if not updated_at or updated_at == 0 then return "  [⏸]" end
     local age = os.time() - updated_at
-    if age < STALE_THRESHOLD then return " ▶" end
+    if age < STALE_THRESHOLD then return "  [▶]" end
     local m = math.floor(age / 60)
     if m >= 60 then
-        return string.format(" ⏸%dh%dm", math.floor(m / 60), m % 60)
+        return string.format("  [⏸ %dh%dm]", math.floor(m / 60), m % 60)
     end
-    return string.format(" ⏸%dm", m)
+    return string.format("  [⏸ %dm]", m)
 end
 
 function M.fetch()
@@ -180,7 +180,8 @@ function M.build_submenu()
 
     if stale:find("⏸") then
         table.insert(items, { title = "-" })
-        table.insert(items, utils.disabled_item("⏸ Dato desactualizado" .. stale:gsub(" ⏸", " — hace ")))
+        local age_text = stale:match("%[⏸ (.-)%]") or ""
+        table.insert(items, utils.disabled_item("⏸ Dato desactualizado — hace " .. age_text))
     end
 
     table.insert(items, { title = "-" })
