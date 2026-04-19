@@ -64,52 +64,20 @@ function M.color_for(pct)
     end
 end
 
-local function get_bar(pct)
-    local len = 8
-    local filled = math.floor((pct / 100) * len)
-    local s = "▰"
-    local e = "▱"
-    local bar = ""
-    for i = 1, len do
-        bar = bar .. (i <= filled and s or e)
-    end
-    return bar
-end
-
-local function freshness_indicator(updated_at)
-    local diff = os.time() - updated_at
-    if diff > STALE_THRESHOLD then
-        return "  [⏸ " .. math.floor(diff / 60) .. "m]"
-    end
-    return "  [▶]"
-end
-
-function M.overlay_rows(minimal)
+function M.overlay_rows()
     local data = M.fetch()
-    local rows = {}
+    if not data.models or #data.models == 0 then return {} end
+
+    local parts = {}
+    local worst = 0
     for _, model in ipairs(data.models) do
         local display = MODEL_DISPLAY[model.model_id] or model.model_id:match("([^%-]+)$") or model.model_id
-        local bar = get_bar(model.pct)
-        local freshness = freshness_indicator(data.updated_at)
-        local reset = os.date("%H:%M", model.reset)
-        
-        local label
-        if minimal then
-            label = string.format("✦ Gemini %s  %d%%%s  ↺%s", display, model.pct, freshness, reset)
-        else
-            label = string.format("✦ Gemini %s  %s  %d%%%s  ↺%s", display, bar, model.pct, freshness, reset)
-        end
-        table.insert(rows, { label = label, pct = model.pct })
+        table.insert(parts, string.format("%s %d%%", display, model.pct))
+        if model.pct > worst then worst = model.pct end
     end
-    return rows
-end
 
-function M.overlay_label()
-    local data = M.fetch()
-    if #data.models > 0 then
-        return "✦ Gemini " .. (MODEL_DISPLAY[data.models[1].model_id] or "active")
-    end
-    return "✦ Gemini"
+    local label = "✦ Gemini  " .. table.concat(parts, " · ")
+    return {{ label = label, pct = worst }}
 end
 
 function M.build_submenu()

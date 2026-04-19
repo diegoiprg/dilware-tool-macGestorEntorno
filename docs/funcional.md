@@ -55,9 +55,10 @@ Banner unificado en esquina inferior derecha (posición configurable), visible e
 | Descanso pendiente | Azul | Countdown hasta el próximo descanso |
 | Descanso en curso | Verde | Countdown del banner de descanso |
 | Presentación activa | Púrpura | Indicador de modo activo |
-| Claude (baja carga) | Verde oscuro | Uso 5h y/o 7d con %, indicador de frescura `[▶]`/`[⏸]` y tiempo de reset |
-| Claude (media carga) | Amarillo | Ídem |
-| Claude (alta carga) | Rojo | Ídem |
+| Claude (baja carga) | Verde oscuro | Una fila inline: `5h X% · 7d Y%` |
+| Claude (media/alta carga) | Amarillo / Rojo | Ídem, color según peor ventana |
+| Gemini (baja carga) | Verde oscuro | Una fila inline: `pro X% · flash Y% · lite Z%` |
+| Gemini (media/alta carga) | Amarillo / Rojo | Ídem, color según peor modelo |
 
 **Diseño visual:** fondo vidrio oscuro translúcido con sombra difusa, borde con brillo sutil, esquinas redondeadas (12px exterior, 8px filas), highlight cenital en cada fila para simular profundidad, fuente SF 13pt con sombra de texto.
 
@@ -275,11 +276,10 @@ Al desactivar:
 
 - Lee `~/.claude/usage_cache.json` (generado externamente por `statusline.sh`)
 - Muestra ventana de 5 horas y ventana de 7 días
-- Barra de progreso con caracteres `▰▱` (8 o 10 caracteres según contexto)
-- Porcentaje de uso y tiempo hasta el reset
+- Overlay: una fila compacta inline `✦ Claude  5h X% · 7d Y%` con color semáforo según peor ventana
+- Submenú: detalle completo con barra de progreso `▰▱`, tiempo de reset e indicador de frescura
 - Color semáforo: verde (<60%), amarillo (60–84%), rojo (≥85%)
-- Indicador de frescura del dato: `[▶]` (dato <10 min) / `[⏸ Xm]` con tiempo transcurrido (dato >10 min sin actualizar)
-- En MacBook: modo compacto sin barra de progreso para ahorrar espacio
+- En MacBook: filas AI se ocultan del overlay cuando todo está verde (<60%)
 - Caché de 60 segundos; ignora caches con más de 6 horas de antigüedad
 - El submenú incluye botón de actualización e ítem para abrir `claude.ai/settings/usage`
 - Si el dato está desactualizado, el submenú muestra advertencia con tiempo transcurrido

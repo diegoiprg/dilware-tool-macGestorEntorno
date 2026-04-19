@@ -2,6 +2,14 @@
 
 Registro de cambios del proyecto `dilware-tool-macGestorEntorno`.
 
+## [2.13.0] - 2026-04-19
+
+### Mejorado
+- Overlay: filas AI reestructuradas — cada proveedor (Claude, Gemini) se muestra en una sola fila compacta inline (ej: `✦ Claude  5h 38% · 7d 99%`, `✦ Gemini  pro 0% · flash 0% · lite 0%`); eliminadas barras de progreso, indicadores de frescura y tiempos de reset del overlay (se mantienen en submenú)
+- Overlay en MacBook: filas AI se ocultan completamente cuando todos los proveedores están en verde (<60%); solo aparecen cuando alguno requiere atención
+- `claude.lua`: `overlay_rows()` retorna siempre 1 fila con formato inline; eliminada `overlay_label()`
+- `gemini.lua`: `overlay_rows()` retorna siempre 1 fila con todos los modelos inline; eliminadas `get_bar()`, `freshness_indicator()`, `overlay_label()`
+
 ## [2.12.1] - 2026-04-19
 
 ### Corregido

@@ -274,12 +274,11 @@ Usa `hs.focus.setFocusModeEnabled()` si disponible (Hammerspoon 0.9.97+). Fallba
 | `M.fetch()` | Lee `~/.claude/usage_cache.json` con caché de 60s; retorna `{ five_hour, seven_day, updated_at, source }` |
 | `M.invalidate()` | Fuerza recarga en el próximo acceso |
 | `M.has_session()` | `true` si hay sesión activa con datos de rate limit |
-| `M.overlay_rows(minimal)` | Retorna tabla de `{ label, pct }` para el overlay; `minimal=true` omite barra de progreso |
-| `M.overlay_label()` | Compatibilidad: primera fila como string |
+| `M.overlay_rows()` | Retorna tabla con una fila `{ label, pct }` para el overlay; formato inline `5h X% · 7d Y%` |
 | `M.color_for(pct)` | Color semáforo: verde (<60%), amarillo (60–84%), rojo (≥85%) |
 | `M.build_submenu()` | Ítems del submenú con uso de ventanas 5h y 7d |
 
-Fuente de datos: `~/.claude/usage_cache.json` generado por `statusline.sh`. Ignora caches con más de 6 horas de antigüedad (`updated_at`). Barra de progreso usa caracteres `▰▱`. La función `overlay_rows()` retorna 1 o 2 filas según disponibilidad de datos de 7 días. Si el epoch de reset de una ventana ya pasó, `adjusted_pct()` devuelve 0% automáticamente (aplicado al leer el JSON y al servir desde cache). Indicador de frescura `freshness_indicator()`: `[▶]` si el dato tiene <10 min (`STALE_THRESHOLD`), `[⏸ Xm]` con tiempo transcurrido si es más antiguo.
+Fuente de datos: `~/.claude/usage_cache.json` generado por `statusline.sh`. Ignora caches con más de 6 horas de antigüedad (`updated_at`). La función `overlay_rows()` retorna siempre 1 fila con formato compacto inline; el color se basa en el peor porcentaje entre 5h y 7d. Si el epoch de reset de una ventana ya pasó, `adjusted_pct()` devuelve 0% automáticamente. Barras de progreso (`▰▱`), indicador de frescura y tiempo de reset se mantienen solo en `build_submenu()`.
 
 ---
 
@@ -328,13 +327,14 @@ Registra `pomodoro.set_menubar_updater()` para actualizar el ícono del menú de
 
 **Posición en memoria**: la posición se guarda en una variable local durante la sesión. Al soltar el drag (`mouseUp`) se actualiza en memoria. La posición se resetea al recargar Hammerspoon — no hay persistencia en disco.
 
-**Detección de dispositivo**: `IS_MACBOOK` se determina una sola vez al cargar el módulo mediante `hs.host.localizedName():find("macbook")`. Si es MacBook, pasa `minimal=true` a `claude.overlay_rows()`.
+**Detección de dispositivo**: `IS_MACBOOK` se determina una sola vez al cargar el módulo mediante `hs.host.localizedName():find("macbook")`. En MacBook, si todas las filas AI tienen porcentaje <60% (todo verde), se ocultan del overlay para minimizar el tamaño.
 
 **Entradas del overlay** (en orden):
 1. Pomodoro — si activo: fila roja con countdown, fase y ciclo
 2. Presentación — si activa: fila púrpura
 3. Descanso activo — si habilitado: fila azul (countdown) o verde (banner activo)
-4. Claude — si hay sesión activa: 1 o 2 filas con color semáforo por porcentaje
+4. Claude — si hay sesión activa: 1 fila inline `5h X% · 7d Y%` con color semáforo
+5. Gemini — si hay sesión activa: 1 fila inline `pro X% · flash Y% · lite Z%` con color semáforo
 
 Colores de fondo definidos en `BG_COLORS`:
 - `work`: rojo (`0.75, 0.15, 0.10`)

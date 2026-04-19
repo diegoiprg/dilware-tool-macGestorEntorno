@@ -1,6 +1,6 @@
 # Gestor de entorno macOS — macSpaces
 
-![Versión](https://img.shields.io/badge/versión-v2.11.9-6366f1?style=flat-square)
+![Versión](https://img.shields.io/badge/versión-v2.13.0-6366f1?style=flat-square)
 ![Licencia](https://img.shields.io/badge/licencia-GPLv3-a855f7?style=flat-square)
 ![Plataforma](https://img.shields.io/badge/plataforma-macOS-222?style=flat-square&logo=apple&logoColor=white)
 
@@ -61,7 +61,7 @@ macSpaces presenta dos íconos en la barra de menú:
 
 El ícono de enfoque muestra el ícono configurado (por defecto ◎). Un overlay flotante en la esquina inferior derecha muestra countdowns en tiempo real con filas coloreadas por estado. Es arrastrable para reposicionar, y la posición se persiste en disco entre reinicios de Hammerspoon.
 
-El overlay también muestra el uso de rate limits de Claude Code en dos filas independientes (ventana de 5 horas y ventana de 7 días), con color semáforo (verde / amarillo / rojo) y tiempo hasta el reset. Esta información se lee desde `~/.claude/usage_cache.json`, generado automáticamente por `statusline.sh` del proyecto [dil-configuration](https://github.com/diegoiprg/dil-configuration). En MacBook, el formato es compacto (sin barra de progreso) para evitar solapamiento.
+El overlay también muestra el uso de rate limits de Claude Code y Gemini CLI con color semáforo (verde / amarillo / rojo). Cada proveedor se muestra en una sola fila compacta inline (ej: `✦ Claude  5h 38% · 7d 99%`, `✦ Gemini  pro 0% · flash 0% · lite 0%`). En MacBook, las filas AI se ocultan cuando todo está verde (<60%). El detalle completo (barras de progreso, tiempos de reset, frescura) está disponible en el submenú de la barra de menú.
 
 ## Módulos
 
@@ -87,7 +87,8 @@ El proyecto está compuesto por los siguientes módulos Lua, cada uno con respon
 | `history.lua` | Tiempo acumulado por perfil durante el día |
 | `hotkeys.lua` | Atajos de teclado globales (⌘⌥1 / ⌘⌥2) para activar perfiles |
 | `dnd.lua` | Wrapper de Do Not Disturb: activar, desactivar, consultar estado |
-| `claude.lua` | Monitoreo de rate limits de Claude Code via `~/.claude/usage_cache.json`; filas de overlay con barra `▰▱` y color semáforo |
+| `claude.lua` | Monitoreo de rate limits de Claude Code via `~/.claude/usage_cache.json`; fila compacta inline en overlay, detalle completo en submenú |
+| `gemini.lua` | Monitoreo de cuota de Gemini CLI via `~/.gemini/usage_cache.json`; fila compacta inline en overlay, detalle por modelo en submenú |
 | `focus_overlay.lua` | Overlay flotante con countdowns en tiempo real; arrastrable, posición persistente en disco, modo compacto automático en MacBook |
 | `focus_menu.lua` | Menú de enfoque (ícono ◎): acceso a Pomodoro, breaks, modo presentación |
 | `menu.lua` | Menú principal (ícono ⌘): integra todos los módulos de entorno |
