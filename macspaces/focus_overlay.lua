@@ -92,16 +92,35 @@ local function get_entries()
         local color = breaks.is_on_break() and BG_COLORS.breaks_active or BG_COLORS.breaks
         table.insert(entries, { label = idle, color = color })
     end
+
+    -- AI: recopilar filas y determinar si alguna requiere atención
+    local ai_rows = {}
     if claude.has_session() then
-        for _, row in ipairs(claude.overlay_rows(IS_MACBOOK)) do
-            table.insert(entries, { label = row.label, color = claude.color_for(row.pct) })
+        for _, row in ipairs(claude.overlay_rows()) do
+            table.insert(ai_rows, { label = row.label, color = claude.color_for(row.pct), pct = row.pct })
         end
     end
     if gemini.has_session() then
-        for _, row in ipairs(gemini.overlay_rows(IS_MACBOOK)) do
-            table.insert(entries, { label = row.label, color = gemini.color_for(row.pct) })
+        for _, row in ipairs(gemini.overlay_rows()) do
+            table.insert(ai_rows, { label = row.label, color = gemini.color_for(row.pct), pct = row.pct })
         end
     end
+
+    -- MacBook + todo verde (<60%): ocultar filas AI para minimizar overlay
+    local show_ai = true
+    if IS_MACBOOK and #ai_rows > 0 then
+        show_ai = false
+        for _, r in ipairs(ai_rows) do
+            if r.pct >= 60 then show_ai = true; break end
+        end
+    end
+
+    if show_ai then
+        for _, r in ipairs(ai_rows) do
+            table.insert(entries, { label = r.label, color = r.color })
+        end
+    end
+
     return entries
 end
 

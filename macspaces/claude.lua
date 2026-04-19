@@ -124,32 +124,22 @@ function M.color_for(pct)
     end
 end
 
-function M.overlay_rows(minimal)
+function M.overlay_rows()
     local d = M.fetch()
-    if d.source == "none" or not d.five_hour then
-        return {{ label = "✦ Claude  —  sin sesión activa", pct = 0 }}
-    end
+    if d.source == "none" or not d.five_hour then return {} end
 
     local fh = d.five_hour
     local sd = d.seven_day or { pct = 0, reset = 0 }
+    local worst = math.max(fh.pct, sd.pct)
 
-    local function row_label(name, pct, reset_epoch)
-        local fresh = freshness_indicator(d.updated_at)
-        if minimal then
-            return string.format("✦ Claude %s  %3d%%%s  ↺%s", name, pct, fresh, fmt_reset(reset_epoch))
-        end
-        return string.format("✦ Claude %s  %s %3d%%%s  ↺%s", name, bar(pct, 8), pct, fresh, fmt_reset(reset_epoch))
-    end
-
-    local rows = {{ label = row_label("5h", fh.pct, fh.reset), pct = fh.pct }}
+    local label
     if sd.reset and sd.reset > 0 then
-        table.insert(rows, { label = row_label("7d", sd.pct, sd.reset), pct = sd.pct })
+        label = string.format("✦ Claude  5h %d%% · 7d %d%%", fh.pct, sd.pct)
+    else
+        label = string.format("✦ Claude  5h %d%%", fh.pct)
     end
-    return rows
-end
 
-function M.overlay_label()
-    return M.overlay_rows()[1].label
+    return {{ label = label, pct = worst }}
 end
 
 function M.build_submenu()

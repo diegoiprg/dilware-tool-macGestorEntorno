@@ -48,10 +48,11 @@ macSpaces es una menubar app con dos íconos independientes: menú principal (en
 | Dos menús con propósito claro | Principal = entorno, Enfoque = concentración |
 | Overlay flotante no invasivo | Semi-transparente, esquina inferior derecha, auto-oculta, arrastrable |
 | Posición del overlay persistida | Guardada en `overlay_pos.json`, restaurada entre reinicios |
-| Filas coloreadas por estado | Rojo (trabajo), verde (pausa), azul (descanso pendiente), verde (descanso activo), púrpura (presentación), semáforo (Claude) |
+| Filas coloreadas por estado | Rojo (trabajo), verde (pausa), azul (descanso pendiente), verde (descanso activo), púrpura (presentación), semáforo (Claude, Gemini) |
 | Barra de progreso con `▰▱` | Mejor alineación visual que `█░`; alineada con Apple HIG |
-| Modo compacto en MacBook | Las filas de Claude omiten barra de progreso en MacBook para evitar solapamiento con el Dock |
+| Modo compacto en MacBook | En MacBook, filas AI se ocultan del overlay cuando todo está verde (<60%); solo aparecen cuando requieren atención |
 | Detección automática de dispositivo | `IS_MACBOOK` vía `hs.host.localizedName()` — modo compacto sin configuración manual |
+| Filas AI inline | Claude y Gemini muestran una fila por proveedor con todos los datos inline (ej: `5h X% · 7d Y%`) — sin barras, sin freshness, sin reset en overlay |
 | Datos educativos en notificaciones | Rotativos, con fuentes (AAO, OSHA, Cirillo, Mayo Clinic, AHA, EFSA, Harvard Med) |
 | Descanso activo por defecto | Opt-out en lugar de opt-in — el usuario debe desactivarlo conscientemente |
 | Tiempo hasta el próximo descanso visible | Presión visual positiva para tomar pausas |
@@ -115,7 +116,7 @@ El usuario elige la posición del overlay según su configuración de pantalla. 
 
 ### Por qué modo compacto en MacBook
 
-En MacBook, el Dock se superpone a la esquina inferior. El formato compacto omite la barra de progreso (`▰▱`) y reduce el ancho del overlay para evitar solapamiento sin sacrificar la información esencial (porcentaje y tiempo de reset).
+En MacBook, el Dock se superpone a la esquina inferior y el espacio de pantalla es limitado. El overlay adopta dos estrategias: (1) cada proveedor AI se muestra en una sola fila inline con todos los datos concatenados (ej: `✦ Claude  5h 38% · 7d 99%`), eliminando barras de progreso, indicadores de frescura y tiempos de reset del overlay; (2) cuando todos los proveedores AI están en verde (<60%), las filas AI se ocultan completamente del overlay. El detalle completo permanece accesible en el submenú de la barra de menú.
 
 ### Por qué `▰▱` en lugar de `█░`
 
