@@ -28,7 +28,7 @@ local OUTER_PAD  = 8
 local ROW_PAD_X  = 14
 local ROW_PAD_Y  = 7
 local ROW_GAP    = 3
-local MARGIN     = 12
+local MARGIN     = 4
 local TOP_OFFSET = 30
 local FONT_SIZE  = 13
 local BG_ALPHA   = 0.82
@@ -152,9 +152,9 @@ local function render(entries)
     local total_w = cw + shadow_extra * 2
     local total_h = ch + shadow_extra * 2
 
-    -- Posición: prioridad → guardada en memoria → esquina inferior-derecha
-    -- La sombra se extiende más allá del contenido visible; compensar para que
-    -- el borde visible del panel quede a MARGIN del borde de pantalla
+    -- Posición: prioridad → guardada en memoria → esquina inferior-izquierda
+    -- Usa fullFrame para posicionar en el borde absoluto de la pantalla,
+    -- por debajo del área usable (sobre el Dock)
     local cx, cy
     if saved_pos then
         cx, cy = saved_pos.x, saved_pos.y
@@ -162,8 +162,8 @@ local function render(entries)
         local scr = hs.screen.primaryScreen()
         if not scr then return end
         local screen = scr:fullFrame()
-        cx = screen.x + screen.w - total_w - MARGIN + shadow_extra
-        cy = screen.y + screen.h - total_h - MARGIN + shadow_extra
+        cx = screen.x - shadow_extra
+        cy = screen.y + screen.h - total_h + shadow_extra
     end
 
     canvas = hs.canvas.new({ x = cx, y = cy, w = total_w, h = total_h })

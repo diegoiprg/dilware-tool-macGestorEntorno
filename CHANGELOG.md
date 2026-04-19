@@ -2,6 +2,20 @@
 
 Registro de cambios del proyecto `dilware-tool-macGestorEntorno`.
 
+## [2.14.0] - 2026-04-19
+
+### Agregado
+- `gemini.lua`: auto-refresh de cuota via `hs.task` + `hs.timer` cada 5 minutos; ejecuta `gemini-usage.sh` integrado en el repo
+- `gemini-usage.sh` movido al repo (`macspaces/`) — ya no depende de paths externos
+- `config.lua`: soporte para `config_local.lua` como archivo de overrides del usuario (merge shallow automático)
+- `install.sh`: reescrito completo — detección automática local (symlinks) / remoto (copia), `--dry-run`, instala dependencias, crea `config_local.lua` como plantilla
+
+### Cambiado
+- `config.lua` ahora es symlink al repo (antes era copia); personalizaciones van en `config_local.lua`
+- Overlay: posición por defecto cambiada a esquina inferior izquierda, borde absoluto de pantalla
+- Overlay: `MARGIN` reducido de 12 a 4 para pegarse más al borde
+- `init.lua`: agrega `gemini.start()` en inicialización y `gemini.stop()` en shutdown
+
 ## [2.13.0] - 2026-04-19
 
 ### Mejorado

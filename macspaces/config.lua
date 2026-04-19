@@ -94,4 +94,22 @@ M.menu_icon = "⌘"
 -- macspaces_focus_icon.png 18×18pt monocromática en ~/.hammerspoon/)
 M.focus_icon = "◎"
 
+-- Overrides locales: si existe ~/.hammerspoon/macspaces/config_local.lua,
+-- sus valores sobreescriben los de arriba. Ese archivo no está en el repo.
+-- Ejemplo de config_local.lua:
+--   local M = {}
+--   M.profile_order = { "personal", "work", "freelance" }
+--   M.pomodoro = { work_minutes = 50 }
+--   return M
+local ok, overrides = pcall(require, "macspaces.config_local")
+if ok and type(overrides) == "table" then
+    for k, v in pairs(overrides) do
+        if type(v) == "table" and type(M[k]) == "table" then
+            for sk, sv in pairs(v) do M[k][sk] = sv end
+        else
+            M[k] = v
+        end
+    end
+end
+
 return M

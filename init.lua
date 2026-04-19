@@ -27,6 +27,7 @@ local music      = require("macspaces.music")
 local battery    = require("macspaces.battery")
 local menu       = require("macspaces.menu")
 local focus_menu = require("macspaces.focus_menu")
+local gemini     = require("macspaces.gemini")
 
 local ok, err = pcall(function()
     if type(cfg.VERSION) ~= "string" or #cfg.VERSION == 0 then error("VERSION inválida en config") end
@@ -60,6 +61,7 @@ end
 clipboard.start()
 network.refresh()
 vpn.refresh()
+gemini.start()
 hotkeys.register(function() menu.build() end)
 menu.init()
 focus_menu.init()
@@ -105,6 +107,7 @@ hs.shutdownCallback = function()
     focus_menu.destroy()
     menu.destroy()
     clipboard.stop()
+    gemini.stop()
     hotkeys.unregister()
     if breaks.is_enabled() then breaks.disable() end
     if prewarm_timer then prewarm_timer:stop() end

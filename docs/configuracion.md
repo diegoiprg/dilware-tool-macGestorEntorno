@@ -1,6 +1,8 @@
 # Guía de Configuración — macSpaces v2.11.9
 
-Referencia completa de todos los parámetros de `~/.hammerspoon/macspaces/config.lua`.
+Referencia completa de todos los parámetros de `config.lua`.
+
+Los defaults están en `~/.hammerspoon/macspaces/config.lua` (symlink al repo). Para personalizar, edita `~/.hammerspoon/macspaces/config_local.lua` — solo incluye los parámetros que quieras sobreescribir.
 
 ## Tabla de contenido
 
@@ -23,7 +25,7 @@ Referencia completa de todos los parámetros de `~/.hammerspoon/macspaces/config
 
 ## Cómo editar
 
-1. Abre `~/.hammerspoon/macspaces/config.lua` con cualquier editor de texto.
+1. Abre `~/.hammerspoon/macspaces/config_local.lua` con cualquier editor de texto.
 2. Guarda los cambios.
 3. Abre Hammerspoon y presiona `⌘R` para recargar.
 

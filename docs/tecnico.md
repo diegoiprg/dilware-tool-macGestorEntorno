@@ -282,6 +282,23 @@ Fuente de datos: `~/.claude/usage_cache.json` generado por `statusline.sh`. Igno
 
 ---
 
+### gemini.lua
+
+| Función | Descripción |
+|---|---|
+| `M.fetch()` | Lee `~/.gemini/usage_cache.json` con caché de 60s; retorna `{ models, updated_at, source }` |
+| `M.invalidate()` | Fuerza recarga en el próximo acceso |
+| `M.has_session()` | `true` si hay cache válido con menos de 6 horas de antigüedad |
+| `M.start()` | Ejecuta `gemini-usage.sh` inmediatamente y arranca timer de auto-refresh cada 5 minutos |
+| `M.stop()` | Detiene timer y termina tarea en curso |
+| `M.overlay_rows()` | Retorna tabla con una fila `{ label, pct }` para el overlay; formato inline `pro X% · flash Y% · lite Z%` |
+| `M.color_for(pct)` | Color semáforo: verde (<60%), amarillo (60–84%), rojo (≥85%) |
+| `M.build_submenu()` | Ítems del submenú con uso por modelo, barras de progreso y tiempo de reset |
+
+Fuente de datos: `~/.gemini/usage_cache.json` generado por `macspaces/gemini-usage.sh`. A diferencia de Claude (que actualiza su cache via `statusline.sh` en cada prompt), Gemini CLI no tiene hook equivalente — el módulo ejecuta el script periódicamente via `hs.task` + `hs.timer` (cada 5 minutos). El botón "Actualizar" del submenú también dispara el script.
+
+---
+
 ### launcher.lua
 
 | Función | Descripción |
@@ -325,7 +342,7 @@ Registra `pomodoro.set_menubar_updater()` para actualizar el ícono del menú de
 | `M.stop()` | Detiene timer, cancela drag tap, destruye canvas |
 | `M.refresh()` | Fuerza actualización inmediata del canvas |
 
-**Posición en memoria**: la posición se guarda en una variable local durante la sesión. Al soltar el drag (`mouseUp`) se actualiza en memoria. La posición se resetea al recargar Hammerspoon — no hay persistencia en disco.
+**Posición en memoria**: posición por defecto en esquina inferior izquierda (borde absoluto de pantalla). Se guarda en una variable local durante la sesión. Al soltar el drag (`mouseUp`) se actualiza en memoria. La posición se resetea al recargar Hammerspoon — no hay persistencia en disco.
 
 **Detección de dispositivo**: `IS_MACBOOK` se determina una sola vez al cargar el módulo mediante `hs.host.localizedName():find("macbook")`. En MacBook, si todas las filas AI tienen porcentaje <60% (todo verde), se ocultan del overlay para minimizar el tamaño.
 
@@ -355,7 +372,7 @@ El canvas usa `canJoinAllSpaces + stationary` para ser visible en todos los espa
 | Auto-compilación | Compila `set_browser.swift` a `set_browser` si el binario no existe |
 | Prewarm de cachés | `hs.timer.doAfter(1, ...)` + `hs.timer.doEvery(30, ...)` para `bluetooth`, `browsers`, `battery`, `music` |
 | `hs.caffeinate.watcher` | Detecta `systemDidWake` / `screensDidWake` → llama `handle_wake()` en breaks y pomodoro; reinicia menubar |
-| `hs.shutdownCallback` | Restaura DND, Dock, escritorio; libera timers, menubars, overlay, watcher y hotkeys |
+| `hs.shutdownCallback` | Restaura DND, Dock, escritorio; libera timers, menubars, overlay, watcher, gemini y hotkeys |
 
 ---
 

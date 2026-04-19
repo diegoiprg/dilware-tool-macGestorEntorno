@@ -54,7 +54,7 @@ curl -sL https://raw.githubusercontent.com/diegoiprg/dilware-tool-macGestorEntor
 
 Usa `--dry-run` para previsualizar sin aplicar cambios.
 
-El instalador preserva tu `config.lua` si ya tenías una configuración personalizada.
+El instalador crea `config_local.lua` como plantilla para tus personalizaciones. Los defaults están en `config.lua` (symlink al repo).
 
 Después de la instalación, macOS te pedirá permisos para Hammerspoon:
 - Ajustes del Sistema → Privacidad y Seguridad → Accesibilidad → Hammerspoon ✓
@@ -104,7 +104,7 @@ El ícono de enfoque es estático (`◎` por defecto, configurable en `config.lu
 
 ### Overlay flotante
 
-Un banner unificado en la esquina inferior derecha muestra filas coloreadas por estado activo:
+Un banner unificado en la esquina inferior izquierda muestra filas coloreadas por estado activo:
 
 | Color | Estado | Contenido |
 |---|---|---|
@@ -217,7 +217,7 @@ Esta información se lee desde `~/.claude/usage_cache.json`, generado por `statu
 
 ## Personalización
 
-Edita `~/.hammerspoon/macspaces/config.lua` y presiona `⌘R` para aplicar cambios. Consulta [docs/configuracion.md](configuracion.md) para la referencia completa de parámetros.
+Edita `~/.hammerspoon/macspaces/config_local.lua` y presiona `⌘R` para aplicar cambios. Solo incluye los parámetros que quieras sobreescribir — los defaults están en `config.lua`. Consulta [docs/configuracion.md](configuracion.md) para la referencia completa de parámetros.
 
 ### Agregar un perfil
 

@@ -2,9 +2,12 @@ local M = {}
 
 local utils = require("macspaces.utils")
 
-local CACHE_FILE = os.getenv("HOME") .. "/.gemini/usage_cache.json"
+local HOME = os.getenv("HOME") or ""
+local CACHE_FILE = HOME .. "/.gemini/usage_cache.json"
+local USAGE_SCRIPT = HOME .. "/.hammerspoon/macspaces/gemini-usage.sh"
 local CACHE_MAX_AGE = 6 * 3600 -- 6 horas
 local STALE_THRESHOLD = 10 * 60 -- 10 minutos
+local REFRESH_INTERVAL = 5 * 60 -- 5 minutos
 
 local MODEL_DISPLAY = {
     ["gemini-2.5-flash"]              = "flash",
@@ -18,6 +21,38 @@ local MODEL_DISPLAY = {
 
 local cache_data = nil
 local last_load = 0
+local refresh_timer = nil
+local refresh_task = nil
+
+-- ── Auto-refresh via script externo ────────────────────────────────────────
+
+local function run_usage_script()
+    -- No ejecutar si ya hay una tarea corriendo o el script no existe
+    if refresh_task and refresh_task:isRunning() then return end
+    local f = io.open(USAGE_SCRIPT, "r")
+    if not f then return end
+    f:close()
+
+    refresh_task = hs.task.new("/bin/bash", function(exitCode)
+        if exitCode == 0 then
+            M.invalidate()
+        end
+        refresh_task = nil
+    end, { USAGE_SCRIPT })
+    refresh_task:start()
+end
+
+function M.start()
+    run_usage_script()
+    if refresh_timer then refresh_timer:stop() end
+    refresh_timer = hs.timer.doEvery(REFRESH_INTERVAL, run_usage_script)
+end
+
+function M.stop()
+    if refresh_timer then refresh_timer:stop(); refresh_timer = nil end
+    if refresh_task and refresh_task:isRunning() then refresh_task:terminate() end
+    refresh_task = nil
+end
 
 function M.fetch()
     local now = os.time()
@@ -149,7 +184,7 @@ function M.build_submenu()
     })
     table.insert(items, {
         title = "Actualizar",
-        fn    = function() M.invalidate() end,
+        fn    = function() M.invalidate(); run_usage_script() end,
     })
 
     return items

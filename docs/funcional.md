@@ -46,7 +46,7 @@ Gestión de la concentración: Pomodoro, descanso activo, modo presentación. El
 
 ### Overlay flotante
 
-Banner unificado en esquina inferior derecha (posición configurable), visible en todos los espacios de Mission Control. Contiene filas coloreadas independientes por estado activo:
+Banner unificado en esquina inferior izquierda (borde absoluto de pantalla, arrastrable), visible en todos los espacios de Mission Control. Contiene filas coloreadas independientes por estado activo:
 
 | Estado | Color | Contenido |
 |---|---|---|

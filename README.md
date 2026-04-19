@@ -1,6 +1,6 @@
 # Gestor de entorno macOS — macSpaces
 
-![Versión](https://img.shields.io/badge/versión-v2.13.0-6366f1?style=flat-square)
+![Versión](https://img.shields.io/badge/versión-v2.14.0-6366f1?style=flat-square)
 ![Licencia](https://img.shields.io/badge/licencia-GPLv3-a855f7?style=flat-square)
 ![Plataforma](https://img.shields.io/badge/plataforma-macOS-222?style=flat-square&logo=apple&logoColor=white)
 
@@ -48,7 +48,7 @@ Funciona en segundo plano, sin ventanas extra ni configuraciones complicadas. To
 - Lanzar tus apps favoritas desde un acceso rápido configurable
 - Ver el tiempo acumulado por perfil durante el día
 - Activar perfiles con atajos de teclado (⌘⌥1 / ⌘⌥2)
-- Personalizar todo editando un solo archivo: `macspaces/config.lua`
+- Personalizar todo editando un solo archivo: `macspaces/config_local.lua`
 
 ## Dos menús, un propósito
 
@@ -59,9 +59,9 @@ macSpaces presenta dos íconos en la barra de menú:
 | ⌘ | Gestión del entorno | Perfiles, navegador, audio, música, dispositivos, red, portapapeles, Claude |
 | ◎ | Gestión del enfoque | Pomodoro, descanso activo, modo presentación |
 
-El ícono de enfoque muestra el ícono configurado (por defecto ◎). Un overlay flotante en la esquina inferior derecha muestra countdowns en tiempo real con filas coloreadas por estado. Es arrastrable para reposicionar, y la posición se persiste en disco entre reinicios de Hammerspoon.
+El ícono de enfoque muestra el ícono configurado (por defecto ◎). Un overlay flotante en la esquina inferior izquierda muestra countdowns en tiempo real con filas coloreadas por estado. Es arrastrable para reposicionar, y la posición se mantiene durante la sesión.
 
-El overlay también muestra el uso de rate limits de Claude Code y Gemini CLI con color semáforo (verde / amarillo / rojo). Cada proveedor se muestra en una sola fila compacta inline (ej: `✦ Claude  5h 38% · 7d 99%`, `✦ Gemini  pro 0% · flash 0% · lite 0%`). En MacBook, las filas AI se ocultan cuando todo está verde (<60%). El detalle completo (barras de progreso, tiempos de reset, frescura) está disponible en el submenú de la barra de menú.
+El overlay también muestra el uso de rate limits de Claude Code y Gemini CLI con color semáforo (verde / amarillo / rojo). Cada proveedor se muestra en una sola fila compacta inline (ej: `✦ Claude  5h 38% · 7d 99%`, `✦ Gemini  pro 0% · flash 0% · lite 0%`). En MacBook, las filas AI se ocultan cuando todo está verde (<60%). El detalle completo (barras de progreso, tiempos de reset, frescura) está disponible en el submenú de la barra de menú. Gemini se actualiza automáticamente cada 5 minutos via script integrado.
 
 ## Módulos
 

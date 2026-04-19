@@ -11,6 +11,7 @@ Icon?
 debug.log
 *.log
 macspaces_history.json
+macspaces/config_local.lua
 
 # Editores
 .vscode/
