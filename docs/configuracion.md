@@ -34,10 +34,10 @@ Los cambios entran en vigor de inmediato tras la recarga. El estado de perfiles 
 ## VERSION
 
 ```lua
-M.VERSION = "2.11.0"
+M.VERSION = require("macspaces.version")
 ```
 
-Versión semántica del proyecto. Visible al final del menú principal. Usada por `init.lua` para validar la configuración al inicio. No modificar manualmente salvo en releases.
+Versión semántica del proyecto, definida en `macspaces/version.lua`. Visible en el menú "Acerca de macSpaces". No requiere modificación manual — se actualiza automáticamente via symlink.
 
 ---
 

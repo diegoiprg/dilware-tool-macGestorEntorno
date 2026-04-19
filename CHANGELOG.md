@@ -8,6 +8,7 @@ Registro de cambios del proyecto `dilware-tool-macGestorEntorno`.
 - `install.sh`: reescrito con modo dual — detecta automáticamente si se ejecuta desde un clon local (symlinks) o via `curl | bash` (descarga); estilo visual con colores, secciones y resumen final; soporte `--dry-run`; detección de Hammerspoon mejorada (brew cask + `/Applications/`)
 - `menu.lua`: ítem "Acerca de macSpaces" al final del menú con versión, autor y link a dilware.net
 - `README.md` y `docs/uso.md`: sección de instalación actualizada con ambos flujos (local y remoto)
+- `config.lua`: versión extraída a `version.lua` — el config del usuario ya no necesita actualizarse en cada bump
 
 ## [2.11.7] - 2026-04-19
 
