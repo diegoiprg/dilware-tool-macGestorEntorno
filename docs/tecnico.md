@@ -380,7 +380,7 @@ Ubicación: `~/.hammerspoon/debug.log`. Permisos 0600. Rotación automática al 
 
 ### `~/.claude/usage_cache.json`
 
-Generado externamente por `statusline.sh` del proyecto `dil-ia-config`. macSpaces solo lee este archivo. Estructura esperada:
+Generado externamente por `statusline.sh` del proyecto `dil-configuration`. macSpaces solo lee este archivo. Estructura esperada:
 
 ```json
 {
