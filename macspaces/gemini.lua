@@ -1,5 +1,7 @@
 local M = {}
 
+local utils = require("macspaces.utils")
+
 local CACHE_FILE = os.getenv("HOME") .. "/.gemini/usage_cache.json"
 local CACHE_MAX_AGE = 6 * 3600 -- 6 horas
 local STALE_THRESHOLD = 10 * 60 -- 10 minutos
@@ -64,6 +66,37 @@ function M.color_for(pct)
     end
 end
 
+-- ── Helpers de UI ──────────────────────────────────────────────────────────
+
+local function bar(pct, width)
+    width = width or 8
+    local filled = math.floor((pct / 100) * width)
+    return string.rep("▰", filled) .. string.rep("▱", width - filled)
+end
+
+local function fmt_reset(epoch)
+    if not epoch or epoch == 0 then return "—" end
+    local remaining = epoch - os.time()
+    if remaining <= 0 then return "ahora" end
+    local d = math.floor(remaining / 86400)
+    local h = math.floor((remaining % 86400) / 3600)
+    local m = math.floor((remaining % 3600) / 60)
+    if d > 0 then return d .. "d " .. h .. "h " .. m .. "m" end
+    if h > 0 then return h .. "h " .. m .. "m" end
+    return m .. "m"
+end
+
+local function freshness_indicator(updated_at)
+    if not updated_at or updated_at == 0 then return "  [⏸]" end
+    local age = os.time() - updated_at
+    if age < STALE_THRESHOLD then return "  [▶]" end
+    local m = math.floor(age / 60)
+    if m >= 60 then
+        return string.format("  [⏸ %dh%dm]", math.floor(m / 60), m % 60)
+    end
+    return string.format("  [⏸ %dm]", m)
+end
+
 function M.overlay_rows()
     local data = M.fetch()
     if not data.models or #data.models == 0 then return {} end
@@ -82,31 +115,44 @@ end
 
 function M.build_submenu()
     local data = M.fetch()
-    local menu = {}
+    local items = {}
 
-    if data.source == "none" then
-        table.insert(menu, { title = "Sin datos de Gemini CLI" })
-        table.insert(menu, { title = "Abrir AI Studio", fn = function() hs.urlevent.openURL("https://aistudio.google.com/") end })
-        return menu
+    if data.source == "none" or not data.models or #data.models == 0 then
+        table.insert(items, utils.disabled_item("Sin datos de Gemini CLI"))
+        table.insert(items, {
+            title = "Abrir AI Studio",
+            fn    = function() hs.urlevent.openURL("https://aistudio.google.com/") end,
+        })
+        return items
     end
 
-    for _, model in ipairs(data.models) do
-        table.insert(menu, { title = string.format("%s: %d%%", MODEL_DISPLAY[model.model_id] or model.model_id, model.pct) })
-        table.insert(menu, { title = "  Reset: " .. os.date("%Y-%m-%d %H:%M", model.reset) })
+    for i, model in ipairs(data.models) do
+        local display = MODEL_DISPLAY[model.model_id] or model.model_id
+        table.insert(items, utils.disabled_item(string.format("%s   %s %d%%", display, bar(model.pct, 10), model.pct)))
+        table.insert(items, utils.disabled_item("     Reset en " .. fmt_reset(model.reset)))
+        if i < #data.models then
+            table.insert(items, { title = "-" })
+        end
     end
 
-    if #menu > 0 then table.insert(menu, { title = "-" }) end
-
-    local diff = os.time() - data.updated_at
-    if data.updated_at > 0 and diff > STALE_THRESHOLD then
-        table.insert(menu, { title = "⏸ Dato desactualizado — hace " .. math.floor(diff / 60) .. "m" })
-        table.insert(menu, { title = "-" })
+    local stale = freshness_indicator(data.updated_at)
+    if stale:find("⏸") then
+        table.insert(items, { title = "-" })
+        local age_text = stale:match("%[⏸ (.-)%]") or ""
+        table.insert(items, utils.disabled_item("⏸ Dato desactualizado — hace " .. age_text))
     end
 
-    table.insert(menu, { title = "Abrir uso detallado", fn = function() hs.urlevent.openURL("https://aistudio.google.com/") end })
-    table.insert(menu, { title = "Actualizar", fn = function() M.invalidate() end })
+    table.insert(items, { title = "-" })
+    table.insert(items, {
+        title = "Abrir uso detallado",
+        fn    = function() hs.urlevent.openURL("https://aistudio.google.com/") end,
+    })
+    table.insert(items, {
+        title = "Actualizar",
+        fn    = function() M.invalidate() end,
+    })
 
-    return menu
+    return items
 end
 
 return M
