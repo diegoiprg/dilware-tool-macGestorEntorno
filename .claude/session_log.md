@@ -3,6 +3,24 @@
 > Fuente de verdad de sesión compartida entre Claude Code, Gemini CLI y Kiro.
 > Formato: session-log-spec v1.0 — no editar manualmente salvo emergencia.
 ---
+<!-- CHECKPOINT id="20260503-225600-claude" -->
+## Checkpoint — 2026-05-03 22:56 | claude | dil-macmini
+
+### Trabajado
+- Diagnóstico del parpadeo del banner del overlay: causa raíz = `destroy_canvas()` + recreación completa en cada tick de 1s
+- Fix en `focus_overlay.lua`: separación en `build_canvas()` (construcción completa, solo en cambio estructural) y `patch_canvas()` (actualización in-place de color + texto sin destruir el canvas)
+- El canvas ahora persiste entre ticks; solo se reconstruye si cambia el número de filas
+- Recarga de Hammerspoon aplicada vía `open -g hammerspoon://reload`
+
+### Decisiones
+- **patch_canvas en lugar de destroy+rebuild**: el canvas de Hammerspoon soporta mutación directa de propiedades — más eficiente y elimina el parpadeo sin cambiar la lógica de `get_entries()` ni `sysmon`
+- **Reconstrucción estructural conservada**: cuando cambia el número de filas (ej. activar Pomodoro), se reconstruye completo — correcto porque cambian frames y posiciones
+
+### Contexto
+- Frecuencia de actualización de datos: CPU/RAM/GPU cada 2s (`CACHE_TTL`), red/conectividad cada 10s (`NET_CHECK_TTL`), overlay redibuja cada 1s
+- La "info estática" que reportó el usuario es por diseño (2s de cache) — no es un bug
+<!-- END CHECKPOINT id="20260503-225600-claude" -->
+
 <!-- SESSION id="20260502-230100-claude" status="closed" -->
 ## Sesión — 2026-05-02 21:30 → 23:03 | claude | dil-macmini
 
