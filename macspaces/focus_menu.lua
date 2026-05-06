@@ -64,11 +64,6 @@ local function build_items()
     end
     table.insert(items, { title = brk_title, menu = breaks.build_submenu(refresh) })
 
-    -- ══ Presentación ══
-    local pres_title = "🎬  Presentación"
-    if presentation.is_active() then pres_title = pres_title .. "  ·  activo" end
-    table.insert(items, { title = pres_title, menu = presentation.build_submenu(refresh) })
-
     return items
 end
 

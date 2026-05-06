@@ -88,7 +88,6 @@ local function build_items()
     table.insert(items, utils.disabled_item("ENTORNO"))
     table.insert(items, { title = "🌐  Navegador", menu = browsers.build_submenu(refresh) })
     table.insert(items, { title = "🔊  Audio", menu = audio.build_submenu() })
-    table.insert(items, { title = "🎵  Música", menu = music.build_submenu() })
 
     -- ══ Sistema ══
     table.insert(items, { title = "-" })
