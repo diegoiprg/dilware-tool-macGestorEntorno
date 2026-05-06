@@ -47,11 +47,21 @@ function M.activate(key, on_done)
 
         hs.timer.doAfter(cfg.delay.medium, function()
             local total_delay = cfg.delay.app_launch * #profile.apps
-            for i, app_name in ipairs(profile.apps) do
+            for i, app_entry in ipairs(profile.apps) do
                 hs.timer.doAfter(cfg.delay.app_launch * (i - 1), function()
-                    hs.application.launchOrFocus(app_name)
+                    local bid = app_entry:match("^bundleid:(.+)")
+                    if bid then
+                        hs.application.launchOrFocusByBundleID(bid)
+                    else
+                        hs.application.launchOrFocus(app_entry)
+                    end
                     hs.timer.doAfter(cfg.delay.app_launch, function()
-                        local app = hs.application.get(app_name)
+                        local app
+                        if bid then
+                            app = hs.application.get(bid)
+                        else
+                            app = hs.application.get(app_entry)
+                        end
                         if app then
                             local win = app:mainWindow()
                             if win then hs.spaces.moveWindowToSpace(win, new_space) end
@@ -84,8 +94,14 @@ function M.deactivate(key, on_done)
     local target_space  = state[key].space_id
     local prev_browser  = state[key].prev_browser
 
-    for _, app_name in ipairs(profile.apps) do
-        local app = hs.application.get(app_name)
+    for _, app_entry in ipairs(profile.apps) do
+        local bid = app_entry:match("^bundleid:(.+)")
+        local app
+        if bid then
+            app = hs.application.get(bid)
+        else
+            app = hs.application.get(app_entry)
+        end
         if app then app:kill() end
     end
 
@@ -102,8 +118,19 @@ function M.deactivate(key, on_done)
             local ws = hs.spaces.windowSpaces(win:id())
             if ws and utils.table_contains(ws, target_space) then
                 local wa = win:application()
-                if wa and not utils.table_contains(profile.apps, wa:name()) then
-                    hs.spaces.moveWindowToSpace(win, fallback)
+                if wa then
+                    local dominated = false
+                    for _, app_entry in ipairs(profile.apps) do
+                        local bid = app_entry:match("^bundleid:(.+)")
+                        if bid then
+                            if wa:bundleID() == bid then dominated = true; break end
+                        else
+                            if wa:name() == app_entry then dominated = true; break end
+                        end
+                    end
+                    if not dominated then
+                        hs.spaces.moveWindowToSpace(win, fallback)
+                    end
                 end
             end
         end

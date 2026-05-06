@@ -69,12 +69,12 @@ function M.idle_label()
     if state.break_end_at then
         local remaining = state.break_end_at - os.time()
         if remaining < 0 then remaining = 0 end
-        return "🧘 Descanso · " .. utils.format_time(remaining)
+        return "🧘 DESCANSO · " .. utils.format_time(remaining)
     end
     if not state.next_break_at then return nil end
     local remaining = state.next_break_at - os.time()
     if remaining < 0 then remaining = 0 end
-    return "◎ Descanso · " .. utils.format_time(remaining)
+    return "◎ DESCANSO · " .. utils.format_time(remaining)
 end
 
 function M.is_on_break() return state.break_end_at ~= nil end

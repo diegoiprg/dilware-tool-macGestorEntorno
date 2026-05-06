@@ -54,14 +54,20 @@ local function read_from_claude_code()
     local fh = data.five_hour
     if not fh then return nil end
 
+    local function read_quota(key)
+        local q = data[key]
+        if not q then return nil end
+        return { pct = adjusted_pct(q.pct, q.reset), reset = q.reset or 0 }
+    end
+
     return {
-        five_hour = { pct = adjusted_pct(fh.pct, fh.reset), reset = fh.reset or 0 },
-        seven_day = {
-            pct   = adjusted_pct(data.seven_day and data.seven_day.pct, data.seven_day and data.seven_day.reset),
-            reset = (data.seven_day and data.seven_day.reset) or 0,
-        },
-        updated_at = data.updated_at or 0,
-        source = "code",
+        five_hour        = { pct = adjusted_pct(fh.pct, fh.reset), reset = fh.reset or 0 },
+        seven_day        = read_quota("seven_day") or { pct = 0, reset = 0 },
+        seven_day_sonnet = read_quota("seven_day_sonnet"),
+        seven_day_design = read_quota("seven_day_design"),
+        daily            = read_quota("daily"),
+        updated_at       = data.updated_at or 0,
+        source           = "code",
     }
 end
 
@@ -82,11 +88,10 @@ function M.fetch()
     if cache.data and (now - cache.last_fetch) < cache.ttl then
         -- Re-evaluar pct por si el reset epoch pasó durante el TTL del cache
         local d = cache.data
-        if d.five_hour then
-            d.five_hour.pct = adjusted_pct(d.five_hour.pct, d.five_hour.reset)
-        end
-        if d.seven_day then
-            d.seven_day.pct = adjusted_pct(d.seven_day.pct, d.seven_day.reset)
+        for _, key in ipairs({ "five_hour", "seven_day", "seven_day_sonnet", "seven_day_design", "daily" }) do
+            if d[key] then
+                d[key].pct = adjusted_pct(d[key].pct, d[key].reset)
+            end
         end
         return d
     end
@@ -106,7 +111,33 @@ function M.has_session()
     return d.source ~= "none" and d.five_hour ~= nil
 end
 
--- ── UI helpers ──────────────────────────────────────────────────────────────
+-- ── Colores semáforo ────────────────────────────────────────────────────────
+
+local C = {
+    ok   = { red = 0.25, green = 0.85, blue = 0.45, alpha = 1 },
+    warn = { red = 0.95, green = 0.75, blue = 0.10, alpha = 1 },
+    crit = { red = 0.95, green = 0.28, blue = 0.22, alpha = 1 },
+    dim  = { red = 0.55, green = 0.55, blue = 0.60, alpha = 1 },
+}
+
+local ROW_BG = { red = 0.14, green = 0.14, blue = 0.18, alpha = 0.70 }
+
+local function seg(text, color)
+    return hs.styledtext.new(text, {
+        font   = { name = ".AppleSystemUIFont", size = 13 },
+        color  = color,
+        shadow = { offset = { h = 0, w = 0 }, blurRadius = 2, color = { white = 0, alpha = 0.40 } },
+    })
+end
+
+local function color_for_pct(pct)
+    if not pct then return C.dim end
+    if pct >= 85 then return C.crit end
+    if pct >= 60 then return C.warn end
+    return C.ok
+end
+
+-- ── UI helpers (submenú) ─────────────────────────────────────────────────────
 
 local function bar(pct, width)
     width = width or 8
@@ -115,31 +146,50 @@ local function bar(pct, width)
 end
 
 function M.color_for(pct)
-    if pct >= 85 then
-        return { red = 0.85, green = 0.20, blue = 0.15, alpha = 0.85 }
-    elseif pct >= 60 then
-        return { red = 0.90, green = 0.65, blue = 0.10, alpha = 0.85 }
-    else
-        return { red = 0.15, green = 0.50, blue = 0.30, alpha = 0.85 }
-    end
+    return color_for_pct(pct)
 end
 
 function M.overlay_rows()
     local d = M.fetch()
     if d.source == "none" or not d.five_hour then return {} end
 
-    local fh = d.five_hour
-    local sd = d.seven_day or { pct = 0, reset = 0 }
-    local worst = math.max(fh.pct, sd.pct)
+    local fh  = d.five_hour
+    local sd  = d.seven_day or { pct = 0, reset = 0 }
+    local snt = d.seven_day_sonnet
 
-    local label
+    local sep = seg("  ", C.dim)
+
+    local parts = {
+        seg("✦ CLAUDE  ", { white = 1, alpha = 0.92 }),
+        seg(string.format("5h %d%%", fh.pct), color_for_pct(fh.pct)),
+    }
+
     if sd.reset and sd.reset > 0 then
-        label = string.format("✦ Claude  5h %d%% · 7d %d%%", fh.pct, sd.pct)
-    else
-        label = string.format("✦ Claude  5h %d%%", fh.pct)
+        table.insert(parts, sep)
+        table.insert(parts, seg(string.format("7d %d%%", sd.pct), color_for_pct(sd.pct)))
     end
 
-    return {{ label = label, pct = worst }}
+    if snt then
+        table.insert(parts, sep)
+        table.insert(parts, seg(string.format("snt %d%%", snt.pct), color_for_pct(snt.pct)))
+    end
+
+    local label = parts[1]
+    for i = 2, #parts do label = label .. parts[i] end
+
+    local pcts = { fh.pct, sd.pct }
+    if snt then table.insert(pcts, snt.pct) end
+
+    return {{ label = label, pct = math.max(table.unpack(pcts)), bg = ROW_BG }}
+end
+
+local function quota_rows(items, label, q)
+    if not q then
+        table.insert(items, utils.disabled_item(string.format("%-20s  —  (pendiente)", label)))
+        return
+    end
+    table.insert(items, utils.disabled_item(string.format("%-20s  %s %d%%", label, bar(q.pct, 10), q.pct)))
+    table.insert(items, utils.disabled_item("     Reset en " .. fmt_reset(q.reset)))
 end
 
 function M.build_submenu()
@@ -155,19 +205,34 @@ function M.build_submenu()
         return items
     end
 
-    local fh = d.five_hour
-    local sd = d.seven_day or { pct = 0, reset = 0 }
     local stale = freshness_indicator(d.updated_at)
 
-    table.insert(items, utils.disabled_item(string.format("5h   %s %d%%", bar(fh.pct, 10), fh.pct)))
-    table.insert(items, utils.disabled_item("     Reset en " .. fmt_reset(fh.reset)))
+    -- Sesión actual (5h)
+    quota_rows(items, "Sesión actual  (5h)", d.five_hour)
 
-    if sd.reset and sd.reset > 0 then
-        table.insert(items, { title = "-" })
-        table.insert(items, utils.disabled_item(string.format("7d   %s %d%%", bar(sd.pct, 10), sd.pct)))
-        table.insert(items, utils.disabled_item("     Reset en " .. fmt_reset(sd.reset)))
+    -- Todos los modelos (7d)
+    table.insert(items, { title = "-" })
+    if d.seven_day and d.seven_day.reset and d.seven_day.reset > 0 then
+        quota_rows(items, "Todos los modelos (7d)", d.seven_day)
+    else
+        table.insert(items, utils.disabled_item("Todos los modelos (7d)  —  sin datos"))
     end
 
+    -- Campos opcionales: se muestran solo cuando Claude Code los emita
+    if d.seven_day_sonnet then
+        table.insert(items, { title = "-" })
+        quota_rows(items, "Solo Sonnet    (7d)", d.seven_day_sonnet)
+    end
+    if d.seven_day_design then
+        table.insert(items, { title = "-" })
+        quota_rows(items, "Claude Design  (7d)", d.seven_day_design)
+    end
+    if d.daily then
+        table.insert(items, { title = "-" })
+        quota_rows(items, "Rutinas diarias (24h)", d.daily)
+    end
+
+    -- Indicador de frescura
     if stale:find("⏸") then
         table.insert(items, { title = "-" })
         local age_text = stale:match("%[⏸ (.-)%]") or ""

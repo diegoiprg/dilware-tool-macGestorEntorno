@@ -117,7 +117,7 @@ function M.cycles_completed() return state.cycle end
 function M.time_label()
     if not state.active then return nil end
     local icons = { work = "🍅", short_break = "☕", long_break = "🌿" }
-    local names = { work = "Pomodoro", short_break = "Pausa corta", long_break = "Pausa larga" }
+    local names = { work = "POMODORO", short_break = "PAUSA CORTA", long_break = "PAUSA LARGA" }
     local icon  = icons[state.phase] or "⏱"
     local name  = names[state.phase] or ""
     local total = cfg.pomodoro.cycles_before_long_break

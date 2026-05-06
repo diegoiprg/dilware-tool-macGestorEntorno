@@ -19,6 +19,7 @@ local music        = require("macspaces.music")
 local utils        = require("macspaces.utils")
 local claude       = require("macspaces.claude")
 local gemini       = require("macspaces.gemini")
+local sysmon       = require("macspaces.sysmon")
 
 local menubar = hs.menubar.new()
 local rebuild_timer = nil
@@ -89,18 +90,9 @@ local function build_items()
     table.insert(items, { title = "🔊  Audio", menu = audio.build_submenu() })
     table.insert(items, { title = "🎵  Música", menu = music.build_submenu() })
 
-    -- ══ Dispositivos ══
+    -- ══ Sistema ══
     table.insert(items, { title = "-" })
-    table.insert(items, utils.disabled_item("DISPOSITIVOS"))
-    if battery.has_battery() then
-        table.insert(items, { title = "🔋  Batería", menu = battery.build_submenu() })
-    end
-    local bt_count = #bluetooth.devices()
-    local bt_label = "📡  Bluetooth"
-    if bt_count > 0 then bt_label = bt_label .. "  (" .. bt_count .. ")" end
-    table.insert(items, { title = bt_label, menu = bluetooth.build_submenu() })
-
-    -- ══ Red ══
+    table.insert(items, utils.disabled_item("SISTEMA"))
     local red = {}
     for _, i in ipairs(network.build_submenu(refresh)) do table.insert(red, i) end
     if vpn.is_active() then
@@ -109,6 +101,10 @@ local function build_items()
         for _, i in ipairs(vpn.build_submenu(refresh)) do table.insert(red, i) end
     end
     table.insert(items, { title = "📶  Red", menu = red })
+    local bt_count = #bluetooth.devices()
+    local bt_label = "📡  Bluetooth"
+    if bt_count > 0 then bt_label = bt_label .. "  (" .. bt_count .. ")" end
+    table.insert(items, { title = bt_label, menu = bluetooth.build_submenu() })
 
     -- ══ Herramientas ══
     table.insert(items, { title = "-" })
@@ -118,17 +114,10 @@ local function build_items()
     if #launcher_apps > 0 then
         table.insert(items, { title = "🚀  Lanzador", menu = launcher.build_submenu() })
     end
-    table.insert(items, { title = "✦  Claude", menu = claude.build_submenu() })
-    table.insert(items, { title = "✦  Gemini", menu = gemini.build_submenu() })
 
-    -- ══ Sistema ══
+    -- ══ macSpaces ══
     table.insert(items, { title = "-" })
-    table.insert(items, {
-        title = "📄  Registro",
-        fn    = function() hs.execute("open -a Console " .. (os.getenv("HOME") or "/tmp") .. "/.hammerspoon/debug.log") end,
-    })
     table.insert(items, { title = "🔄  Recargar", fn = hs.reload })
-    table.insert(items, { title = "-" })
     table.insert(items, {
         title = "Acerca de macSpaces",
         menu  = {
