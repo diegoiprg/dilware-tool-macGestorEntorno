@@ -47,22 +47,29 @@ local function build_items()
     local items = {}
 
     -- ══ Pomodoro ══
-    local pom_title = "🍅  Pomodoro"
+    table.insert(items, utils.disabled_item("POMODORO"))
     if pomodoro.is_active() then
-        pom_title = pom_title .. "  ·  " .. (pomodoro.menubar_label() or "")
+        local label = pomodoro.menubar_label() or ""
+        table.insert(items, utils.disabled_item("●  " .. label))
+        table.insert(items, { title = "⏭  Saltar fase", fn = function() pomodoro.skip(); refresh() end })
+        table.insert(items, { title = "⏹  Detener", fn = function() pomodoro.stop(); refresh() end })
+    else
+        table.insert(items, utils.disabled_item("○  Inactivo"))
+        table.insert(items, { title = "▶  Iniciar", fn = function() pomodoro.start(); refresh() end })
     end
-    table.insert(items, { title = pom_title, menu = pomodoro.build_submenu(refresh) })
 
-    -- ══ Descanso activo ══
-    local brk_title = "◎  Descanso activo"
+    -- ══ Descanso ══
+    table.insert(items, { title = "-" })
+    table.insert(items, utils.disabled_item("DESCANSO"))
     if breaks.is_enabled() then
         local idle = breaks.idle_label()
-        if idle then
-            local time_part = idle:match("·%s*(.+)$")
-            if time_part then brk_title = brk_title .. "  ·  " .. time_part end
-        end
+        local time_part = idle and idle:match("·%s*(.+)$") or ""
+        table.insert(items, utils.disabled_item("●  Cada " .. cfg.breaks.interval_minutes .. " min  ·  " .. time_part))
+        table.insert(items, { title = "⏹  Desactivar", fn = function() breaks.disable(refresh) end })
+    else
+        table.insert(items, utils.disabled_item("○  Inactivo"))
+        table.insert(items, { title = "▶  Activar", fn = function() breaks.enable(refresh) end })
     end
-    table.insert(items, { title = brk_title, menu = breaks.build_submenu(refresh) })
 
     return items
 end
