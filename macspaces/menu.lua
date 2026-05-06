@@ -15,11 +15,9 @@ local bluetooth    = require("macspaces.bluetooth")
 local network      = require("macspaces.network")
 local vpn          = require("macspaces.vpn")
 local launcher     = require("macspaces.launcher")
-local music        = require("macspaces.music")
+local pomodoro     = require("macspaces.pomodoro")
+local breaks       = require("macspaces.breaks")
 local utils        = require("macspaces.utils")
-local claude       = require("macspaces.claude")
-local gemini       = require("macspaces.gemini")
-local sysmon       = require("macspaces.sysmon")
 
 local menubar = hs.menubar.new()
 local rebuild_timer = nil
@@ -93,21 +91,19 @@ local function build_items()
     table.insert(items, { title = "-" })
     table.insert(items, utils.disabled_item("ENFOQUE"))
     if pomodoro.is_active() then
-        local pom = require("macspaces.pomodoro")
-        table.insert(items, utils.disabled_item("🍅  ●  " .. (pom.menubar_label() or "")))
-        table.insert(items, { title = "     ⏭  Saltar fase", fn = function() pom.skip(); refresh() end })
-        table.insert(items, { title = "     ⏹  Detener", fn = function() pom.stop(); refresh() end })
+        table.insert(items, utils.disabled_item("🍅  ●  " .. (pomodoro.menubar_label() or "")))
+        table.insert(items, { title = "     ⏭  Saltar fase", fn = function() pomodoro.skip(); refresh() end })
+        table.insert(items, { title = "     ⏹  Detener", fn = function() pomodoro.stop(); refresh() end })
     else
         table.insert(items, { title = "🍅  ▶  Iniciar Pomodoro", fn = function() pomodoro.start(); refresh() end })
     end
-    local breaks_mod = require("macspaces.breaks")
-    if breaks_mod.is_enabled() then
-        local idle = breaks_mod.idle_label()
+    if breaks.is_enabled() then
+        local idle = breaks.idle_label()
         local time_part = idle and tostring(idle):match("·%s*(.+)$") or ""
         table.insert(items, utils.disabled_item("◎  ●  Cada " .. cfg.breaks.interval_minutes .. " min  ·  " .. time_part))
-        table.insert(items, { title = "     ⏹  Desactivar descanso", fn = function() breaks_mod.disable(refresh) end })
+        table.insert(items, { title = "     ⏹  Desactivar descanso", fn = function() breaks.disable(refresh) end })
     else
-        table.insert(items, { title = "◎  ▶  Activar descanso", fn = function() breaks_mod.enable(refresh) end })
+        table.insert(items, { title = "◎  ▶  Activar descanso", fn = function() breaks.enable(refresh) end })
     end
 
     -- ══ Sistema ══
