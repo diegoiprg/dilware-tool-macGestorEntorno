@@ -4,7 +4,8 @@
 
 local M = {}
 
-local utils = require("macspaces.utils")
+local utils  = require("macspaces.utils")
+local sysmon = require("macspaces.sysmon")
 
 local cache = {
     local_info  = nil,
@@ -136,12 +137,23 @@ function M.build_submenu(on_update)
     local remote_i = M.remote_info()
     local items    = {}
 
-    local type_icon = ({ WiFi = "📶", Ethernet = "🔌", VPN = "🔒" })[local_i.type or ""] or "🌐"
+    -- ── Tipo de conexión ──
+    local sys = sysmon.net_state()
+    local conn_lbl = sys.iface_type == "wifi" and "≋ WIFI" or "⌁ CABLE"
+    table.insert(items, utils.disabled_item(conn_lbl))
+    if local_i.ssid     then table.insert(items, utils.info_item("Red: ",      local_i.ssid))     end
+    if local_i.local_ip then table.insert(items, utils.info_item("IP local: ", local_i.local_ip)) end
 
-    table.insert(items, utils.disabled_item(type_icon .. "  " .. (local_i.type or "Sin conexión")))
+    -- ── VPN ──
+    table.insert(items, { title = "-" })
+    local vpn_str = sys.vpn and "VPN  on" or "VPN  off"
+    table.insert(items, utils.disabled_item(vpn_str))
 
-    if local_i.ssid     then table.insert(items, utils.info_item("Red: ",       local_i.ssid))     end
-    if local_i.local_ip then table.insert(items, utils.info_item("IP local: ",  local_i.local_ip)) end
+    -- ── Velocidad ──
+    table.insert(items, { title = "-" })
+    local up   = sys.net_up   and sysmon.fmt_net(sys.net_up)   or "—"
+    local down = sys.net_down and sysmon.fmt_net(sys.net_down) or "—"
+    table.insert(items, utils.disabled_item(string.format("↑ %-12s  ↓ %s", up, down)))
 
     table.insert(items, { title = "-" })
 

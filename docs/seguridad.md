@@ -99,7 +99,6 @@ Al apagar, reiniciar o recargar Hammerspoon se restaura el estado del sistema:
 |---|---|---|---|
 | Sesiones de trabajo | `~/.hammerspoon/macspaces_history.json` | Baja | Permisos 0600 |
 | Log de depuración | `~/.hammerspoon/debug.log` | Baja | Permisos 0600, IPs ofuscadas, rotación 1MB |
-| Posición del overlay | `~/.hammerspoon/overlay_pos.json` | Ninguna | Sin restricción (no contiene datos sensibles) |
 | Portapapeles | Memoria RAM | Media | Blocklist, no persiste entre recargas |
 | Estado de perfiles | Memoria RAM | Ninguna | No persiste |
 | Estado de Pomodoro | Memoria RAM | Ninguna | No persiste |

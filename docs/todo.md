@@ -81,11 +81,7 @@ Generado: 2026-04-01. Actualizado: 2026-04-15.
 
 ### PERF-02: Menú de enfoque separado
 - `focus_menu.lua`: menú independiente con Pomodoro, descanso activo, presentación.
-- `focus_overlay.lua`: banner flotante persistente con estado de enfoque.
-
-### OVERLAY-01: Posición del overlay no persiste entre reinicios
-- `focus_overlay.lua`: posición guardada en `overlay_pos.json` al soltar el drag.
-- Posición restaurada al iniciar desde disco.
+- `focus_overlay.lua`: banner flotante con estado de enfoque y métricas del sistema.
 
 ### OVERLAY-02: Barra de progreso de Claude con caracteres inconsistentes
 - Actualizado de `█░` a `▰▱` para mejor alineación visual con Apple HIG.

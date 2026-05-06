@@ -159,7 +159,7 @@ LUA_MODULES=(
     audio battery bluetooth breaks browsers claude clipboard
     config dnd focus_menu focus_overlay gemini history hotkeys
     launcher menu music network pomodoro presentation
-    profiles utils version vpn
+    profiles sysmon utils version vpn
 )
 
 # Archivos shell

@@ -646,7 +646,7 @@ focus_icon = nil  -- cargado en init()
 
 ### focus_overlay.lua
 
-**Responsabilidad**: banner flotante unificado con filas coloreadas, arrastrable y con posición persistida.
+**Responsabilidad**: banner flotante unificado con filas coloreadas, arrastrable y con posición en memoria.
 
 **Estado interno**:
 ```lua
@@ -666,7 +666,7 @@ IS_MACBOOK = ...      -- calculado al cargar el módulo
 | `stop` | `()` | Detiene timer, cancela drag tap, destruye canvas. |
 | `refresh` | `()` | Fuerza actualización inmediata. |
 
-**Persistencia de posición**: lee `~/.hammerspoon/overlay_pos.json` al arrancar. Guarda al soltar el drag (`mouseUp`). Si no existe el archivo, posición por defecto: esquina inferior derecha de `primaryScreen()`.
+**Persistencia de posición**: se mantiene en memoria durante la sesión. Al recargar Hammerspoon, vuelve a la posición por defecto (esquina inferior izquierda en Mac Mini, junto al notch en MacBook).
 
 **Detección de dispositivo**: `IS_MACBOOK = hs.host.localizedName():find("macbook") ~= nil`. Calculado una sola vez al cargar. Habilita modo compacto automáticamente.
 

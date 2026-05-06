@@ -1,5 +1,25 @@
 # Session Log
 
+<!-- SESSION id="20260506-130500-kiro" status="closed" -->
+## Sesión — 2026-05-06 13:05 → 13:14 | kiro | dil-macmini
+
+### Resumen
+Auditoría de métricas del overlay. RAM tenía bug crítico (vm_stat reportaba ~95-100%), corregido a memory_pressure. CPU, GPU, Red, VPN, Batería verificados correctos. Release v2.15.0.
+
+### Completado
+- fix(sysmon): RAM `vm_stat` → `memory_pressure` (de ~95% falso a ~60% real)
+- audit: CPU (hs.host.cpuUsage), GPU (ioreg), Red (netstat delta), VPN (scutil), Batería (hs.battery) — todos correctos
+- release: v2.15.0 bump + changelog + push
+
+### Decisiones
+- `memory_pressure` es la fuente canónica de RAM en macOS (= Activity Monitor)
+- Bump minor (2.15.0) por features acumuladas desde 2.14.1
+
+### Pendientes
+- [ ] Symlink de `sysmon.lua` en `install.sh`
+
+<!-- END SESSION id="20260506-130500-kiro" status="closed" -->
+
 <!-- SESSION id="20260506-000000-kiro" status="closed" -->
 ## Sesión — 2026-05-06 00:00 → 00:09 | kiro | dil-macmini
 

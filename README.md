@@ -1,6 +1,6 @@
 # Gestor de entorno macOS — macSpaces
 
-![Versión](https://img.shields.io/badge/versión-v2.14.0-6366f1?style=flat-square)
+![Versión](https://img.shields.io/badge/versión-v2.15.0-6366f1?style=flat-square)
 ![Licencia](https://img.shields.io/badge/licencia-GPLv3-a855f7?style=flat-square)
 ![Plataforma](https://img.shields.io/badge/plataforma-macOS-222?style=flat-square&logo=apple&logoColor=white)
 
@@ -12,7 +12,7 @@ Tu entorno de trabajo, organizado con un clic.
 
 - [Que es](#que-es)
 - [Que puedes hacer](#que-puedes-hacer)
-- [Dos menús, un propósito](#dos-menús-un-propósito)
+- [Un menú, un overlay](#un-menú-un-overlay)
 - [Módulos](#módulos)
 - [Perfiles incluidos](#perfiles-incluidos)
 - [Para quien es](#para-quien-es)
@@ -50,18 +50,21 @@ Funciona en segundo plano, sin ventanas extra ni configuraciones complicadas. To
 - Activar perfiles con atajos de teclado (⌘⌥1 / ⌘⌥2)
 - Personalizar todo editando un solo archivo: `macspaces/config_local.lua`
 
-## Dos menús, un propósito
+## Un menú, un overlay
 
-macSpaces presenta dos íconos en la barra de menú:
+macSpaces presenta un solo ícono en la barra de menú (⌘) con todas las funciones organizadas en secciones semánticas:
 
-| Ícono | Propósito | Contenido |
-|-------|-----------|-----------|
-| ⌘ | Gestión del entorno | Perfiles, navegador, audio, música, dispositivos, red, portapapeles, Claude |
-| ◎ | Gestión del enfoque | Pomodoro, descanso activo, modo presentación |
+| Sección | Contenido |
+|---------|-----------|
+| PERFILES | Activar/desactivar perfiles, historial de sesiones |
+| ENTORNO | Navegador predeterminado, audio |
+| ENFOQUE | Pomodoro, descanso activo |
+| SISTEMA | Red, VPN, Bluetooth |
+| HERRAMIENTAS | Portapapeles, lanzador rápido |
 
-El ícono de enfoque muestra el ícono configurado (por defecto ◎). Un overlay flotante en la esquina inferior izquierda muestra countdowns en tiempo real con filas coloreadas por estado. Es arrastrable para reposicionar, y la posición se mantiene durante la sesión.
+Un overlay flotante en la esquina inferior derecha muestra countdowns en tiempo real con filas coloreadas por estado. Es arrastrable para reposicionar durante la sesión.
 
-El overlay también muestra el uso de rate limits de Claude Code y Gemini CLI con color semáforo (verde / amarillo / rojo). Cada proveedor se muestra en una sola fila compacta inline (ej: `✦ Claude  5h 38% · 7d 99%`, `✦ Gemini  pro 0% · flash 0% · lite 0%`). En MacBook, las filas AI se ocultan cuando todo está verde (<60%). El detalle completo (barras de progreso, tiempos de reset, frescura) está disponible en el submenú de la barra de menú. Gemini se actualiza automáticamente cada 5 minutos via script integrado.
+El overlay también muestra el uso de rate limits de Claude Code y Gemini CLI con color semáforo (verde / amarillo / rojo). Cada proveedor se muestra en una sola fila compacta inline (ej: `✦ Claude  5h 38% · 7d 99%`, `✦ Gemini  pro 0% · flash 0% · lite 0%`). En MacBook, las filas AI se ocultan cuando todo está verde (<60%). Gemini se actualiza automáticamente cada 5 minutos via script integrado.
 
 ## Módulos
 
@@ -89,8 +92,8 @@ El proyecto está compuesto por los siguientes módulos Lua, cada uno con respon
 | `dnd.lua` | Wrapper de Do Not Disturb: activar, desactivar, consultar estado |
 | `claude.lua` | Monitoreo de rate limits de Claude Code via `~/.claude/usage_cache.json`; fila compacta inline en overlay, detalle completo en submenú |
 | `gemini.lua` | Monitoreo de cuota de Gemini CLI via `~/.gemini/usage_cache.json`; fila compacta inline en overlay, detalle por modelo en submenú |
-| `focus_overlay.lua` | Overlay flotante con countdowns en tiempo real; arrastrable, posición persistente en disco, modo compacto automático en MacBook |
-| `focus_menu.lua` | Menú de enfoque (ícono ◎): acceso a Pomodoro, breaks, modo presentación |
+| `focus_overlay.lua` | Overlay flotante con countdowns en tiempo real; arrastrable, modo compacto automático en MacBook |
+| `focus_menu.lua` | Inicialización del overlay y módulos de enfoque (Pomodoro, breaks) |
 | `menu.lua` | Menú principal (ícono ⌘): integra todos los módulos de entorno |
 
 ## Perfiles incluidos

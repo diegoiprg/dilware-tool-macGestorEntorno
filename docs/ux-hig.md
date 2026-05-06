@@ -14,7 +14,7 @@
 
 ## Contexto
 
-macSpaces es una menubar app con dos íconos independientes: menú principal (entorno) y menú de enfoque (productividad). Incluye un overlay flotante persistente con filas coloreadas por estado activo.
+macSpaces es una menubar app con un solo ícono (⌘) que integra todas las funciones en secciones semánticas. Incluye un overlay flotante persistente con filas coloreadas por estado activo.
 
 ---
 
@@ -27,7 +27,7 @@ macSpaces es una menubar app con dos íconos independientes: menú principal (en
 | UX-01 | Ícono emoji → template image | Soporta template image desde `macspaces_icon.png` y `macspaces_focus_icon.png`. Fallback a emoji. |
 | UX-02 | Sin feedback de perfil activo | `checked` nativo + `● / ○` + tiempo activo inline |
 | UX-02b | Ítems no accionables parecen clicables | `utils.disabled_item()` con `disabled = true` |
-| UX-03 | Menú demasiado largo | Submenús semánticos + menú de enfoque separado (~8 ítems primer nivel) |
+| UX-03 | Menú demasiado largo | Submenús semánticos + secciones con headers disabled (~12 ítems primer nivel) |
 | UX-04 | SF Symbols vs emojis | Unificado a emojis en todo el menú |
 | UX-05 | Atajos no visibles | `⌘⌥1` / `⌘⌥2` junto al nombre del perfil |
 | UX-06 | Pomodoro sin countdown | Countdown en overlay flotante con fase y ciclo |
@@ -45,9 +45,9 @@ macSpaces es una menubar app con dos íconos independientes: menú principal (en
 | Práctica | Detalle |
 |---|---|
 | Menú pre-construido | `setMenu(items)` — apertura instantánea, reconstrucción en segundo plano cada 5s |
-| Dos menús con propósito claro | Principal = entorno, Enfoque = concentración |
+| Menú unificado con secciones semánticas | PERFILES, ENTORNO, ENFOQUE, SISTEMA, HERRAMIENTAS — un solo ícono, sin fragmentación |
 | Overlay flotante no invasivo | Semi-transparente, esquina inferior derecha, auto-oculta, arrastrable |
-| Posición del overlay persistida | Guardada en `overlay_pos.json`, restaurada entre reinicios |
+| Posición del overlay en memoria | Se mantiene durante la sesión, se resetea al recargar Hammerspoon |
 | Filas coloreadas por estado | Rojo (trabajo), verde (pausa), azul (descanso pendiente), verde (descanso activo), púrpura (presentación), semáforo (Claude, Gemini) |
 | Barra de progreso con `▰▱` | Mejor alineación visual que `█░`; alineada con Apple HIG |
 | Modo compacto en MacBook | En MacBook, filas AI se ocultan del overlay cuando todo está verde (<60%); solo aparecen cuando requieren atención |
@@ -80,23 +80,24 @@ macSpaces es una menubar app con dos íconos independientes: menú principal (en
 ```
 ┌─────────────────────────────────────────────┐
 │              Menubar de macOS               │
-│  ┌──────────┐  ┌──────────┐                │
-│  │ ⌘ Menú   │  │ ◎ Menú   │                │
-│  │ principal │  │ enfoque  │                │
-│  └────┬─────┘  └────┬─────┘                │
-│       │              │                       │
-│  Perfiles        Pomodoro                    │
-│  Entorno         Descanso activo             │
-│  Dispositivos    Presentación                │
-│  Red                 │                       │
-│  Portapapeles   ┌────▼─────┐                │
-│  Claude         │ Overlay  │                │
-│  Historial      │ flotante │                │
-│  Sistema        └──────────┘                │
+│  ┌──────────────────────┐                   │
+│  │ ⌘ Menú unificado     │                   │
+│  └──────────┬───────────┘                   │
+│             │                                │
+│  PERFILES   │  Activar/desactivar, historial │
+│  ENTORNO    │  Navegador, audio              │
+│  ENFOQUE    │  Pomodoro, descanso activo     │
+│  SISTEMA    │  Red, VPN, Bluetooth           │
+│  HERRAMIENTAS  Portapapeles, lanzador        │
+│             │                                │
+│        ┌────▼─────┐                          │
+│        │ Overlay  │  Countdowns + Claude +   │
+│        │ flotante │  Gemini (rate limits)    │
+│        └──────────┘                          │
 └─────────────────────────────────────────────┘
 ```
 
-Principio de diseño: cada menú tiene un propósito único. El usuario no necesita navegar submenús para acceder a funciones de enfoque, y el menú principal no se contamina con estado temporal (countdowns, fases). El overlay es el canal pasivo de información — siempre visible, no interactivo salvo para reposicionar.
+Principio de diseño: un solo menú con secciones semánticas claras. El overlay es el canal pasivo de información en tiempo real — siempre visible, no interactivo salvo para reposicionar. Los countdowns de enfoque y los rate limits de AI se muestran en el overlay para no contaminar el menú con estado temporal.
 
 ---
 
@@ -110,9 +111,9 @@ Los íconos de menubar tienen espacio limitado y pueden colisionar con otros ít
 
 Cada estado tiene su propio ciclo de vida, color y lógica de visibilidad. Filas independientes permiten mostrar, ocultar y colorear cada estado sin afectar a los demás.
 
-### Por qué persistir la posición en disco
+### Por qué la posición no persiste en disco
 
-El usuario elige la posición del overlay según su configuración de pantalla. Sin persistencia, tendría que reposicionarlo manualmente tras cada recarga de Hammerspoon.
+El overlay tiene una posición fija por defecto (esquina inferior izquierda en Mac Mini, junto al notch en MacBook). Si el usuario lo arrastra, la posición se mantiene durante la sesión. Al recargar Hammerspoon vuelve a su posición por defecto — esto es intencional: no hay razón para moverlo permanentemente a otro lugar.
 
 ### Por qué modo compacto en MacBook
 

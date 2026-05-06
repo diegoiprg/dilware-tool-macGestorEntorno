@@ -107,18 +107,29 @@ v2.14.1 — fix(profiles): bundle IDs para PWAs en MacBook
          └─────────────┘
 ```
 
+### Overlay — Mac Mini (sin notch)
+
+```
+      [CPU %][RAM %]           ← Mismo layout, sin gap del notch (pills juntas)
+      ┌─────────────┐
+      │ GPU + red   │         ← Panel expandido (hover)
+      │ Discos      │
+      │ Conectividad│
+      │ Claude      │
+      │ Descanso    │
+      │ Pomodoro    │
+      └─────────────┘
+```
+
+### Comportamiento común (ambos dispositivos)
+
 - Alas: fondo negro 55% opacidad, bordes redondeados 6px
-- Panel: fondo negro 92% opacidad, bordes 10px, aparece debajo del notch
+- Panel: fondo negro 92% opacidad, bordes 10px, aparece debajo de las alas
 - Hover en cualquier ala → expande panel
 - Mouse sale → colapsa después de 0.8s
 - Posición: centrado horizontalmente, alineado verticalmente con la menu bar
-
-### Overlay — Mac Mini (sin notch)
-
-- Banner clásico en esquina inferior izquierda
-- Todas las filas visibles siempre (sin hover)
-- Arrastrable para reposicionar
-- Fondo negro 85% opacidad, bordes 10px
+- MacBook: gap entre alas = ancho del notch (220px)
+- Mac Mini: gap entre alas = 6px (pills prácticamente juntas)
 
 ### Orden de filas en el panel
 

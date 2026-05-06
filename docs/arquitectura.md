@@ -15,7 +15,7 @@
 
 ## Visión general
 
-macSpaces es una herramienta de barra de menú para macOS construida sobre [Hammerspoon](https://www.hammerspoon.org). Se ejecuta como módulos Lua cargados al inicio de Hammerspoon, sin proceso propio ni empaquetado `.app`. Presenta dos menús independientes en la menubar y un overlay flotante persistente.
+macSpaces es una herramienta de barra de menú para macOS construida sobre [Hammerspoon](https://www.hammerspoon.org). Se ejecuta como módulos Lua cargados al inicio de Hammerspoon, sin proceso propio ni empaquetado `.app`. Presenta un menú unificado en la menubar y un overlay flotante con información en tiempo real.
 
 ---
 
@@ -72,7 +72,7 @@ macSpaces es una herramienta de barra de menú para macOS construida sobre [Hamm
 ├── set_browser                   ← Binario compilado (helper Swift)
 ├── macspaces_icon.png            ← Ícono template del menú principal (opcional)
 ├── macspaces_focus_icon.png      ← Ícono template del menú de enfoque (opcional)
-├── overlay_pos.json              ← Posición persistida del overlay (generado)
+├── macspaces_history.json         ← Historial de sesiones (generado)
 ├── macspaces_history.json        ← Historial de sesiones (generado)
 ├── debug.log                     ← Log de depuración (generado)
 └── macspaces/
@@ -136,7 +136,7 @@ Módulos con datos costosos usan caché temporal:
 
 `focus_overlay.lua` usa `hs.canvas` para un banner unificado con filas coloreadas por estado, visible en todos los espacios (`canJoinAllSpaces + stationary`). Se recrea completamente cada segundo para garantizar refresco visual. Arrastrable via `hs.eventtap` (`leftMouseDragged` + `leftMouseUp`).
 
-La posición persiste en disco (`overlay_pos.json`) y se restaura al iniciar. La detección del tipo de dispositivo (`IS_MACBOOK`) ocurre una vez al cargar el módulo para habilitar el modo compacto en MacBook.
+La posición se mantiene en memoria durante la sesión y se resetea al recargar Hammerspoon. La detección del tipo de dispositivo (`IS_MACBOOK`) ocurre una vez al cargar el módulo para habilitar el modo compacto en MacBook.
 
 ### Reloj de pared para contadores
 
@@ -180,7 +180,7 @@ Hammerspoon → init.lua
 | Dato | Ubicación | Formato | Permisos |
 |---|---|---|---|
 | Historial de sesiones | `~/.hammerspoon/macspaces_history.json` | JSON | 0600 |
-| Posición del overlay | `~/.hammerspoon/overlay_pos.json` | JSON | No restringido |
+| Historial de sesiones | `~/.hammerspoon/macspaces_history.json` | JSON | Permisos 0600 |
 | Log de depuración | `~/.hammerspoon/debug.log` | Texto plano | 0600 |
 | Portapapeles | Solo memoria | — | — |
 | Estado de perfiles | Solo memoria | — | — |

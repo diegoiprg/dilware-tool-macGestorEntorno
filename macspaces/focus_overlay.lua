@@ -22,15 +22,11 @@ local IS_MACBOOK = (hs.host.localizedName() or ""):lower():find("macbook") ~= ni
 local wing_left    = nil
 local wing_right   = nil
 local panel        = nil
-local canvas       = nil  -- Mac Mini
 local timer        = nil
 local expanded     = false
 local hover_active = false
 local collapse_timer = nil
 local last_render  = ""
-local drag         = { active = false, ox = 0, oy = 0 }
-local drag_tap     = nil
-local saved_pos    = nil
 
 local update  -- forward decl
 
@@ -56,17 +52,8 @@ local C_DIM  = { red = 0.50, green = 0.50, blue = 0.55, alpha = 1 }
 local C_ON   = { red = 0.30, green = 0.85, blue = 0.50, alpha = 1 }
 local C_OFF  = { red = 0.50, green = 0.50, blue = 0.55, alpha = 0.5 }
 local C_BLUE = { red = 0.40, green = 0.70, blue = 1.00, alpha = 1 }
+local C_NET  = { red = 0.40, green = 0.80, blue = 0.95, alpha = 1 }
 local C_WHITE = { white = 1, alpha = 0.92 }
-
-local BG_ALPHA = 0.82
-local BG_COLORS = {
-    work          = { red = 0.80, green = 0.18, blue = 0.15, alpha = BG_ALPHA },
-    short_break   = { red = 0.18, green = 0.58, blue = 0.30, alpha = BG_ALPHA },
-    long_break    = { red = 0.18, green = 0.58, blue = 0.30, alpha = BG_ALPHA },
-    breaks        = { red = 0.22, green = 0.42, blue = 0.68, alpha = BG_ALPHA },
-    breaks_active = { red = 0.18, green = 0.58, blue = 0.30, alpha = BG_ALPHA },
-    presentation  = { red = 0.48, green = 0.22, blue = 0.62, alpha = BG_ALPHA },
-}
 
 local function color_pct(pct)
     if not pct then return C_DIM end
@@ -95,13 +82,7 @@ local function destroy_all()
     if wing_left then wing_left:delete(); wing_left = nil end
     if wing_right then wing_right:delete(); wing_right = nil end
     if panel then panel:delete(); panel = nil end
-    if canvas then canvas:delete(); canvas = nil end
     last_render = ""
-end
-
-local function stop_drag_tap()
-    if drag_tap then drag_tap:stop(); drag_tap = nil end
-    drag.active = false
 end
 
 -- ── CPU / RAM (cached via sysmon) ──
@@ -208,32 +189,34 @@ local function panel_entries()
     table.insert(entries, { label = gpu_label, color = { white = 0.10, alpha = 0.70 } })
 
     -- Filas: Discos — formato: ▪ NOMBRE · %  · usado de total
-    -- Disco del sistema
-    local df = io.popen("df -g /System/Volumes/Data 2>/dev/null | tail -1 | awk '{print $5, $3, $2}'")
+    -- Disco del sistema (diskutil reporta en GB base 1000, igual que Apple)
+    local df = io.popen("diskutil info / 2>/dev/null | grep -E 'Container Total|Container Free'")
     if df then
         local raw = df:read("*a"); df:close()
-        local pct_str, used, total = raw:match("(%d+)%%%s+(%S+)%s+(%S+)")
-        if pct_str then
-            local pct = tonumber(pct_str) or 0
+        local total_gb = tonumber(raw:match("Container Total Space:%s+([%d%.]+) GB"))
+        local free_gb  = tonumber(raw:match("Container Free Space:%s+([%d%.]+) GB"))
+        if total_gb and free_gb then
+            local used_gb = total_gb - free_gb
+            local pct = math.floor((used_gb / total_gb) * 100)
             local lbl = join({
                 seg_panel("▪ SISTEMA ", C_WHITE),
                 seg_panel("· ", C_DIM),
-                seg_panel(pct_str .. "%", color_pct(pct)),
-                seg_panel(" · " .. used .. " de " .. total .. " GB", C_DIM),
+                seg_panel(pct .. "%", color_pct(pct)),
+                seg_panel(string.format(" · %.0f de %.0f GB", used_gb, total_gb), C_DIM),
             })
             table.insert(entries, { label = lbl, color = { white = 0.10, alpha = 0.70 } })
         end
     end
-    -- Discos externos en /Volumes
-    local df2 = io.popen("df -g 2>/dev/null | grep '/Volumes/' | grep -v '/System/Volumes'")
+    -- Discos externos en /Volumes (df -H = base 1000, consistente con Apple)
+    local df2 = io.popen("df -H 2>/dev/null | grep '/Volumes/' | grep -v '/System/Volumes' | grep -v '.timemachine' | grep -v 'CoreSimulator'")
     if df2 then
         local raw = df2:read("*a"); df2:close()
         for line in raw:gmatch("[^\n]+") do
             local fields = {}
             for w in line:gmatch("%S+") do table.insert(fields, w) end
             if #fields >= 9 then
-                local total = fields[2]
-                local used = fields[3]
+                local total = fields[2]:gsub("[Gg]i?$", "")
+                local used = fields[3]:gsub("[Gg]i?$", "")
                 local pct_str = fields[5]:match("(%d+)")
                 local pct = tonumber(pct_str) or 0
                 local mount = table.concat(fields, " ", 9)
@@ -383,7 +366,7 @@ end
 
 -- ── MacBook render ──
 
-local function render_macbook()
+local function render_wings()
     refresh_metrics()
 
     local scr = hs.screen.primaryScreen()
@@ -416,8 +399,9 @@ local function render_macbook()
     if wing_right then wing_right:delete(); wing_right = nil end
     if panel then panel:delete(); panel = nil end
 
-    local left_x  = center_x - math.floor(NOTCH_W / 2) - WING_W
-    local right_x = center_x + math.floor(NOTCH_W / 2)
+    local gap = IS_MACBOOK and NOTCH_W or WING_GAP
+    local left_x  = center_x - math.floor(gap / 2) - WING_W
+    local right_x = center_x + math.floor(gap / 2)
 
     wing_left  = make_wing(left_st, left_x, wing_y, WING_W)
     wing_right = make_wing(right_st, right_x, wing_y, WING_W)
@@ -425,125 +409,10 @@ local function render_macbook()
     if expanded then panel = build_panel() end
 end
 
--- ── Mac Mini: banner clásico ──
-
-local function get_all_entries()
-    local entries = {}
-    local sys = sysmon.overlay_row()
-    local sys_color = { red = 0.14, green = 0.14, blue = 0.18, alpha = 0.70 }
-    if sys.pct >= 85 then sys_color = { red = 0.80, green = 0.18, blue = 0.15, alpha = BG_ALPHA }
-    elseif sys.pct >= 60 then sys_color = { red = 0.60, green = 0.45, blue = 0.08, alpha = BG_ALPHA } end
-    table.insert(entries, { label = sys.label, color = sys_color })
-
-    local idle = breaks.idle_label()
-    if idle then
-        table.insert(entries, { label = idle, color = breaks.is_on_break() and BG_COLORS.breaks_active or BG_COLORS.breaks })
-    end
-    if pomodoro.is_active() then
-        table.insert(entries, { label = pomodoro.time_label(), color = BG_COLORS[pomodoro.current_phase()] or BG_COLORS.work })
-    end
-    if presentation.is_active() then
-        table.insert(entries, { label = "🎬 PRESENTACIÓN", color = BG_COLORS.presentation })
-    end
-    if claude.has_session() then
-        for _, row in ipairs(claude.overlay_rows()) do
-            table.insert(entries, { label = row.label, color = row.bg })
-        end
-    end
-    return entries
-end
-
-local TEXT_STYLE = {
-    font = { name = ".AppleSystemUIFont", size = 13 },
-    color = { white = 1, alpha = 0.95 },
-    shadow = { offset = { h = 0, w = 0 }, blurRadius = 2, color = { white = 0, alpha = 0.40 } },
-}
-
-local function render_classic()
-    local entries = get_all_entries()
-    if #entries == 0 then return end
-
-    local rows = {}
-    local max_w = 0
-    for _, e in ipairs(entries) do
-        local st = (type(e.label) == "userdata") and e.label or hs.styledtext.new(e.label, TEXT_STYLE)
-        local sz = measure(st)
-        if sz.w + 20 > max_w then max_w = sz.w + 20 end
-        table.insert(rows, { styled = st, size = sz, color = e.color })
-    end
-
-    local row_h = rows[1].size.h + 10
-    local inner_w = max_w
-    local inner_h = row_h * #rows + 2 * (#rows - 1)
-    local PAD = 6
-
-    local fp = string.format("M:%d:%d", #rows, math.floor(inner_w))
-    if canvas and fp == last_render then
-        local idx = 3
-        for _, row in ipairs(rows) do
-            canvas[idx].fillColor = row.color; canvas[idx + 1].text = row.styled; idx = idx + 2
-        end
-        return
-    end
-    last_render = fp
-    if canvas then canvas:delete(); canvas = nil end
-
-    local cw = inner_w + PAD * 2
-    local ch = inner_h + PAD * 2
-    local scr = hs.screen.primaryScreen()
-    if not scr then return end
-    local screen = scr:fullFrame()
-    local cx = saved_pos and saved_pos.x or screen.x
-    local cy = saved_pos and saved_pos.y or (screen.y + screen.h - ch)
-
-    canvas = hs.canvas.new({ x = cx, y = cy, w = cw, h = ch })
-    canvas:behavior(hs.canvas.windowBehaviors.canJoinAllSpaces + hs.canvas.windowBehaviors.stationary)
-    canvas:level(hs.canvas.windowLevels.floating)
-    canvas:clickActivating(false)
-
-    canvas[1] = { type = "rectangle", frame = { x = 0, y = 0, w = cw, h = ch },
-        fillColor = { white = 0.06, alpha = 0.85 }, roundedRectRadii = { xRadius = 10, yRadius = 10 }, action = "fill" }
-    canvas[2] = { type = "rectangle", frame = { x = 0, y = 0, w = cw, h = ch },
-        strokeColor = { white = 1, alpha = 0.10 }, strokeWidth = 0.5, roundedRectRadii = { xRadius = 10, yRadius = 10 }, action = "stroke" }
-
-    local idx = 3
-    local ry = PAD
-    for _, row in ipairs(rows) do
-        canvas[idx] = { type = "rectangle", frame = { x = PAD, y = ry, w = inner_w, h = row_h },
-            fillColor = row.color, roundedRectRadii = { xRadius = 6, yRadius = 6 }, action = "fill" }
-        canvas[idx + 1] = { type = "text", text = row.styled,
-            frame = { x = PAD + 10, y = ry + 5, w = row.size.w + 4, h = row.size.h } }
-        idx = idx + 2
-        ry = ry + row_h + 2
-    end
-
-    canvas:canvasMouseEvents(true, true, false, false)
-    canvas:mouseCallback(function(_, event, _, x, y)
-        if event == "mouseDown" then
-            drag.active = true; drag.ox = x; drag.oy = y
-            stop_drag_tap()
-            drag_tap = hs.eventtap.new(
-                { hs.eventtap.event.types.leftMouseDragged, hs.eventtap.event.types.leftMouseUp },
-                function(e)
-                    if e:getType() == hs.eventtap.event.types.leftMouseUp then
-                        if canvas then local f = canvas:frame(); saved_pos = { x = f.x, y = f.y } end
-                        drag.active = false; if drag_tap then drag_tap:stop() end; return false
-                    end
-                    local m = hs.mouse.absolutePosition()
-                    if canvas then canvas:topLeft({ x = m.x - drag.ox, y = m.y - drag.oy }) end
-                    return false
-                end)
-            drag_tap:start()
-        end
-    end)
-    canvas:show()
-end
-
 -- ── Update ──
 
 update = function()
-    if drag.active then return end
-    if IS_MACBOOK then render_macbook() else render_classic() end
+    render_wings()
 end
 
 function M.start()
@@ -554,7 +423,6 @@ end
 function M.stop()
     if timer then timer:stop(); timer = nil end
     if collapse_timer then collapse_timer:stop(); collapse_timer = nil end
-    stop_drag_tap()
     destroy_all()
 end
 

@@ -2,6 +2,28 @@
 
 Registro de cambios del proyecto `dilware-tool-macGestorEntorno`.
 
+## [2.15.0] - 2026-05-06
+
+### Agregado
+- Overlay rediseñado: wings CPU%|RAM% flanqueando notch (MacBook) o juntas (Mac Mini) + panel hover expandible con GPU, discos, red, batería, Claude, descanso, pomodoro
+- Mac Mini usa el mismo layout de alas que MacBook (sin gap del notch)
+- Menú unificado en un solo ícono (⌘) — eliminado menú auxiliar ◎
+
+### Corregido
+- **RAM**: `sysmon.lua` usaba `vm_stat` con cálculo incorrecto (reportaba ~95-100% siempre) — reemplazado por `memory_pressure` (consistente con Activity Monitor)
+- Disco del sistema: `df -g` (GiB, solo volumen Data) → `diskutil info /` (GB base 1000, container completo, consistente con widget Apple)
+- Discos externos: `df -g` → `df -H` (base 1000)
+- Color de tráfico de red: `C_NET` no estaba definida — siempre mostraba color dim
+- Discos fantasma: filtrados snapshots de Time Machine y volúmenes Xcode Simulator
+
+### Eliminado
+- `render_classic`, `get_all_entries`, drag y variables asociadas (código muerto)
+- Música y Presentación del menú principal (sin uso)
+
+### Documentación
+- `docs/adn.md` creado — biblia del proyecto con estándares UX/UI
+- README, funcional, ux-hig, arquitectura, seguridad, modulos, todo — actualizados a 1 menú unificado + overlay
+
 ## [2.14.1] - 2026-04-19
 
 ### Corregido

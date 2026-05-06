@@ -18,7 +18,7 @@
   - [11. Pomodoro](#11-pomodoro)
   - [12. Descanso activo](#12-descanso-activo)
   - [13. Modo presentación](#13-modo-presentación)
-  - [14. Monitor de Claude](#14-monitor-de-claude)
+  - [14. Monitor de Claude y Gemini](#14-monitor-de-claude-y-gemini)
   - [15. Historial de sesiones](#15-historial-de-sesiones)
   - [16. Sistema](#16-sistema)
 - [Overlay flotante](#overlay-flotante)
@@ -28,21 +28,25 @@
 
 ## Propósito
 
-Centralizar el control del entorno de trabajo en macOS desde dos íconos en la barra de menú: uno para gestión del entorno (perfiles, dispositivos, red, Claude) y otro para gestión del enfoque (Pomodoro, descanso, presentación).
+Centralizar el control del entorno de trabajo en macOS desde un solo ícono en la barra de menú (⌘) que integra perfiles, dispositivos, red, enfoque y herramientas. Un overlay flotante complementa el menú con información pasiva en tiempo real (countdowns, rate limits de Claude y Gemini).
 
 ---
 
 ## Arquitectura de menús
 
-macSpaces presenta dos menús independientes en la menubar:
+macSpaces presenta un solo ícono en la menubar (⌘) con todas las funciones organizadas en secciones semánticas:
 
 ### Menú principal (⌘)
 
-Gestión del entorno de trabajo: perfiles, navegador, audio, música, dispositivos, red, portapapeles, Claude. Reconstrucción automática cada 5 segundos en segundo plano.
+Menú unificado con 5 secciones: PERFILES, ENTORNO, ENFOQUE, SISTEMA, HERRAMIENTAS. Reconstrucción automática cada 5 segundos en segundo plano.
 
-### Menú de enfoque (◎)
-
-Gestión de la concentración: Pomodoro, descanso activo, modo presentación. El ícono es estático (◎ por defecto, configurable).
+| Sección | Contenido |
+|---|---|
+| PERFILES | Activar/desactivar perfiles, tiempo activo inline, historial de sesiones |
+| ENTORNO | Navegador predeterminado, dispositivo de audio |
+| ENFOQUE | Pomodoro (iniciar/detener/saltar), descanso activo (activar/desactivar) |
+| SISTEMA | Red (WiFi, IP, VPN), Bluetooth (dispositivos conectados) |
+| HERRAMIENTAS | Portapapeles (historial), lanzador rápido |
 
 ### Overlay flotante
 
@@ -127,12 +131,12 @@ El menú muestra el tiempo activo inline: `● Work — 1:23:45`.
 
 ### 4. Apple Music
 
-`music.lua` — Control de Apple Music via AppleScript.
+`music.lua` — Módulo de Apple Music via AppleScript.
 
-- Muestra canción actual (título, artista, álbum) si Music.app está abierta
-- Controles: play/pause, siguiente, anterior
-- Si Music.app no está abierta, ofrece abrirla
+- Precalienta caché de estado de Music.app cada 30 segundos (via `prewarm_caches` en `init.lua`)
+- API disponible: `is_running()`, `is_playing()`, `get_current_track()`, `play()`, `pause()`, `next_track()`, `previous_track()`
 - Caché de 3 segundos para estado y pista actual
+- **Nota:** actualmente no tiene presencia en el menú principal ni en el overlay. El módulo está disponible para integración futura.
 
 ---
 
@@ -270,19 +274,25 @@ Al desactivar:
 
 ---
 
-### 14. Monitor de Claude
+### 14. Monitor de Claude y Gemini
 
-`claude.lua` — Monitoreo de uso de rate limits de Claude Code.
+`claude.lua` / `gemini.lua` — Monitoreo de uso de rate limits de Claude Code y Gemini CLI.
 
+**Claude:**
 - Lee `~/.claude/usage_cache.json` (generado externamente por `statusline.sh`)
 - Muestra ventana de 5 horas y ventana de 7 días
 - Overlay: una fila compacta inline `✦ Claude  5h X% · 7d Y%` con color semáforo según peor ventana
-- Submenú: detalle completo con barra de progreso `▰▱`, tiempo de reset e indicador de frescura
 - Color semáforo: verde (<60%), amarillo (60–84%), rojo (≥85%)
-- En MacBook: filas AI se ocultan del overlay cuando todo está verde (<60%)
 - Caché de 60 segundos; ignora caches con más de 6 horas de antigüedad
-- El submenú incluye botón de actualización e ítem para abrir `claude.ai/settings/usage`
-- Si el dato está desactualizado, el submenú muestra advertencia con tiempo transcurrido
+
+**Gemini:**
+- Lee `~/.gemini/usage_cache.json` (actualizado automáticamente cada 5 minutos)
+- Overlay: una fila compacta inline `✦ Gemini  pro X% · flash Y% · lite Z%`
+- Color semáforo por peor modelo
+
+**Comportamiento en MacBook:** las filas AI se ocultan del overlay cuando todo está verde (<60%). Solo aparecen cuando requieren atención.
+
+**Nota:** Claude y Gemini se integran exclusivamente via overlay. No tienen submenú en el menú principal.
 
 ---
 
@@ -341,5 +351,4 @@ Consulta [docs/configuracion.md](configuracion.md) para la guía completa de tod
 | `clipboard` | Máximo de entradas, blocklist de apps |
 | `presentation` | DND, Dock, escritorio |
 | `launcher` | Apps con nombre e ícono |
-| `menu_icon` | Carácter del ícono del menú principal |
-| `focus_icon` | Carácter del ícono del menú de enfoque |
+| `menu_icon` | Carácter del ícono del menú principal (fallback si no hay template image) |
